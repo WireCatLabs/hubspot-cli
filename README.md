@@ -10,8 +10,9 @@
 </p>
 
 <p align="center">
-  <a href="docs/index.md">Docs</a> ·
-  <a href="docs/usage.md">Examples</a> ·
+  <a href="https://github.com/WireCatLabs/hubspot-cli/blob/main/docs/index.md">Docs</a> ·
+  <a href="https://github.com/WireCatLabs/hubspot-cli/blob/main/docs/installation.md">Install</a> ·
+  <a href="https://github.com/WireCatLabs/hubspot-cli/blob/main/docs/usage.md">Usage</a> ·
   <a href="https://discord.gg/DebENqbRrJ">Discord</a>
 </p>
 
