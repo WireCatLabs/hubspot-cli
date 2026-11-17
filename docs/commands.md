@@ -875,9 +875,7 @@ hubspot api contacts-batch-create [options]
 
 ### `hubspot api contacts-batch-read`
 
-Retrieve a batch of contacts — write (POST /crm/objects/2026-03/contacts/batch/read)
-
-**Changes something in the service.**
+Retrieve a batch of contacts — read (POST /crm/objects/2026-03/contacts/batch/read)
 
 ```sh
 hubspot api contacts-batch-read [options]
@@ -1161,9 +1159,7 @@ hubspot api companies-batch-create [options]
 
 ### `hubspot api companies-batch-read`
 
-Retrieve a batch of companies — write (POST /crm/objects/2026-03/companies/batch/read)
-
-**Changes something in the service.**
+Retrieve a batch of companies — read (POST /crm/objects/2026-03/companies/batch/read)
 
 ```sh
 hubspot api companies-batch-read [options]
@@ -1371,9 +1367,7 @@ hubspot api deals-batch-create [options]
 
 ### `hubspot api deals-batch-read`
 
-Read a batch of deals by internal ID, or unique property values — write (POST /crm/objects/2026-03/0-3/batch/read)
-
-**Changes something in the service.**
+Read a batch of deals by internal ID, or unique property values — read (POST /crm/objects/2026-03/0-3/batch/read)
 
 ```sh
 hubspot api deals-batch-read [options]
@@ -1581,9 +1575,7 @@ hubspot api tickets-batch-create [options]
 
 ### `hubspot api tickets-batch-read`
 
-Read a batch of tickets by internal ID, or unique property values — write (POST /crm/objects/2026-03/tickets/batch/read)
-
-**Changes something in the service.**
+Read a batch of tickets by internal ID, or unique property values — read (POST /crm/objects/2026-03/tickets/batch/read)
 
 ```sh
 hubspot api tickets-batch-read [options]
@@ -1791,9 +1783,7 @@ hubspot api leads-batch-create [options]
 
 ### `hubspot api leads-batch-read`
 
-Read a batch of leads by internal ID, or unique property values — write (POST /crm/objects/2026-03/leads/batch/read)
-
-**Changes something in the service.**
+Read a batch of leads by internal ID, or unique property values — read (POST /crm/objects/2026-03/leads/batch/read)
 
 ```sh
 hubspot api leads-batch-read [options]
@@ -1984,9 +1974,7 @@ hubspot api notes-batch-create [options]
 
 ### `hubspot api notes-batch-read`
 
-Read a batch of notes by internal ID, or unique property values — write (POST /crm/objects/2026-03/notes/batch/read)
-
-**Changes something in the service.**
+Read a batch of notes by internal ID, or unique property values — read (POST /crm/objects/2026-03/notes/batch/read)
 
 ```sh
 hubspot api notes-batch-read [options]
@@ -2177,9 +2165,7 @@ hubspot api calls-batch-create [options]
 
 ### `hubspot api calls-batch-read`
 
-Read a batch of calls by internal ID, or unique property values — write (POST /crm/objects/2026-03/calls/batch/read)
-
-**Changes something in the service.**
+Read a batch of calls by internal ID, or unique property values — read (POST /crm/objects/2026-03/calls/batch/read)
 
 ```sh
 hubspot api calls-batch-read [options]
@@ -2370,9 +2356,7 @@ hubspot api emails-batch-create [options]
 
 ### `hubspot api emails-batch-read`
 
-Read a batch of emails by internal ID, or unique property values — write (POST /crm/objects/2026-03/emails/batch/read)
-
-**Changes something in the service.**
+Read a batch of emails by internal ID, or unique property values — read (POST /crm/objects/2026-03/emails/batch/read)
 
 ```sh
 hubspot api emails-batch-read [options]
@@ -2563,9 +2547,7 @@ hubspot api meetings-batch-create [options]
 
 ### `hubspot api meetings-batch-read`
 
-Read a batch of meetings by internal ID, or unique property values — write (POST /crm/objects/2026-03/meetings/batch/read)
-
-**Changes something in the service.**
+Read a batch of meetings by internal ID, or unique property values — read (POST /crm/objects/2026-03/meetings/batch/read)
 
 ```sh
 hubspot api meetings-batch-read [options]
@@ -2756,9 +2738,7 @@ hubspot api tasks-batch-create [options]
 
 ### `hubspot api tasks-batch-read`
 
-Read a batch of tasks by internal ID, or unique property values — write (POST /crm/objects/2026-03/tasks/batch/read)
-
-**Changes something in the service.**
+Read a batch of tasks by internal ID, or unique property values — read (POST /crm/objects/2026-03/tasks/batch/read)
 
 ```sh
 hubspot api tasks-batch-read [options]
@@ -3232,9 +3212,7 @@ hubspot api properties-batch-create [options]
 
 ### `hubspot api properties-batch-read`
 
-Read a batch of properties — write (POST /crm/properties/2026-03/{objectType}/batch/read)
-
-**Changes something in the service.**
+Read a batch of properties — read (POST /crm/properties/2026-03/{objectType}/batch/read)
 
 ```sh
 hubspot api properties-batch-read [options]
@@ -3483,9 +3461,7 @@ hubspot api associations-batch-labels-archive [options]
 
 ### `hubspot api associations-batch-read`
 
-Retrieve associations — write (POST /crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/read)
-
-**Changes something in the service.**
+Retrieve associations — read (POST /crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/read)
 
 ```sh
 hubspot api associations-batch-read [options]

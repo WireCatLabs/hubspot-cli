@@ -32,6 +32,7 @@ const COMMANDS: Record<string, string> = {
  * POSTs that delete: `batch/archive` and `labels/archive` archive records or labels, `gdpr-delete` erases a contact
  * for good, and `merge` keeps one of two records (HubSpot's "Using object APIs" and "Merge records" guides).
  */
+const READING_POST = /\/batch\/read$/
 const DELETING_POST = /\/(batch\/archive|batch\/labels\/archive|gdpr-delete|merge)$/
 
 /** The words of cli-core's CRM commands, so `people.delete` denied there also holds in `api`. */
@@ -49,13 +50,17 @@ const groupOf = (command: string) => {
 
 const root = resolve(import.meta.dirname, "..")
 const { model, notes } = await specModel(root)
+const effectOf = (path: string) =>
+  DELETING_POST.test(path)
+    ? { effect: "destructive" as const, reason: "a POST that archives, erases or merges away records" }
+    : READING_POST.test(path)
+      ? { effect: "read" as const, reason: "a batch read by ids, in the body because the list can be long" }
+      : undefined
 const overrides = Object.fromEntries(
-  model.operations
-    .filter(({ binding }) => binding.kind === "http" && binding.method === "POST" && DELETING_POST.test(binding.path))
-    .map(({ id }) => [
-      id,
-      { effect: "destructive" as const, reason: "a POST that archives, erases or merges away records" },
-    ]),
+  model.operations.flatMap(({ id, binding }) => {
+    const override = binding.kind === "http" && binding.method === "POST" ? effectOf(binding.path) : undefined
+    return override ? [[id, override]] : []
+  }),
 )
 const artifacts = generate(
   model,

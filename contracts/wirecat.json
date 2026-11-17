@@ -589,9 +589,9 @@
         "api",
         "contacts-batch-read"
       ],
-      "summary": "Retrieve a batch of contacts — write (POST…",
+      "summary": "Retrieve a batch of contacts — read (POST…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.contacts-batch-read"
@@ -781,9 +781,9 @@
         "api",
         "companies-batch-read"
       ],
-      "summary": "Retrieve a batch of companies — write (POST…",
+      "summary": "Retrieve a batch of companies — read (POST…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.companies-batch-read"
@@ -925,9 +925,9 @@
         "api",
         "deals-batch-read"
       ],
-      "summary": "Read a batch of deals by internal ID, or unique property values — write…",
+      "summary": "Read a batch of deals by internal ID, or unique property values — read (POST…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.deals-batch-read"
@@ -1069,9 +1069,9 @@
         "api",
         "tickets-batch-read"
       ],
-      "summary": "Read a batch of tickets by internal ID, or unique property values — write…",
+      "summary": "Read a batch of tickets by internal ID, or unique property values — read…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.tickets-batch-read"
@@ -1213,9 +1213,9 @@
         "api",
         "leads-batch-read"
       ],
-      "summary": "Read a batch of leads by internal ID, or unique property values — write…",
+      "summary": "Read a batch of leads by internal ID, or unique property values — read (POST…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.leads-batch-read"
@@ -1345,9 +1345,9 @@
         "api",
         "notes-batch-read"
       ],
-      "summary": "Read a batch of notes by internal ID, or unique property values — write…",
+      "summary": "Read a batch of notes by internal ID, or unique property values — read (POST…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.notes-batch-read"
@@ -1477,9 +1477,9 @@
         "api",
         "calls-batch-read"
       ],
-      "summary": "Read a batch of calls by internal ID, or unique property values — write…",
+      "summary": "Read a batch of calls by internal ID, or unique property values — read (POST…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.calls-batch-read"
@@ -1609,9 +1609,9 @@
         "api",
         "emails-batch-read"
       ],
-      "summary": "Read a batch of emails by internal ID, or unique property values — write…",
+      "summary": "Read a batch of emails by internal ID, or unique property values — read…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.emails-batch-read"
@@ -1741,9 +1741,9 @@
         "api",
         "meetings-batch-read"
       ],
-      "summary": "Read a batch of meetings by internal ID, or unique property values — write…",
+      "summary": "Read a batch of meetings by internal ID, or unique property values — read…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.meetings-batch-read"
@@ -1873,9 +1873,9 @@
         "api",
         "tasks-batch-read"
       ],
-      "summary": "Read a batch of tasks by internal ID, or unique property values — write…",
+      "summary": "Read a batch of tasks by internal ID, or unique property values — read (POST…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.tasks-batch-read"
@@ -2197,9 +2197,9 @@
         "api",
         "properties-batch-read"
       ],
-      "summary": "Read a batch of properties — write (POST…",
+      "summary": "Read a batch of properties — read (POST…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.properties-batch-read"
@@ -2365,9 +2365,9 @@
         "api",
         "associations-batch-read"
       ],
-      "summary": "Retrieve associations — write (POST…",
+      "summary": "Retrieve associations — read (POST…",
       "effects": {
-        "remote": "write",
+        "remote": "read",
         "local": "none"
       },
       "permission": "api.associations-batch-read"

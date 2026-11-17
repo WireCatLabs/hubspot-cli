@@ -14,7 +14,7 @@ Run: pnpm generate
 | `post-/crm/objects/2026-03/contacts_create` | `POST /crm/objects/2026-03/contacts` | `hubspot <profile> api contacts-create` | write | contract | generated | Create a contact |
 | `post-/crm/objects/2026-03/contacts/batch/archive_archive` | `POST /crm/objects/2026-03/contacts/batch/archive` | `hubspot <profile> api contacts-batch-archive` | destructive | contract | generated | Archive a batch of contacts |
 | `post-/crm/objects/2026-03/contacts/batch/create_create` | `POST /crm/objects/2026-03/contacts/batch/create` | `hubspot <profile> api contacts-batch-create` | write | contract | generated | Create a batch of contacts |
-| `post-/crm/objects/2026-03/contacts/batch/read_read` | `POST /crm/objects/2026-03/contacts/batch/read` | `hubspot <profile> api contacts-batch-read` | write | contract | generated | Retrieve a batch of contacts |
+| `post-/crm/objects/2026-03/contacts/batch/read_read` | `POST /crm/objects/2026-03/contacts/batch/read` | `hubspot <profile> api contacts-batch-read` | read | contract | generated | Retrieve a batch of contacts |
 | `post-/crm/objects/2026-03/contacts/batch/update_update` | `POST /crm/objects/2026-03/contacts/batch/update` | `hubspot <profile> api contacts-batch-update` | write | contract | generated | Update a batch of contacts |
 | `post-/crm/objects/2026-03/contacts/batch/upsert_upsert` | `POST /crm/objects/2026-03/contacts/batch/upsert` | `hubspot <profile> api contacts-batch-upsert` | write | contract | generated | Create or update a batch of contacts |
 | `post-/crm/objects/2026-03/contacts/gdpr-delete_purge` | `POST /crm/objects/2026-03/contacts/gdpr-delete` | `hubspot <profile> api contacts-gdpr-delete` | destructive | contract | generated | Permanently delete a contact (GDPR-compliant) |
@@ -30,7 +30,7 @@ Run: pnpm generate
 | `post-/crm/objects/2026-03/companies_create` | `POST /crm/objects/2026-03/companies` | `hubspot <profile> api companies-create` | write | contract | generated | Create a company |
 | `post-/crm/objects/2026-03/companies/batch/archive_archive` | `POST /crm/objects/2026-03/companies/batch/archive` | `hubspot <profile> api companies-batch-archive` | destructive | contract | generated | Archive a batch of companies |
 | `post-/crm/objects/2026-03/companies/batch/create_create` | `POST /crm/objects/2026-03/companies/batch/create` | `hubspot <profile> api companies-batch-create` | write | contract | generated | Create a batch of companies |
-| `post-/crm/objects/2026-03/companies/batch/read_read` | `POST /crm/objects/2026-03/companies/batch/read` | `hubspot <profile> api companies-batch-read` | write | contract | generated | Retrieve a batch of companies |
+| `post-/crm/objects/2026-03/companies/batch/read_read` | `POST /crm/objects/2026-03/companies/batch/read` | `hubspot <profile> api companies-batch-read` | read | contract | generated | Retrieve a batch of companies |
 | `post-/crm/objects/2026-03/companies/batch/update_update` | `POST /crm/objects/2026-03/companies/batch/update` | `hubspot <profile> api companies-batch-update` | write | contract | generated | Update a batch of companies |
 | `post-/crm/objects/2026-03/companies/batch/upsert_upsert` | `POST /crm/objects/2026-03/companies/batch/upsert` | `hubspot <profile> api companies-batch-upsert` | write | contract | generated | Create or update a batch of companies by unique property values |
 | `post-/crm/objects/2026-03/companies/merge_merge` | `POST /crm/objects/2026-03/companies/merge` | `hubspot <profile> api companies-merge` | destructive | contract | generated | Merge two companies |
@@ -42,7 +42,7 @@ Run: pnpm generate
 | `post-/crm/objects/2026-03/0-3_create` | `POST /crm/objects/2026-03/0-3` | `hubspot <profile> api deals-create` | write | contract | generated | Create |
 | `post-/crm/objects/2026-03/0-3/batch/archive_archive` | `POST /crm/objects/2026-03/0-3/batch/archive` | `hubspot <profile> api deals-batch-archive` | destructive | contract | generated | Archive a batch of deals by ID |
 | `post-/crm/objects/2026-03/0-3/batch/create_create` | `POST /crm/objects/2026-03/0-3/batch/create` | `hubspot <profile> api deals-batch-create` | write | contract | generated | Create a batch of deals |
-| `post-/crm/objects/2026-03/0-3/batch/read_read` | `POST /crm/objects/2026-03/0-3/batch/read` | `hubspot <profile> api deals-batch-read` | write | contract | generated | Read a batch of deals by internal ID, or unique property values |
+| `post-/crm/objects/2026-03/0-3/batch/read_read` | `POST /crm/objects/2026-03/0-3/batch/read` | `hubspot <profile> api deals-batch-read` | read | contract | generated | Read a batch of deals by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/0-3/batch/update_update` | `POST /crm/objects/2026-03/0-3/batch/update` | `hubspot <profile> api deals-batch-update` | write | contract | generated | Update a batch of deals by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/0-3/batch/upsert_upsert` | `POST /crm/objects/2026-03/0-3/batch/upsert` | `hubspot <profile> api deals-batch-upsert` | write | contract | generated | Create or update a batch of deals by unique property values |
 | `post-/crm/objects/2026-03/0-3/merge_merge` | `POST /crm/objects/2026-03/0-3/merge` | `hubspot <profile> api deals-merge` | destructive | contract | generated | Merge two deals with same type |
@@ -54,7 +54,7 @@ Run: pnpm generate
 | `post-/crm/objects/2026-03/tickets_create` | `POST /crm/objects/2026-03/tickets` | `hubspot <profile> api tickets-create` | write | contract | generated | Create |
 | `post-/crm/objects/2026-03/tickets/batch/archive_archive` | `POST /crm/objects/2026-03/tickets/batch/archive` | `hubspot <profile> api tickets-batch-archive` | destructive | contract | generated | Archive a batch of tickets by ID |
 | `post-/crm/objects/2026-03/tickets/batch/create_create` | `POST /crm/objects/2026-03/tickets/batch/create` | `hubspot <profile> api tickets-batch-create` | write | contract | generated | Create a batch of tickets |
-| `post-/crm/objects/2026-03/tickets/batch/read_read` | `POST /crm/objects/2026-03/tickets/batch/read` | `hubspot <profile> api tickets-batch-read` | write | contract | generated | Read a batch of tickets by internal ID, or unique property values |
+| `post-/crm/objects/2026-03/tickets/batch/read_read` | `POST /crm/objects/2026-03/tickets/batch/read` | `hubspot <profile> api tickets-batch-read` | read | contract | generated | Read a batch of tickets by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/tickets/batch/update_update` | `POST /crm/objects/2026-03/tickets/batch/update` | `hubspot <profile> api tickets-batch-update` | write | contract | generated | Update a batch of tickets by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/tickets/batch/upsert_upsert` | `POST /crm/objects/2026-03/tickets/batch/upsert` | `hubspot <profile> api tickets-batch-upsert` | write | contract | generated | Create or update a batch of tickets by unique property values |
 | `post-/crm/objects/2026-03/tickets/merge_merge` | `POST /crm/objects/2026-03/tickets/merge` | `hubspot <profile> api tickets-merge` | destructive | contract | generated | Merge two tickets |
@@ -66,7 +66,7 @@ Run: pnpm generate
 | `post-/crm/objects/2026-03/leads_create` | `POST /crm/objects/2026-03/leads` | `hubspot <profile> api leads-create` | write | contract | generated | Create |
 | `post-/crm/objects/2026-03/leads/batch/archive_archive` | `POST /crm/objects/2026-03/leads/batch/archive` | `hubspot <profile> api leads-batch-archive` | destructive | contract | generated | Archive a batch of leads by ID |
 | `post-/crm/objects/2026-03/leads/batch/create_create` | `POST /crm/objects/2026-03/leads/batch/create` | `hubspot <profile> api leads-batch-create` | write | contract | generated | Create a batch of leads |
-| `post-/crm/objects/2026-03/leads/batch/read_read` | `POST /crm/objects/2026-03/leads/batch/read` | `hubspot <profile> api leads-batch-read` | write | contract | generated | Read a batch of leads by internal ID, or unique property values |
+| `post-/crm/objects/2026-03/leads/batch/read_read` | `POST /crm/objects/2026-03/leads/batch/read` | `hubspot <profile> api leads-batch-read` | read | contract | generated | Read a batch of leads by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/leads/batch/update_update` | `POST /crm/objects/2026-03/leads/batch/update` | `hubspot <profile> api leads-batch-update` | write | contract | generated | Update a batch of leads by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/leads/batch/upsert_upsert` | `POST /crm/objects/2026-03/leads/batch/upsert` | `hubspot <profile> api leads-batch-upsert` | write | contract | generated | Create or update a batch of leads by unique property values |
 | `post-/crm/objects/2026-03/leads/search_doSearch` | `POST /crm/objects/2026-03/leads/search` | `hubspot <profile> api leads-search` | read | contract | generated | Search for leads using specified criteria. |
@@ -77,7 +77,7 @@ Run: pnpm generate
 | `post-/crm/objects/2026-03/notes_create` | `POST /crm/objects/2026-03/notes` | `hubspot <profile> api notes-create` | write | contract | generated | Create |
 | `post-/crm/objects/2026-03/notes/batch/archive_archive` | `POST /crm/objects/2026-03/notes/batch/archive` | `hubspot <profile> api notes-batch-archive` | destructive | contract | generated | Archive a batch of notes by ID |
 | `post-/crm/objects/2026-03/notes/batch/create_create` | `POST /crm/objects/2026-03/notes/batch/create` | `hubspot <profile> api notes-batch-create` | write | contract | generated | Create a batch of notes |
-| `post-/crm/objects/2026-03/notes/batch/read_read` | `POST /crm/objects/2026-03/notes/batch/read` | `hubspot <profile> api notes-batch-read` | write | contract | generated | Read a batch of notes by internal ID, or unique property values |
+| `post-/crm/objects/2026-03/notes/batch/read_read` | `POST /crm/objects/2026-03/notes/batch/read` | `hubspot <profile> api notes-batch-read` | read | contract | generated | Read a batch of notes by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/notes/batch/update_update` | `POST /crm/objects/2026-03/notes/batch/update` | `hubspot <profile> api notes-batch-update` | write | contract | generated | Update a batch of notes by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/notes/batch/upsert_upsert` | `POST /crm/objects/2026-03/notes/batch/upsert` | `hubspot <profile> api notes-batch-upsert` | write | contract | generated | Create or update a batch of notes by unique property values |
 | `post-/crm/objects/2026-03/notes/search_doSearch` | `POST /crm/objects/2026-03/notes/search` | `hubspot <profile> api notes-search` | read | contract | generated | Search for notes based on specified criteria. |
@@ -88,7 +88,7 @@ Run: pnpm generate
 | `post-/crm/objects/2026-03/calls_create` | `POST /crm/objects/2026-03/calls` | `hubspot <profile> api calls-create` | write | contract | generated | Create |
 | `post-/crm/objects/2026-03/calls/batch/archive_archive` | `POST /crm/objects/2026-03/calls/batch/archive` | `hubspot <profile> api calls-batch-archive` | destructive | contract | generated | Archive a batch of calls by ID |
 | `post-/crm/objects/2026-03/calls/batch/create_create` | `POST /crm/objects/2026-03/calls/batch/create` | `hubspot <profile> api calls-batch-create` | write | contract | generated | Create a batch of calls |
-| `post-/crm/objects/2026-03/calls/batch/read_read` | `POST /crm/objects/2026-03/calls/batch/read` | `hubspot <profile> api calls-batch-read` | write | contract | generated | Read a batch of calls by internal ID, or unique property values |
+| `post-/crm/objects/2026-03/calls/batch/read_read` | `POST /crm/objects/2026-03/calls/batch/read` | `hubspot <profile> api calls-batch-read` | read | contract | generated | Read a batch of calls by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/calls/batch/update_update` | `POST /crm/objects/2026-03/calls/batch/update` | `hubspot <profile> api calls-batch-update` | write | contract | generated | Update a batch of calls by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/calls/batch/upsert_upsert` | `POST /crm/objects/2026-03/calls/batch/upsert` | `hubspot <profile> api calls-batch-upsert` | write | contract | generated | Create or update a batch of calls by unique property values |
 | `post-/crm/objects/2026-03/calls/search_doSearch` | `POST /crm/objects/2026-03/calls/search` | `hubspot <profile> api calls-search` | read | contract | generated | Search for calls |
@@ -99,7 +99,7 @@ Run: pnpm generate
 | `post-/crm/objects/2026-03/emails_create` | `POST /crm/objects/2026-03/emails` | `hubspot <profile> api emails-create` | write | contract | generated | Create |
 | `post-/crm/objects/2026-03/emails/batch/archive_archive` | `POST /crm/objects/2026-03/emails/batch/archive` | `hubspot <profile> api emails-batch-archive` | destructive | contract | generated | Archive a batch of emails by ID |
 | `post-/crm/objects/2026-03/emails/batch/create_create` | `POST /crm/objects/2026-03/emails/batch/create` | `hubspot <profile> api emails-batch-create` | write | contract | generated | Create a batch of emails |
-| `post-/crm/objects/2026-03/emails/batch/read_read` | `POST /crm/objects/2026-03/emails/batch/read` | `hubspot <profile> api emails-batch-read` | write | contract | generated | Read a batch of emails by internal ID, or unique property values |
+| `post-/crm/objects/2026-03/emails/batch/read_read` | `POST /crm/objects/2026-03/emails/batch/read` | `hubspot <profile> api emails-batch-read` | read | contract | generated | Read a batch of emails by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/emails/batch/update_update` | `POST /crm/objects/2026-03/emails/batch/update` | `hubspot <profile> api emails-batch-update` | write | contract | generated | Update a batch of emails by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/emails/batch/upsert_upsert` | `POST /crm/objects/2026-03/emails/batch/upsert` | `hubspot <profile> api emails-batch-upsert` | write | contract | generated | Create or update a batch of emails by unique property values |
 | `post-/crm/objects/2026-03/emails/search_doSearch` | `POST /crm/objects/2026-03/emails/search` | `hubspot <profile> api emails-search` | read | contract | generated | Search for emails using specified criteria and filters. |
@@ -110,7 +110,7 @@ Run: pnpm generate
 | `post-/crm/objects/2026-03/meetings_create` | `POST /crm/objects/2026-03/meetings` | `hubspot <profile> api meetings-create` | write | contract | generated | Create |
 | `post-/crm/objects/2026-03/meetings/batch/archive_archive` | `POST /crm/objects/2026-03/meetings/batch/archive` | `hubspot <profile> api meetings-batch-archive` | destructive | contract | generated | Archive a batch of meetings by ID |
 | `post-/crm/objects/2026-03/meetings/batch/create_create` | `POST /crm/objects/2026-03/meetings/batch/create` | `hubspot <profile> api meetings-batch-create` | write | contract | generated | Create a batch of meetings |
-| `post-/crm/objects/2026-03/meetings/batch/read_read` | `POST /crm/objects/2026-03/meetings/batch/read` | `hubspot <profile> api meetings-batch-read` | write | contract | generated | Read a batch of meetings by internal ID, or unique property values |
+| `post-/crm/objects/2026-03/meetings/batch/read_read` | `POST /crm/objects/2026-03/meetings/batch/read` | `hubspot <profile> api meetings-batch-read` | read | contract | generated | Read a batch of meetings by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/meetings/batch/update_update` | `POST /crm/objects/2026-03/meetings/batch/update` | `hubspot <profile> api meetings-batch-update` | write | contract | generated | Update a batch of meetings by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/meetings/batch/upsert_upsert` | `POST /crm/objects/2026-03/meetings/batch/upsert` | `hubspot <profile> api meetings-batch-upsert` | write | contract | generated | Create or update a batch of meetings by unique property values |
 | `post-/crm/objects/2026-03/meetings/search_doSearch` | `POST /crm/objects/2026-03/meetings/search` | `hubspot <profile> api meetings-search` | read | contract | generated | Search for meetings |
@@ -121,7 +121,7 @@ Run: pnpm generate
 | `post-/crm/objects/2026-03/tasks_create` | `POST /crm/objects/2026-03/tasks` | `hubspot <profile> api tasks-create` | write | contract | generated | Create |
 | `post-/crm/objects/2026-03/tasks/batch/archive_archive` | `POST /crm/objects/2026-03/tasks/batch/archive` | `hubspot <profile> api tasks-batch-archive` | destructive | contract | generated | Archive a batch of tasks by ID |
 | `post-/crm/objects/2026-03/tasks/batch/create_create` | `POST /crm/objects/2026-03/tasks/batch/create` | `hubspot <profile> api tasks-batch-create` | write | contract | generated | Create a batch of tasks |
-| `post-/crm/objects/2026-03/tasks/batch/read_read` | `POST /crm/objects/2026-03/tasks/batch/read` | `hubspot <profile> api tasks-batch-read` | write | contract | generated | Read a batch of tasks by internal ID, or unique property values |
+| `post-/crm/objects/2026-03/tasks/batch/read_read` | `POST /crm/objects/2026-03/tasks/batch/read` | `hubspot <profile> api tasks-batch-read` | read | contract | generated | Read a batch of tasks by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/tasks/batch/update_update` | `POST /crm/objects/2026-03/tasks/batch/update` | `hubspot <profile> api tasks-batch-update` | write | contract | generated | Update a batch of tasks by internal ID, or unique property values |
 | `post-/crm/objects/2026-03/tasks/batch/upsert_upsert` | `POST /crm/objects/2026-03/tasks/batch/upsert` | `hubspot <profile> api tasks-batch-upsert` | write | contract | generated | Create or update a batch of tasks by unique property values |
 | `post-/crm/objects/2026-03/tasks/search_doSearch` | `POST /crm/objects/2026-03/tasks/search` | `hubspot <profile> api tasks-search` | read | contract | generated | Search for tasks using specified criteria. |
@@ -148,7 +148,7 @@ Run: pnpm generate
 | `post-/crm/properties/2026-03/{objectType}_/crm/properties/2025-09/{objectType}` | `POST /crm/properties/2026-03/{objectType}` | `hubspot <profile> api properties-create` | write | contract | generated | Create a property |
 | `post-/crm/properties/2026-03/{objectType}/batch/archive_/crm/properties/2025-09/{objectType}/batch/archive` | `POST /crm/properties/2026-03/{objectType}/batch/archive` | `hubspot <profile> api properties-batch-archive` | destructive | contract | generated | Archive a batch of properties |
 | `post-/crm/properties/2026-03/{objectType}/batch/create_/crm/properties/2025-09/{objectType}/batch/create` | `POST /crm/properties/2026-03/{objectType}/batch/create` | `hubspot <profile> api properties-batch-create` | write | contract | generated | Create a batch of properties |
-| `post-/crm/properties/2026-03/{objectType}/batch/read_/crm/properties/2025-09/{objectType}/batch/read` | `POST /crm/properties/2026-03/{objectType}/batch/read` | `hubspot <profile> api properties-batch-read` | write | contract | generated | Read a batch of properties |
+| `post-/crm/properties/2026-03/{objectType}/batch/read_/crm/properties/2025-09/{objectType}/batch/read` | `POST /crm/properties/2026-03/{objectType}/batch/read` | `hubspot <profile> api properties-batch-read` | read | contract | generated | Read a batch of properties |
 | `get-/crm/properties/2026-03/{objectType}/groups_/crm/properties/2025-09/{objectType}/groups` | `GET /crm/properties/2026-03/{objectType}/groups` | `hubspot <profile> api properties-groups-list` | read | — | generated | Read all property groups |
 | `post-/crm/properties/2026-03/{objectType}/groups_/crm/properties/2025-09/{objectType}/groups` | `POST /crm/properties/2026-03/{objectType}/groups` | `hubspot <profile> api properties-groups-create` | write | contract | generated | Create a property group |
 | `get-/crm/properties/2026-03/{objectType}/groups/{groupName}_/crm/properties/2025-09/{objectType}/groups/{groupName}` | `GET /crm/properties/2026-03/{objectType}/groups/{groupName}` | `hubspot <profile> api properties-groups-get` | read | — | generated | Read a property group |
@@ -162,7 +162,7 @@ Run: pnpm generate
 | `post-/crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/associate/default_/crm/associations/2025-09/{fromObjectType}/{toObjectType}/batch/associate/default` | `POST /crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/associate/default` | `hubspot <profile> api associations-batch-associate-default` | write | contract | generated | Create Default Associations |
 | `post-/crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/create_/crm/associations/2025-09/{fromObjectType}/{toObjectType}/batch/create` | `POST /crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/create` | `hubspot <profile> api associations-batch-create` | write | contract | generated | Associate records (labelled) |
 | `post-/crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/labels/archive_/crm/associations/2025-09/{fromObjectType}/{toObjectType}/batch/labels/archive` | `POST /crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/labels/archive` | `hubspot <profile> api associations-batch-labels-archive` | destructive | contract | generated | Delete Specific Labels |
-| `post-/crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/read_/crm/associations/2025-09/{fromObjectType}/{toObjectType}/batch/read` | `POST /crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/read` | `hubspot <profile> api associations-batch-read` | write | contract | generated | Retrieve associations |
+| `post-/crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/read_/crm/associations/2025-09/{fromObjectType}/{toObjectType}/batch/read` | `POST /crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/read` | `hubspot <profile> api associations-batch-read` | read | contract | generated | Retrieve associations |
 | `post-/crm/objects/2026-03/{objectType}/search_/crm/objects/2025-09/{objectType}/search` | `POST /crm/objects/2026-03/{objectType}/search` | `hubspot <profile> api search` | read | contract | generated |  |
 | `get-/crm/objects/2026-03/{objectType}/{objectId}/associations/{toObjectType}_/crm/objects/2025-09/{objectType}/{objectId}/associations/{toObjectType}` | `GET /crm/objects/2026-03/{objectType}/{objectId}/associations/{toObjectType}` | `hubspot <profile> api associations-get` | read | — | generated | Retrieve all associations by object type |
 | `get-/account-info/2026-03/api-usage/daily/private-apps_/account-info/2025-09/api-usage/daily/private-apps` | `GET /account-info/2026-03/api-usage/daily/private-apps` | `hubspot <profile> api account-info-api-usage-daily-private-apps-list` | read | — | generated | Retrieve private app daily API usage |
@@ -173,33 +173,45 @@ Run: pnpm generate
 | Operation | Effect | Why |
 |---|---|---|
 | `post-/crm/objects/2026-03/contacts/batch/archive_archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/objects/2026-03/contacts/batch/read_read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/contacts/gdpr-delete_purge` | destructive | override: a POST that archives, erases or merges away records |
 | `post-/crm/objects/2026-03/contacts/merge_merge` | destructive | override: a POST that archives, erases or merges away records |
 | `post-/crm/objects/2026-03/contacts/search_doSearch` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
 | `post-/crm/objects/2026-03/companies/batch/archive_archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/objects/2026-03/companies/batch/read_read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/companies/merge_merge` | destructive | override: a POST that archives, erases or merges away records |
 | `post-/crm/objects/2026-03/companies/search_doSearch` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
 | `post-/crm/objects/2026-03/0-3/batch/archive_archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/objects/2026-03/0-3/batch/read_read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/0-3/merge_merge` | destructive | override: a POST that archives, erases or merges away records |
 | `post-/crm/objects/2026-03/0-3/search_doSearch` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
 | `post-/crm/objects/2026-03/tickets/batch/archive_archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/objects/2026-03/tickets/batch/read_read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/tickets/merge_merge` | destructive | override: a POST that archives, erases or merges away records |
 | `post-/crm/objects/2026-03/tickets/search_doSearch` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
 | `post-/crm/objects/2026-03/leads/batch/archive_archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/objects/2026-03/leads/batch/read_read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/leads/search_doSearch` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
 | `post-/crm/objects/2026-03/notes/batch/archive_archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/objects/2026-03/notes/batch/read_read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/notes/search_doSearch` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
 | `post-/crm/objects/2026-03/calls/batch/archive_archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/objects/2026-03/calls/batch/read_read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/calls/search_doSearch` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
 | `post-/crm/objects/2026-03/emails/batch/archive_archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/objects/2026-03/emails/batch/read_read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/emails/search_doSearch` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
 | `post-/crm/objects/2026-03/meetings/batch/archive_archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/objects/2026-03/meetings/batch/read_read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/meetings/search_doSearch` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
 | `post-/crm/objects/2026-03/tasks/batch/archive_archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/objects/2026-03/tasks/batch/read_read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/tasks/search_doSearch` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
 | `post-/crm/properties/2026-03/{objectType}/batch/archive_/crm/properties/2025-09/{objectType}/batch/archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/properties/2026-03/{objectType}/batch/read_/crm/properties/2025-09/{objectType}/batch/read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/archive_/crm/associations/2025-09/{fromObjectType}/{toObjectType}/batch/archive` | destructive | override: a POST that archives, erases or merges away records |
 | `post-/crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/labels/archive_/crm/associations/2025-09/{fromObjectType}/{toObjectType}/batch/labels/archive` | destructive | override: a POST that archives, erases or merges away records |
+| `post-/crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/read_/crm/associations/2025-09/{fromObjectType}/{toObjectType}/batch/read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/{objectType}/search_/crm/objects/2025-09/{objectType}/search` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
 
 ## Pagination
