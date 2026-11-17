@@ -498,3 +498,43 @@ it("a call still connecting or ringing the owner's phone is not done; a complete
     NO_ANSWER: true,
   })
 })
+
+it("a closed lead stage goes by its probability, then the default stage ids, and is counted lost with a gap otherwise", async () => {
+  const { hub } = seededHubspot()
+  hub.setLeadStages([
+    ["new-stage-id", "Nuevo", { isClosed: "false" }],
+    ["unqualified-stage-id", "Descalificado", { isClosed: "true" }],
+    ["qualified-stage-id", "Calificado", { isClosed: "true" }],
+    ["custom-won", "Converted", { isClosed: "true", probability: "1.0" }],
+    ["custom-closed", "Parked", { isClosed: "true" }],
+    ["custom-disqualified", "Disqualified", { isClosed: "true" }],
+  ])
+  const [leads] = await over(hub).pipelines("lead", context)
+  expect(leads?.stages.map((stage) => [stage.name, stage.outcome])).toEqual([
+    ["Nuevo", "open"],
+    ["Descalificado", "lost"],
+    ["Calificado", "won"],
+    ["Converted", "won"],
+    ["Parked", "lost"],
+    ["Disqualified", "lost"],
+  ])
+  expect(gaps).toEqual([
+    expect.objectContaining({
+      kind: "lead",
+      message: "closed lead stage Parked: HubSpot gives no outcome; counted as lost",
+    }),
+  ])
+})
+
+it("a meeting HubSpot marks completed in lower case is done", async () => {
+  const hub = fakeHubspot()
+  hub.put("meetings", { hs_meeting_title: "Lower", hs_meeting_outcome: "completed" })
+  hub.put("meetings", { hs_meeting_title: "Upper", hs_meeting_outcome: "COMPLETED" })
+  hub.put("meetings", { hs_meeting_title: "Planned", hs_meeting_outcome: "scheduled" })
+  const read = await full<CrmActivity>((page) => over(hub).activities?.(0, page, context) ?? Promise.reject())
+  expect(Object.fromEntries(read.items.map((one) => [one.subject, one.done]))).toEqual({
+    Lower: true,
+    Upper: true,
+    Planned: false,
+  })
+})

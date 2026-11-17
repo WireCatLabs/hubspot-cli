@@ -30,8 +30,10 @@ import {
   contextOf,
   decodeSignIn,
   encodeSignIn,
+  environmentAccount,
   type HubspotEnvironment,
   hubFor,
+  refuseAccountMismatch,
   storedSignIn,
   withHub,
 } from "../context.js"
@@ -145,18 +147,24 @@ const statusCommand = () =>
     )
     .option("--check", `ask ${SERVICE} whether the key still works and which account it reads`)
     .action(async function (this: Command, args: { check?: boolean }) {
-      const { profile, tokens } = contextOf(this)
+      const { env, profile, tokens, run } = contextOf(this)
       const saved = tokens.read(profile)
-      const signIn = storedSignIn(this)
+      // WCHUBSPOT_TOKEN alone is enough here: --check is how its owner finds the id WCHUBSPOT_ACCOUNT takes.
+      const fromToken = saved?.source === "environment"
+      const named = fromToken ? environmentAccount(env) : storedSignIn(this)?.portalId
       const status = {
         profile,
-        state: signIn ? "saved" : "missing",
-        kind: signIn ? "token" : null,
+        state: saved ? "saved" : "missing",
+        kind: saved ? "token" : null,
         token_from: saved?.source ?? null,
-        account: signIn?.portalId ?? null,
+        account: named ?? null,
       }
-      if (!args.check || !signIn) return answer(this, { ...status, verified: false })
-      answer(this, { ...status, verified: true, ...(await withHub(this, accountAnswer)) })
+      if (!args.check || !saved) return answer(this, { ...status, verified: false })
+      if (!fromToken) return answer(this, { ...status, verified: true, ...(await withHub(this, accountAnswer)) })
+      refuseOffline(this, SERVICE)
+      const who = await run((events) => accountAnswer(hubFor(this, { token: saved.secret, portalId: named }, events)))
+      if (named) refuseAccountMismatch(named, who.account)
+      answer(this, { ...status, verified: true, ...who })
     })
 
 const endCommand = () =>

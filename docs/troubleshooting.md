@@ -23,9 +23,11 @@ needs no network.
 | `doctor` lists `files.problems` | Other users of the computer can read `config.json` or enter its folder. Run each `chmod` that `doctor` prints after "to make it private:". `doctor` never changes a file mode itself. |
 | "HubSpot refused the token" (`session.expired`) | The key was deleted, rotated or mistyped. Make a new one and run `hubspot work session start` again, as [install and connect](installation.md#make-a-key) shows. |
 | "the token lacks the … scope" (`hubspot.scope-missing`) | Add the scope the error names to the key in HubSpot. The key keeps working, no new sign-in needed. |
-| `WCHUBSPOT_TOKEN needs WCHUBSPOT_ACCOUNT` (`account.id-missing`) | Set `WCHUBSPOT_ACCOUNT` to the account's id beside the token. `session status --check` on a signed-in profile shows it as `account`. |
+| `WCHUBSPOT_TOKEN needs WCHUBSPOT_ACCOUNT` (`account.id-missing`) | Set `WCHUBSPOT_ACCOUNT` to the account's id beside the token. `hubspot work session status --check` with the token alone prints it as `account`. |
+| `WCHUBSPOT_ACCOUNT names account …, but the token belongs to account …` (`account.mismatch`) | The id is another account's. Set `WCHUBSPOT_ACCOUNT` to the id the error names. Nothing was written. |
+| `run hubspot <profile> sync once with WCHUBSPOT_TOKEN first` (`account.unchecked`) | A profile read with `WCHUBSPOT_TOKEN` keeps no copy until a `sync` checked the account. Run `hubspot work sync`. |
 | "already signs in to HubSpot account" (`session.duplicate`) | Another profile reads that account. Use that profile, or end its session first. |
-| "spent its daily API allowance" (`hubspot.daily-limit`) | Every app on the account shares one daily allowance. It comes back at midnight in the account's time zone, and the error says when. |
+| "spent its daily API allowance" (`hubspot.daily-limit`) | Every app on the account shares one daily allowance. It comes back at midnight in the account's time zone, and the error says in how many hours. With `WCHUBSPOT_TOKEN` the time zone is unknown: the error says to try again after a time in UTC, the earliest the allowance can be back. |
 | `owner:me` finds nothing | A key names no user. Filter by `owner:<owner id>` from `hubspot work users list`. |
 | A write is refused | The profile's permissions or `WCHUBSPOT_READ_ONLY` stop it, as [settings](configuration.md#permissions) shows. |
 

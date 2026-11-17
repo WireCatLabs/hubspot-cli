@@ -111,19 +111,39 @@ describe("session status, end and list", () => {
     expect(checked.out).not.toContain(FAKE_TOKEN)
   })
 
-  it("takes WCHUBSPOT_TOKEN with WCHUBSPOT_ACCOUNT, and refuses WCHUBSPOT_TOKEN alone", async () => {
+  it("takes WCHUBSPOT_TOKEN with WCHUBSPOT_ACCOUNT, and --check finds the id with the token alone", async () => {
     const env = { WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: FAKE_ACCOUNT }
     const plain = await hubspot(["work", "session", "status", "--json"], { keyring: memoryKeyring(), env })
     expect(plain.json().item).toMatchObject({ token_from: "environment", account: FAKE_ACCOUNT, verified: false })
     const checked = await hubspot(["work", "session", "status", "--check", "--json"], { keyring: memoryKeyring(), env })
     expect(checked.json().item).toMatchObject({ token_from: "environment", verified: true, account: FAKE_ACCOUNT })
-    const alone = await hubspot(["work", "session", "status", "--json"], {
+    const alone = { WCHUBSPOT_TOKEN: FAKE_TOKEN }
+    const unchecked = await hubspot(["work", "session", "status", "--json"], { keyring: memoryKeyring(), env: alone })
+    expect(unchecked.json().item).toMatchObject({ token_from: "environment", account: null, verified: false })
+    const found = await hubspot(["work", "session", "status", "--check", "--json"], {
       keyring: memoryKeyring(),
-      env: { WCHUBSPOT_TOKEN: FAKE_TOKEN },
+      env: alone,
     })
-    expect(alone.json()).toMatchObject({ error: { code: "configuration_error", reason: "account.id-missing" } })
-    expect(alone.err).toContain("WCHUBSPOT_ACCOUNT")
-    expect(alone.err).not.toContain(FAKE_TOKEN)
+    expect(found.json().item).toMatchObject({ verified: true, account: FAKE_ACCOUNT })
+    expect(found.out).not.toContain(FAKE_TOKEN)
+  })
+
+  it("--check refuses a WCHUBSPOT_ACCOUNT that is not the token's account, and one that is not an id", async () => {
+    const wrong = await hubspot(["work", "session", "status", "--check", "--json"], {
+      keyring: memoryKeyring(),
+      env: { WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: "999" },
+    })
+    expect(wrong.json()).toMatchObject({
+      error: { code: "configuration_error", reason: "account.mismatch", details: { account: FAKE_ACCOUNT } },
+    })
+    expect(wrong.err).toContain("999")
+    expect(wrong.err).not.toContain(FAKE_TOKEN)
+    const malformed = await hubspot(["work", "session", "status", "--json"], {
+      keyring: memoryKeyring(),
+      env: { WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: "portal-1" },
+    })
+    expect(malformed.json()).toMatchObject({ error: { reason: "account.id-malformed" } })
+    expect(malformed.err).toContain("digits only")
   })
 
   it("says missing for a profile that never signed in", async () => {

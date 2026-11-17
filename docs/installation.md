@@ -49,7 +49,9 @@ only you can read with `--credential-storage file`. A second profile on the same
 `hubspot work setup` asks the same questions step by step, and WireCat Desktop shows the same steps.
 
 `WCHUBSPOT_TOKEN` in the environment takes the place of the saved key for every profile, as in CI. Set
-`WCHUBSPOT_ACCOUNT` beside it to the account's id, which `session status --check` shows as `account`. Without the
-account's time zone, a spent daily allowance is counted to midnight UTC.
+`WCHUBSPOT_ACCOUNT` beside it to the account's id: `hubspot work session status --check` with the token alone prints it
+as `account`. `sync` checks the id against the token before it writes anything, and a profile read this way keeps no
+copy until a `sync` did. Without the account's time zone, a spent daily allowance says to try again after a time in
+UTC, the earliest it can be back.
 
 Next: [use it](usage.md).

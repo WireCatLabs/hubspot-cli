@@ -97,9 +97,9 @@ const categoryOf = (body: unknown) => {
   return typeof category === "string" && CATEGORY.test(category) ? category : undefined
 }
 
-/** The zone's offset from UTC at `at`; 0 for a zone Intl does not know. */
-const offsetAt = (timeZone: string | undefined, at: number): number => {
-  if (!timeZone) return 0
+/** The zone's offset from UTC at `at`; null for a zone Intl does not know. */
+const offsetAt = (timeZone: string | undefined, at: number): number | null => {
+  if (!timeZone) return null
   try {
     const parts = new Intl.DateTimeFormat("en-US", {
       timeZone,
@@ -115,9 +115,18 @@ const offsetAt = (timeZone: string | undefined, at: number): number => {
     const local = Date.UTC(part("year"), part("month") - 1, part("day"), part("hour"), part("minute"), part("second"))
     return local - (at - (((at % 1000) + 1000) % 1000))
   } catch {
-    return 0
+    return null
   }
 }
+
+/**
+ * Some zone reaches midnight at every quarter hour of UTC (+5:45, +5:30, +12:45, -9:30…): without the account's zone,
+ * the next quarter hour is the earliest its allowance can come back.
+ */
+const QUARTER_MS = 15 * 60_000
+
+/** Whether `timeZone` is one Intl knows, so the account's midnight can be counted. */
+export const knownZone = (timeZone: string | undefined): boolean => offsetAt(timeZone, 0) !== null
 
 /**
  * Milliseconds to the next midnight in the account's time zone, when HubSpot's daily allowance comes back
@@ -126,9 +135,10 @@ const offsetAt = (timeZone: string | undefined, at: number): number => {
  */
 export const untilNextDay = (now: number, timeZone?: string): number => {
   const offset = offsetAt(timeZone, now)
+  if (offset === null) return QUARTER_MS - (((now % QUARTER_MS) + QUARTER_MS) % QUARTER_MS)
   const local = now + offset
   const wait = DAY_MS - (((local % DAY_MS) + DAY_MS) % DAY_MS)
-  return wait + offset - offsetAt(timeZone, now + wait)
+  return wait + offset - (offsetAt(timeZone, now + wait) ?? offset)
 }
 
 export interface Refused {
@@ -182,12 +192,18 @@ export const failureOf = ({
     const policy = isRecord(body) ? body.policyName : undefined
     if (policy === "DAILY") {
       const wait = untilNextDay(now, timeZone)
-      return new CliError(
-        "rate_limited",
-        `the ${SERVICE} account spent its daily API allowance, shared by every app on it; it comes back at midnight ` +
-          `in the account's time zone, in ${Math.ceil(wait / 3_600_000)} h`,
-        { ...details, reason: "hubspot.daily-limit", retryable: true, retry_after_ms: wait },
-      )
+      const spent = `the ${SERVICE} account spent its daily API allowance, shared by every app on it`
+      // Without the account's zone the hold is short: a hold past the account's midnight would stop every profile on it.
+      const back = knownZone(timeZone)
+        ? `it comes back at midnight in the account's time zone, in ${Math.ceil(wait / 3_600_000)} h`
+        : `HubSpot resets it at midnight in the account's time zone, which this run does not know; try again after ` +
+          `${new Date(now + wait).toISOString().slice(11, 16)} UTC`
+      return new CliError("rate_limited", `${spent}; ${back}`, {
+        ...details,
+        reason: "hubspot.daily-limit",
+        retryable: true,
+        retry_after_ms: wait,
+      })
     }
     const interval = Number(headers.get("x-hubspot-ratelimit-interval-milliseconds"))
     const wait =

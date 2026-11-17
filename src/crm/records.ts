@@ -295,26 +295,40 @@ export const toLead = (raw: Raw, defined: readonly CrmField[] = []): CrmItem => 
 }
 
 /**
- * A deal stage's outcome from its `metadata`: closed won at probability 1.0, closed lost at 0.0
+ * The ids of HubSpot's default lead pipeline's closed stages. Not in HubSpot's docs: seen in that default pipeline,
+ * and to be checked on a live account. Matched before the label, so a renamed or translated stage keeps its outcome.
+ */
+const LEAD_STAGE_IDS: Record<string, StageOutcome> = { "qualified-stage-id": "won", "unqualified-stage-id": "lost" }
+/** The default stages' English names (https://knowledge.hubspot.com/object-settings/set-up-and-customize-pipelines). */
+const LEAD_STAGE_LABELS: Record<string, StageOutcome> = { qualified: "won", disqualified: "lost" }
+
+/**
+ * A stage's outcome from its `metadata`: a deal stage is closed won at probability 1.0 and closed lost at 0.0
  * (https://developers.hubspot.com/docs/api-reference/latest/crm/pipelines/guide).
  *
- * A lead stage is only open or closed; HubSpot documents no won or lost for it, and its default pipeline ends in
- * "Qualified" and "Disqualified" (https://knowledge.hubspot.com/object-settings/set-up-and-customize-pipelines).
- * cli-core's outcomes have no "closed, unknown", so a closed lead stage is lost only when it is the documented
- * Disqualified one, by label, and won otherwise: a closed lead that was not disqualified was qualified.
+ * A lead stage is only open or closed; HubSpot documents no won or lost for it. A closed one goes by its probability
+ * when it has one, then by the default stages' ids, then by their English names. Any other closed lead stage is
+ * `unknown`: cli-core's outcomes have no "closed, outcome unknown", and counting it lost never makes a win of a
+ * disqualified lead.
  */
 export const outcomeOf = (
   metadata: unknown,
   kind: "deal" | "lead" = "deal",
-  label: string | null = null,
-): StageOutcome => {
-  if (text(fieldOf(metadata, "isClosed")) !== "true") return "open"
+  stage: { id?: string | null; label?: string | null } = {},
+): { outcome: StageOutcome; unknown?: true } => {
+  if (text(fieldOf(metadata, "isClosed")) !== "true") return { outcome: "open" }
   const probability = text(fieldOf(metadata, "probability"))
-  if (kind === "deal" || probability !== null) return Number(probability) === 1 ? "won" : "lost"
-  return label?.trim().toLowerCase() === "disqualified" ? "lost" : "won"
+  if (kind === "deal" || probability !== null) return { outcome: Number(probability) === 1 ? "won" : "lost" }
+  const known = LEAD_STAGE_IDS[stage.id ?? ""] ?? LEAD_STAGE_LABELS[stage.label?.trim().toLowerCase() ?? ""]
+  return known ? { outcome: known } : { outcome: "lost", unknown: true }
 }
 
-export const toPipeline = (raw: Raw, kind: "deal" | "lead" = "deal"): CrmPipeline | null => {
+/** A pipeline with its stages; `unknown` hears each closed stage whose outcome HubSpot does not give. */
+export const toPipeline = (
+  raw: Raw,
+  kind: "deal" | "lead" = "deal",
+  unknown: (stage: string) => void = () => {},
+): CrmPipeline | null => {
   const externalId = id(raw.id)
   if (!externalId) return null
   return {
@@ -324,14 +338,10 @@ export const toPipeline = (raw: Raw, kind: "deal" | "lead" = "deal"): CrmPipelin
       const stageId = id(stage.id)
       if (!stageId) return []
       const order = Number(stage.displayOrder)
-      return [
-        {
-          externalId: stageId,
-          name: text(stage.label) ?? stageId,
-          position: Number.isFinite(order) ? order : at,
-          outcome: outcomeOf(stage.metadata, kind, text(stage.label)),
-        },
-      ]
+      const name = text(stage.label) ?? stageId
+      const { outcome, unknown: guessed } = outcomeOf(stage.metadata, kind, { id: stageId, label: text(stage.label) })
+      if (guessed) unknown(name)
+      return [{ externalId: stageId, name, position: Number.isFinite(order) ? order : at, outcome }]
     }),
   }
 }

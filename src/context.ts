@@ -81,24 +81,57 @@ export const decodeSignIn = (secret: string): SignIn => {
 
 export const ACCOUNT_VARIABLE = `${IDENTITY.envPrefix}_ACCOUNT`
 
+/** The account `WCHUBSPOT_ACCOUNT` names, checked for its shape only; `undefined` when it is not set. */
+export const environmentAccount = (env: NodeJS.ProcessEnv): string | undefined => {
+  const portalId = env[ACCOUNT_VARIABLE]?.trim()
+  if (!portalId) return undefined
+  if (!/^\d+$/.test(portalId))
+    throw new CliError("configuration_error", `${ACCOUNT_VARIABLE} must be the account's id, digits only`, {
+      reason: "account.id-malformed",
+    })
+  return portalId
+}
+
 /**
  * `WCHUBSPOT_TOKEN` first, as for every token CLI, with `WCHUBSPOT_ACCOUNT` naming its account (the portal id), as
- * amo's token needs `AMO_HOST`; then the saved sign-in. Read with no network. A token from the environment has no
- * time zone, so its daily limit is counted to midnight UTC.
+ * amo's token needs `AMO_HOST`; then the saved sign-in. Read with no network: whether the two belong together is
+ * `refuseAccountMismatch`'s question. A token from the environment has no time zone, so its daily limit names the
+ * earliest UTC time it can be back.
  */
 export const storedSignIn = (command: Command): SignIn | undefined => {
   const { env, profile, tokens } = contextOf(command)
   const stored = tokens.read(profile)
   if (!stored) return undefined
   if (stored.source !== "environment") return decodeSignIn(stored.secret)
-  const portalId = env[ACCOUNT_VARIABLE]?.trim()
-  if (!portalId || !/^\d+$/.test(portalId))
+  const portalId = environmentAccount(env)
+  if (!portalId)
     throw new CliError(
       "configuration_error",
-      `${tokens.variable} needs ${ACCOUNT_VARIABLE}, the HubSpot account's id (session status --check shows it)`,
+      `${tokens.variable} needs ${ACCOUNT_VARIABLE}, the HubSpot account's id: ` +
+        `\`${IDENTITY.command} ${profile} session status --check\` with the token alone prints it`,
       { reason: "account.id-missing" },
     )
   return { token: stored.secret, portalId, uiDomain: null }
+}
+
+/** Whether this run's key comes from `WCHUBSPOT_TOKEN`, whose account nobody has checked yet. */
+export const fromEnvironment = (command: Command): boolean => {
+  const { profile, tokens } = contextOf(command)
+  return tokens.read(profile)?.source === "environment"
+}
+
+/**
+ * A token's own account against the one `WCHUBSPOT_ACCOUNT` names. A wrong id would file this account's CRM under
+ * another's in the shared store, so a mismatch is refused before anything is written. Names both ids, never the token.
+ */
+export const refuseAccountMismatch = (named: string, actual: string) => {
+  if (named === actual) return
+  throw new CliError(
+    "configuration_error",
+    `${ACCOUNT_VARIABLE} names account ${named}, but the token belongs to account ${actual}: ` +
+      `set ${ACCOUNT_VARIABLE}=${actual}`,
+    { reason: "account.mismatch", account: actual },
+  )
 }
 
 /** The sign-in a request uses, or cli-core's `session.missing` refusal that names the command to sign in. */

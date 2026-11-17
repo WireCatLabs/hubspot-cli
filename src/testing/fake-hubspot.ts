@@ -484,6 +484,16 @@ export const fakeHubspot = (options: FakeHubspotOptions = {}) => {
     },
     /** One more property the account defined itself, on every object type. */
     defineProperty: (name: string) => PROPERTIES.push(property(name, name)),
+    /** Replaces the lead pipeline's stages: `[id, label, metadata]` each. */
+    setLeadStages: (stages: [string, string, Record<string, string>][]) => {
+      PIPELINES.leads = [
+        pipeline(
+          "lead-pipeline-id",
+          "Lead pipeline",
+          stages.map(([id, label, metadata], at) => stage(id, label, at, metadata)),
+        ),
+      ]
+    },
     seededIds: () => Object.fromEntries([...rows].map(([type, held]) => [type, [...held.keys()]])),
   }
 }

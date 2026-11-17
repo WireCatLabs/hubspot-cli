@@ -1,4 +1,4 @@
-import { mkdtempSync, readdirSync } from "node:fs"
+import { existsSync, mkdtempSync, readdirSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { memoryKeyring, resolvePaths } from "@wirecat/cli-base"
@@ -59,6 +59,25 @@ describe("the shared CRM commands over a HubSpot account", () => {
     )
     expect(paces).toContain(`account-${FAKE_ACCOUNT}.json`)
     expect(paces).not.toContain("work.json")
+  })
+
+  it("refuses a WCHUBSPOT_ACCOUNT that is not the token's account before the store is written", async () => {
+    const store = freshStore()
+    const { hub: account } = seededHubspot()
+    const env = { ...store, WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: "999" }
+    const ran = await hubspot(["work", "sync", "--json"], { keyring: memoryKeyring(), env, account })
+    expect(ran.json()).toMatchObject({ error: { code: "configuration_error", reason: "account.mismatch" } })
+    expect(ran.err).not.toContain(FAKE_TOKEN)
+    expect(existsSync(store.MESSAGING_STORE)).toBe(false)
+    expect(account.calls.map((one) => one.url.pathname)).toEqual(["/account-info/2026-03/details"])
+  })
+
+  it("a WCHUBSPOT_TOKEN profile reads no copy before a sync checked its account", async () => {
+    const env = { ...freshStore(), WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: FAKE_ACCOUNT }
+    const reading = seededHubspot().hub
+    const ran = await hubspot(["work", "deals", "list", "--json"], { keyring: memoryKeyring(), env, account: reading })
+    expect(ran.json()).toMatchObject({ error: { code: "configuration_error", reason: "account.unchecked" } })
+    expect(reading.calls).toEqual([])
   })
 
   it("a profile that ended its session names the command that signs it in", async () => {

@@ -16,3 +16,7 @@
   allowance among every app on the account. `hubspot` reports `hubspot.daily-limit` with the wait to the account's
   midnight, and stops every process on the account from asking again before then. The ten-second limit is waited
   out.
+- **`WCHUBSPOT_ACCOUNT` is checked against `WCHUBSPOT_TOKEN` before anything is written.** A `sync` with an id of
+  another account stops with `account.mismatch`, naming both ids, so one account's CRM is never filed under another's.
+  `session status --check` with the token alone prints the id to set. See
+  [troubleshooting](../docs/troubleshooting.md).

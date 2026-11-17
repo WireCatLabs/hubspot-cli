@@ -318,7 +318,12 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
       try {
         const body = await metered(context).get(`/crm/pipelines/2026-03/${PIPELINES[kind]}`)
         return resultsOf(body).flatMap((raw): CrmPipeline[] => {
-          const pipeline = toPipeline(raw, kind)
+          const pipeline = toPipeline(raw, kind, (stage) =>
+            context?.gap({
+              kind,
+              message: `closed lead stage ${stage}: HubSpot gives no outcome; counted as lost`,
+            }),
+          )
           return pipeline ? [pipeline] : []
         })
       } catch (error) {

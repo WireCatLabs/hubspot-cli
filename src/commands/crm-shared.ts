@@ -1,10 +1,20 @@
+import { CliError } from "@wirecat/cli-base"
 import type { CrmRun } from "@wirecat/cli-core/crm/cli"
 import { addCrmCommands, openCrmStore } from "@wirecat/cli-core/crm/cli"
 import type { AccountKey } from "@wirecat/cli-core/store"
 import { Command } from "commander"
-import { contextOf, hubFor, signInOf, storedSignIn } from "../context.js"
+import {
+  ACCOUNT_VARIABLE,
+  contextOf,
+  fromEnvironment,
+  hubFor,
+  refuseAccountMismatch,
+  signInOf,
+  storedSignIn,
+} from "../context.js"
 import type { HubSpotTransport } from "../hubspot/transport.js"
 import { IDENTITY } from "../identity.js"
+import { accountAnswer } from "../whoami.js"
 
 /** The selected profile's account for one command; cli-core closes the store before the answer prints. */
 const openProfile = async (command: Command, { readOnly }: { readOnly: boolean }): Promise<CrmRun> => {
@@ -15,8 +25,20 @@ const openProfile = async (command: Command, { readOnly }: { readOnly: boolean }
   ])
   let transport: HubSpotTransport | undefined
   const hub = () => (transport ??= hubFor(command, signInOf(command)))
+  // A run that writes the store with `WCHUBSPOT_TOKEN` first asks HubSpot whose token it is, once. A store-only read
+  // stays offline: it reads the account a checked sync saved, and one with none saved is refused below.
+  const fromToken = fromEnvironment(command)
+  const checked = fromToken && !readOnly
+  if (checked) refuseAccountMismatch(signInOf(command).portalId, (await accountAnswer(hub())).account)
   const accountOf = (): AccountKey => {
     const signIn = storedSignIn(command) ?? signInOf(command)
+    if (fromToken && !checked)
+      throw new CliError(
+        "configuration_error",
+        `run \`${IDENTITY.command} ${profile} sync\` once with ${IDENTITY.envPrefix}_TOKEN first: it checks ` +
+          `${ACCOUNT_VARIABLE} against the token before this profile reads a copy`,
+        { reason: "account.unchecked" },
+      )
     return { provider: PROVIDER.name, account: signIn.portalId }
   }
   const { store, account } = await openCrmStore({
