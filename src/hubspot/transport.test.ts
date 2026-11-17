@@ -264,3 +264,45 @@ it("without the account's time zone, the daily limit holds only till the next mi
   expect(error.message).toContain("20:30 UTC")
   expect(held).toEqual([25 * 60_000])
 })
+
+it("where clocks jump forward at midnight, the day begins at the jump, never a negative wait", () => {
+  // 2026-09-06 in Santiago: 00:00 -04 becomes 01:00 -03, at 04:00 UTC.
+  for (const zone of ["America/Santiago", undefined]) {
+    expect(untilNextDay(Date.parse("2026-09-06T03:30:00Z"), zone)).toBe(30 * 60_000)
+    if (zone) expect(untilNextDay(Date.parse("2026-09-06T02:00:00Z"), zone)).toBe(2 * 3_600_000)
+  }
+  // Without a zone, another zone's midnight may come first; never later than Santiago's, never negative.
+  expect(untilNextDay(Date.parse("2026-09-06T02:00:00Z"))).toBeLessThanOrEqual(2 * 3_600_000)
+  for (const [at, zone] of [
+    ["2026-04-23T21:30:00Z", "Africa/Cairo"],
+    ["2026-03-08T04:30:00Z", "America/Havana"],
+    ["2026-03-28T21:30:00Z", "Asia/Beirut"],
+    ["2026-03-29T00:30:00Z", "Atlantic/Azores"],
+  ] as const) {
+    // Half an hour before each jump: the new day begins in 30 minutes.
+    expect(untilNextDay(Date.parse(at), zone)).toBe(30 * 60_000)
+    expect(untilNextDay(Date.parse(at))).toBeGreaterThan(0)
+  }
+})
+
+it("without zones from Intl, the hold is the next quarter hour of UTC; an unknown zone in its list is skipped", () => {
+  const at = Date.parse("2026-11-17T20:05:00Z")
+  const listed = vi.spyOn(Intl, "supportedValuesOf")
+  listed.mockReturnValue([])
+  expect(untilNextDay(at)).toBe(10 * 60_000)
+  listed.mockReturnValue(["Not/A_Zone"])
+  expect(untilNextDay(at)).toBe(10 * 60_000)
+  listed.mockReturnValue(["Not/A_Zone", "Asia/Tehran"])
+  expect(untilNextDay(at)).toBe(25 * 60_000)
+  listed.mockRestore()
+})
+
+it("a daily limit near a skipped midnight still waits forward", async () => {
+  const hub = fakeHubspot()
+  hub.throttle("DAILY")
+  const now = Date.parse("2026-09-06T03:30:00Z")
+  await expect(
+    transportOver(hub, { now: () => now, timeZone: "America/Santiago" }).get(COMPANIES),
+  ).rejects.toMatchObject({ details: { reason: "hubspot.daily-limit", retry_after_ms: 30 * 60_000 } })
+  expect(hub.calls).toHaveLength(1)
+})

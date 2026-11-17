@@ -97,26 +97,38 @@ const categoryOf = (body: unknown) => {
   return typeof category === "string" && CATEGORY.test(category) ? category : undefined
 }
 
+/** One formatter per zone, made once: a daily limit without the account's zone reads every zone Intl knows. */
+const formatters = new Map<string, Intl.DateTimeFormat | null>()
+const formatterOf = (timeZone: string): Intl.DateTimeFormat | null => {
+  if (!formatters.has(timeZone)) {
+    let made: Intl.DateTimeFormat | null
+    try {
+      made = new Intl.DateTimeFormat("en-US", {
+        timeZone,
+        hourCycle: "h23",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      })
+    } catch {
+      made = null
+    }
+    formatters.set(timeZone, made)
+  }
+  return formatters.get(timeZone) ?? null
+}
+
 /** The zone's offset from UTC at `at`; null for a zone Intl does not know. */
 const offsetAt = (timeZone: string | undefined, at: number): number | null => {
-  if (!timeZone) return null
-  try {
-    const parts = new Intl.DateTimeFormat("en-US", {
-      timeZone,
-      hourCycle: "h23",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    }).formatToParts(at)
-    const part = (type: string) => Number(parts.find((one) => one.type === type)?.value)
-    const local = Date.UTC(part("year"), part("month") - 1, part("day"), part("hour"), part("minute"), part("second"))
-    return local - (at - (((at % 1000) + 1000) % 1000))
-  } catch {
-    return null
-  }
+  const format = timeZone ? formatterOf(timeZone) : null
+  if (!format) return null
+  const parts = format.formatToParts(at)
+  const part = (type: string) => Number(parts.find((one) => one.type === type)?.value)
+  const local = Date.UTC(part("year"), part("month") - 1, part("day"), part("hour"), part("minute"), part("second"))
+  return local - (at - (((at % 1000) + 1000) % 1000))
 }
 
 /**
@@ -129,16 +141,26 @@ const QUARTER_MS = 15 * 60_000
 export const knownZone = (timeZone: string | undefined): boolean => offsetAt(timeZone, 0) !== null
 
 /**
+ * Milliseconds to the next local midnight in a zone whose offset now is `offset`. Counted at today's offset, then
+ * moved by the offset at that moment, so clocks going back land on midnight too. Where clocks jump forward at
+ * midnight (Santiago, Cairo, Havana) that midnight never happens: the day then begins at the jump, which the unmoved
+ * count already is.
+ */
+const midnightIn = (now: number, timeZone: string, offset: number): number => {
+  const local = now + offset
+  const wait = DAY_MS - (((local % DAY_MS) + DAY_MS) % DAY_MS)
+  const after = offsetAt(timeZone, now + wait) ?? offset
+  const moved = wait + offset - after
+  return moved > 0 && offsetAt(timeZone, now + moved) === after ? moved : wait
+}
+
+/**
  * Milliseconds to the next midnight in the account's time zone, when HubSpot's daily allowance comes back
- * (usage-guidelines). The offset is read at the moment, and again at that midnight, so a change of summer time between
- * the two still lands on midnight.
+ * (usage-guidelines). Without a zone Intl knows, the next midnight anywhere.
  */
 export const untilNextDay = (now: number, timeZone?: string): number => {
   const offset = offsetAt(timeZone, now)
-  if (offset === null) return firstMidnight(now)
-  const local = now + offset
-  const wait = DAY_MS - (((local % DAY_MS) + DAY_MS) % DAY_MS)
-  return wait + offset - (offsetAt(timeZone, now + wait) ?? offset)
+  return offset === null || !timeZone ? firstMidnight(now) : midnightIn(now, timeZone, offset)
 }
 
 /**
@@ -147,9 +169,11 @@ export const untilNextDay = (now: number, timeZone?: string): number => {
  */
 const firstMidnight = (now: number): number => {
   const zones = typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("timeZone") : []
-  const quarter = QUARTER_MS - (((now % QUARTER_MS) + QUARTER_MS) % QUARTER_MS)
-  const known = zones.filter((zone) => offsetAt(zone, now) !== null)
-  return known.length ? known.reduce((soonest, zone) => Math.min(soonest, untilNextDay(now, zone)), DAY_MS) : quarter
+  const soonest = zones.reduce((least, zone) => {
+    const offset = offsetAt(zone, now)
+    return offset === null ? least : Math.min(least, midnightIn(now, zone, offset))
+  }, Number.POSITIVE_INFINITY)
+  return Number.isFinite(soonest) ? soonest : QUARTER_MS - (((now % QUARTER_MS) + QUARTER_MS) % QUARTER_MS)
 }
 
 export interface Refused {

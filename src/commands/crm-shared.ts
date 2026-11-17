@@ -33,7 +33,7 @@ const savedAccount = async (env: NodeJS.ProcessEnv, profile: string): Promise<st
 
 /** The selected profile's account for one command; cli-core closes the store before the answer prints. */
 const openProfile = async (command: Command, { readOnly }: { readOnly: boolean }): Promise<CrmRun> => {
-  const { env, profile, environment, flags } = contextOf(command)
+  const { env, profile, environment } = contextOf(command)
   const [{ openHubspotStore, PROVIDER }, { hubspotCrmSource }] = await Promise.all([
     import("../store.js"),
     import("../crm/source.js"),
@@ -42,7 +42,8 @@ const openProfile = async (command: Command, { readOnly }: { readOnly: boolean }
   // own; the answer's time zone then counts the daily limit to the account's midnight. A command that stays on this
   // computer asks nothing: it takes the account the store saved for the profile after a checked run.
   const fromToken = fromEnvironment(command)
-  const online = !flags.offline && (metaOf(command).effects?.remote ?? (readOnly ? "none" : "read")) !== "none"
+  // cli-core annotates every CRM command, and refuses --offline before a remote one opens the profile.
+  const online = metaOf(command).effects?.remote !== "none"
   let timeZone: string | undefined
   if (fromToken && online) {
     const { token, portalId } = signInOf(command)

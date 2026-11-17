@@ -83,6 +83,13 @@ describe("the shared CRM commands over a HubSpot account", () => {
   it("a live read with WCHUBSPOT_TOKEN on a fresh store checks the key once, then reads", async () => {
     const env = { ...freshStore(), WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: FAKE_ACCOUNT }
     const { hub: account } = seededHubspot()
+    const offline = await hubspot(["work", "people", "list", "--offline", "--json"], {
+      keyring: memoryKeyring(),
+      env,
+      account,
+    })
+    expect(offline.json()).toMatchObject({ error: { reason: "offline.refused" } })
+    expect(account.calls).toEqual([])
     const ran = await hubspot(["work", "people", "list", "--json"], { keyring: memoryKeyring(), env, account })
     expect([ran.code, ran.err]).toEqual([0, ""])
     expect(account.calls[0]?.url.pathname).toBe("/account-info/2026-03/details")
@@ -100,6 +107,8 @@ describe("the shared CRM commands over a HubSpot account", () => {
     const { hub: account } = seededHubspot()
     const after = await hubspot(apply, { keyring, env, account })
     expect([after.code, after.err]).toEqual([0, ""])
+    expect(account.calls).toEqual([])
+    expect((await hubspot(["work", "store", "status", "--json"], { keyring, env, account })).code).toBe(0)
     expect(account.calls).toEqual([])
   })
 
