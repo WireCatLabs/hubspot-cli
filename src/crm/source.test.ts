@@ -279,7 +279,7 @@ it("an activity type the token may not read is a gap naming its scope, and the o
   const { hub } = seededHubspot({ refuse: ["calls"] })
   const read = await full<CrmActivity>((page) => over(hub).activities?.(0, page, context) ?? Promise.reject())
   expect(read.items.map(({ kind }) => kind)).toEqual(["comment", "email", "meeting", "task"])
-  expect(gaps).toEqual([expect.objectContaining({ kind: "activities", scope: "crm.objects.calls.read" })])
+  expect(gaps).toEqual([expect.objectContaining({ kind: "activities", scope: "crm.objects.contacts.read" })])
 })
 
 it("get answers null for an id that is not a HubSpot id, without a request", async () => {

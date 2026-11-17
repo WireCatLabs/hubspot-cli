@@ -56,11 +56,15 @@ const plain = (value: unknown): string | null => {
   )
 }
 
+// HubSpot has no notes, calls, meetings or tasks scope; a key with the contacts scope reads them (account 149800303,
+// 2026-11-17). Emails ask for sales-email-read.
+const CONTACTS_SCOPE = "crm.objects.contacts.read"
+
 const ENGAGEMENTS: readonly Engagement[] = [
   {
     type: "notes",
     kind: "comment",
-    scope: "crm.objects.notes.read",
+    scope: CONTACTS_SCOPE,
     properties: ["hs_note_body", ...COMMON],
     subject: () => "",
     body: (properties) => plain(properties.hs_note_body),
@@ -70,7 +74,7 @@ const ENGAGEMENTS: readonly Engagement[] = [
   {
     type: "calls",
     kind: "call",
-    scope: "crm.objects.calls.read",
+    scope: CONTACTS_SCOPE,
     properties: ["hs_call_title", "hs_call_direction", "hs_call_status", ...COMMON],
     subject: (properties) =>
       text(properties.hs_call_title) ??
@@ -82,7 +86,7 @@ const ENGAGEMENTS: readonly Engagement[] = [
   {
     type: "emails",
     kind: "email",
-    scope: "crm.objects.emails.read",
+    scope: "sales-email-read",
     properties: ["hs_email_subject", "hs_email_text", "hs_email_direction", "hs_email_status", ...COMMON],
     subject: (properties) => text(properties.hs_email_subject),
     body: (properties) => text(properties.hs_email_text),
@@ -92,7 +96,7 @@ const ENGAGEMENTS: readonly Engagement[] = [
   {
     type: "meetings",
     kind: "meeting",
-    scope: "crm.objects.meetings.read",
+    scope: CONTACTS_SCOPE,
     properties: ["hs_meeting_title", "hs_meeting_body", "hs_meeting_start_time", "hs_meeting_outcome", ...COMMON],
     subject: (properties) => text(properties.hs_meeting_title),
     body: (properties) => plain(properties.hs_meeting_body),
@@ -104,7 +108,7 @@ const ENGAGEMENTS: readonly Engagement[] = [
   {
     type: "tasks",
     kind: "task",
-    scope: "crm.objects.tasks.read",
+    scope: CONTACTS_SCOPE,
     properties: ["hs_task_subject", "hs_task_body", "hs_task_status", ...COMMON],
     subject: (properties) => text(properties.hs_task_subject),
     body: (properties) => plain(properties.hs_task_body),

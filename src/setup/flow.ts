@@ -31,11 +31,7 @@ const SCOPES = [
   "crm.schemas.contacts.read",
   "crm.schemas.companies.read",
   "crm.schemas.deals.read",
-  "crm.objects.notes.read",
-  "crm.objects.calls.read",
-  "crm.objects.emails.read",
-  "crm.objects.meetings.read",
-  "crm.objects.tasks.read",
+  "sales-email-read",
 ].join("\n")
 
 export const hubspotSetup = defineSetup({

@@ -46,8 +46,7 @@ the access token of a legacy **private app**. Give it these read scopes:
 ```text
 crm.objects.contacts.read     crm.objects.companies.read    crm.objects.deals.read
 crm.objects.owners.read       crm.schemas.contacts.read     crm.schemas.companies.read
-crm.schemas.deals.read        crm.objects.notes.read        crm.objects.calls.read
-crm.objects.emails.read       crm.objects.meetings.read     crm.objects.tasks.read
+crm.schemas.deals.read        sales-email-read
 ```
 
 Add `crm.objects.leads.read` on Sales Hub Professional or Enterprise to read leads, and `tickets` to read tickets

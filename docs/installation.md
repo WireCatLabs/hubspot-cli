@@ -37,7 +37,7 @@ Give it read scopes only ([HubSpot's list of scopes](https://developers.hubspot.
 | `crm.objects.contacts.read`, `crm.objects.companies.read`, `crm.objects.deals.read` | contacts, companies and deals |
 | `crm.objects.owners.read` | the owners deals are assigned to |
 | `crm.schemas.contacts.read`, `crm.schemas.companies.read`, `crm.schemas.deals.read` | the properties of each |
-| `crm.objects.notes.read`, `crm.objects.calls.read`, `crm.objects.emails.read`, `crm.objects.meetings.read`, `crm.objects.tasks.read` | activities |
+| `sales-email-read` | logged e-mails. Notes, calls, meetings and tasks need no scope of their own: the contacts scope reads them |
 | `crm.objects.leads.read` | leads, on Sales Hub Professional or Enterprise only |
 | `tickets` | tickets, through `api` only |
 
