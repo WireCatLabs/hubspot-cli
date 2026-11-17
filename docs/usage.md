@@ -92,8 +92,8 @@ hubspot work schedule command crm-digest --at 08:30 -- changes list --format rep
 
 ## Call the API
 
-`hubspot work api list` lists every operation of HubSpot's CRM API, version 2026-03, with its permission key. Each
-operation is a command of its own:
+`hubspot work api list` lists every read operation of HubSpot's CRM API, version 2026-03, with its permission key.
+Each operation is a command of its own:
 
 ```sh
 hubspot work api list
@@ -102,12 +102,12 @@ hubspot work api deals-search --body '{"after":"0","filterGroups":[],"limit":5,"
 hubspot work api deals-list --all
 ```
 
-Each operation checks its own key, `api.<command>`. A delete also checks the key of the command it does the same as:
-`deals.delete` for `deals-batch-archive` and `deals-merge`, `people.delete` for `contacts-gdpr-delete`. A delete asks
-first. Over MCP nobody is there to answer, so set `api` to `readonly` to stop an agent changing anything:
+Each operation checks its own key, `api.<command>`, so `permissions.api deny` keeps an agent out of the raw API. This
+release only reads: the API's writes are not offered, and `api show` on one of them says so. Writes come in a later
+release.
 
 ```sh
-hubspot work config set permissions.api readonly
+hubspot work config set permissions.api deny
 ```
 
 ## Output for scripts

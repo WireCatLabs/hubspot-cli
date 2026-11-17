@@ -37,7 +37,7 @@ import {
 } from "../context.js"
 import { SERVICE } from "../hubspot/transport.js"
 import { IDENTITY } from "../identity.js"
-import { accountAnswer, checkedAccount } from "../whoami.js"
+import { accountAnswer } from "../whoami.js"
 
 const HUBSPOT = IDENTITY.command
 
@@ -88,10 +88,10 @@ const refuseDuplicate = (env: NodeJS.ProcessEnv, keyring: KeyringStore | undefin
  */
 export const checkedToken = async (command: Command, token: string) => {
   const { env, profile, keyring, run } = contextOf(command)
-  const { answer: who, utcOffsetMs } = await run((events) => checkedAccount(hubFor(command, { token }, events)))
+  const who = await run((events) => accountAnswer(hubFor(command, { token }, events)))
   refuseDuplicate(env, keyring, profile, who.account)
-  const signIn = { token, portalId: who.account, uiDomain: who.account_info.ui_domain }
-  return { who, signIn: encodeSignIn(utcOffsetMs === undefined ? signIn : { ...signIn, utcOffsetMs }) }
+  const { ui_domain: uiDomain, time_zone: timeZone } = who.account_info
+  return { who, signIn: encodeSignIn({ token, portalId: who.account, uiDomain, timeZone }) }
 }
 
 const startCommand = () =>
@@ -130,7 +130,7 @@ const startCommand = () =>
       const { who, signIn } = await checkedToken(this, token)
       const storedIn = tokens.write(profile, signIn, args.credentialStorage)
       rememberAccount(IDENTITY, profile, who.account, env)
-      answer(this, { profile, state: "saved", stored_in: storedIn, verified: true, ...who })
+      answer(this, { profile, state: "saved", kind: "token", stored_in: storedIn, verified: true, ...who })
     })
 
 const statusCommand = () =>
@@ -151,6 +151,7 @@ const statusCommand = () =>
       const status = {
         profile,
         state: signIn ? "saved" : "missing",
+        kind: signIn ? "token" : null,
         token_from: saved?.source ?? null,
         account: signIn?.portalId ?? null,
       }

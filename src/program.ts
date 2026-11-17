@@ -52,7 +52,7 @@ const mcpCommand = () =>
       "e-mail addresses, phone numbers and links",
       "whatever api returns",
     ],
-    permissionExample: "deals.delete=deny",
+    permissionExample: "people.list=deny",
     skill: SKILL,
     signedIn: (profile, env, keyring) =>
       new ProfileTokenStore({ app: IDENTITY, env, ...(keyring ? { keyring } : {}) }).signedIn(profile),

@@ -52,8 +52,8 @@ export interface SignIn {
   token: string
   portalId: string
   uiDomain: string | null
-  /** The account's offset from UTC when it signed in: HubSpot's daily allowance comes back at its midnight. */
-  utcOffsetMs?: number
+  /** The account's IANA time zone: HubSpot's daily allowance comes back at its midnight. */
+  timeZone?: string
 }
 
 export const encodeSignIn = (signIn: SignIn): string => JSON.stringify(signIn)
@@ -74,7 +74,8 @@ export const decodeSignIn = (secret: string): SignIn => {
     token: found.token,
     portalId: found.portalId,
     uiDomain: typeof found.uiDomain === "string" ? found.uiDomain : null,
-    ...(typeof found.utcOffsetMs === "number" ? { utcOffsetMs: found.utcOffsetMs } : {}),
+    // An entry written before the time zone was kept holds `utcOffsetMs`, which is ignored.
+    ...(typeof found.timeZone === "string" && found.timeZone ? { timeZone: found.timeZone } : {}),
   }
 }
 
@@ -103,24 +104,31 @@ export const signInOf = (command: Command) => {
 export const tokenOf = (command: Command): string => signInOf(command).token
 
 /**
- * The transport for one run. Its pace is the profile's, shared with the api group: a second profile on the same
- * account is refused at `session start`, so per profile is per account.
+ * HubSpot counts its limits per account, so every process on one account waits in one queue, whichever profile or
+ * `WCHUBSPOT_TOKEN` it reads with. An account not known yet (a first sign-in, a token from the environment) paces by
+ * the profile.
  */
+export const pacerFor = (command: Command, portalId: string | null | undefined) => {
+  const { environment, env, profile } = contextOf(command)
+  return new Pacer(pacePathFor(IDENTITY, portalId ? `account-${portalId}` : profile, env), PACE, environment.now)
+}
+
+/** The transport for one run, paced with the api group by the account. */
 export const hubFor = (
   command: Command,
-  { token, utcOffsetMs }: Pick<SignIn, "token" | "utcOffsetMs">,
+  { token, portalId, timeZone }: { token: string; portalId?: string | null; timeZone?: string | undefined },
   events?: EventSink,
 ): HubSpotTransport => {
-  const { environment, env, profile } = contextOf(command)
+  const { environment } = contextOf(command)
   return hubspotTransport({
     token,
-    ...(utcOffsetMs === undefined ? {} : { utcOffsetMs }),
+    ...(timeZone ? { timeZone } : {}),
     ...(events ? { events } : {}),
     signal: environment.signal,
     ...(environment.fetch ? { fetch: environment.fetch } : {}),
     ...(environment.sleep ? { sleep: environment.sleep } : {}),
     ...(environment.now ? { now: environment.now } : {}),
-    pacer: new Pacer(pacePathFor(IDENTITY, profile, env), PACE, environment.now),
+    pacer: pacerFor(command, portalId),
   })
 }
 

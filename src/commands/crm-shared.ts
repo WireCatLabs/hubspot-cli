@@ -12,13 +12,15 @@ import { accountAnswer } from "../whoami.js"
  * `WCHUBSPOT_TOKEN` names no account, so the account says which, once per command, as `session start` asks; kept
  * nowhere. Offline it stays unknown, and only a command that needs it refuses.
  */
-const environmentPortal = async (command: Command, hub: () => HubSpotTransport) => {
+const environmentAccount = async (command: Command) => {
   const { flags, profile, tokens } = contextOf(command)
-  if (flags.offline || tokens.read(profile)?.source !== "environment") return { portal: undefined }
+  const stored = tokens.read(profile)
+  if (flags.offline || stored?.source !== "environment") return {}
   try {
-    return { portal: (await accountAnswer(hub())).account }
+    const { account, account_info } = await accountAnswer(hubFor(command, { token: stored.secret }))
+    return { portal: account, timeZone: account_info.time_zone }
   } catch (error) {
-    return { portal: undefined, error }
+    return { error }
   }
 }
 
@@ -30,8 +32,17 @@ const openProfile = async (command: Command, { readOnly }: { readOnly: boolean }
     import("../crm/source.js"),
   ])
   let transport: HubSpotTransport | undefined
-  const hub = () => (transport ??= hubFor(command, signInOf(command)))
-  const fromEnvironment = await environmentPortal(command, hub)
+  const fromEnvironment = await environmentAccount(command)
+  const hub = () => {
+    if (transport) return transport
+    const signIn = signInOf(command)
+    transport = hubFor(command, {
+      token: signIn.token,
+      portalId: signIn.portalId ?? fromEnvironment.portal,
+      timeZone: signIn.timeZone ?? fromEnvironment.timeZone,
+    })
+    return transport
+  }
   const accountOf = (): AccountKey => {
     const portal = storedSignIn(command)?.portalId ?? fromEnvironment.portal
     if (portal) return { provider: PROVIDER.name, account: portal }

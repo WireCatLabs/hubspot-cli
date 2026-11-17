@@ -14,7 +14,7 @@ metadata:
 # hubspot: a HubSpot account's CRM from the command line
 
 `hubspot` reads the owner's **real company CRM**. It changes nothing there in this release: no command creates, moves
-or deletes a record. The raw `api` group can write, but only as far as the owner's permissions allow.
+or deletes a record, and the raw `api` group offers only HubSpot's read operations.
 
 Find only the commands the task needs: `hubspot commands info deals list --json` is one command's contract,
 `hubspot help deals list` the short help with its query fields, `hubspot commands --json` the whole tree.
@@ -60,7 +60,7 @@ The first word is the profile: `hubspot work deals list` is profile `work`. Ther
 
 ## The raw API
 
-`api` has one command per operation of HubSpot's CRM API, version 2026-03, named like `deals-search` or
+`api` has one command per read operation of HubSpot's CRM API, version 2026-03, named like `deals-search` or
 `contacts-list`. [references/api.md](references/api.md) (`hubspot skill show api`) lists the groups, and
 `hubspot skill show api-<group>` one group with each command's flags.
 
@@ -70,16 +70,11 @@ The first word is the profile: `hubspot work deals list` is profile `work`. Ther
   field the spec requires: `--body '{"after":"0","filterGroups":[],"limit":5,"properties":["dealname","amount"],"sorts":[]}'`.
 - A search returns at most 10,000 results and HubSpot allows about 5 searches a second for the account. Prefer the
   store for anything `deals list` can answer.
-- **Never write through `api` unless the owner asked for that exact change.** A write checks `api.<command>`. A delete
-  (`batch-archive`, `merge`, `gdpr-delete`) also checks `deals.delete`, `people.delete` or `organizations.delete`, and
-  asks first. `gdpr-delete` erases a contact for good.
-- **Never add `--yes` on your own:** it answers the question an `ask` level puts, and it is the owner's word.
-- **Exit `5` or `7` is the owner's decision, not a fault.** Do not work around it with settings, another profile or
-  another command. Say what was refused and why.
-- **Over MCP, `ask` does not ask: the write goes ahead.** When the owner gives you the CRM over MCP, tell them to set
-  `api` to `readonly` (`hubspot work config set permissions.api readonly`), or to turn on approval for
-  `hubspot_write` in their MCP client. Over MCP, `session start`, `session end` and adding a timer are refused: ask
-  the owner to run them in a terminal.
+- **No writes.** Creating, changing or deleting a record is not offered in this release, through `api` or any other
+  command (`api show <write>` says so). Tell the owner it must be done in HubSpot.
+- **Exit `5` is the owner's decision, not a fault.** Do not work around a refused read with settings, another profile
+  or another command. Say what was refused and why.
+- Over MCP, `session start`, `session end` and adding a timer are refused: ask the owner to run them in a terminal.
 
 ## Signing in
 

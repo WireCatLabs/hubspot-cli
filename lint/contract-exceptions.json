@@ -1,6 +1,6 @@
 [
   {
     "contract": "crmWriteContract",
-    "reason": "the first release only reads: addCrmCommands gets no writes, so no command creates, changes or deletes a record; writes come with their own release"
+    "reason": "the first release only reads: addCrmCommands gets no writes and the api group offers only its read operations, so no command creates, changes or deletes a record; writes come with their own release"
   }
 ]

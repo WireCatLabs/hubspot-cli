@@ -3,8 +3,8 @@ import type { CrmActivity, CrmActivityKind, CrmKind } from "@wirecat/cli-core"
 import { type CrmCallContext, type CrmPage, crmValues } from "@wirecat/cli-core/crm"
 import type { HubSpotTransport } from "../hubspot/transport.js"
 import { associationsOf } from "./associations.js"
-import { msOf, propertiesOf, type Raw } from "./records.js"
-import { modifiedSince, nextSpot, SEARCH_PAGE, type Spot, search } from "./search.js"
+import { msOf, nextOf, propertiesOf, type Raw, resultsOf } from "./records.js"
+import { modifiedSince, nextSpot, SEARCH_PAGE, search } from "./search.js"
 
 const { id, text } = crmValues
 
@@ -25,6 +25,9 @@ interface Engagement {
   dueAt: (properties: Raw) => number | null
   done: (properties: Raw) => boolean
 }
+
+/** A call not over yet (calls guide, `hs_call_status`). */
+const CALL_OPEN = ["SCHEDULED", "QUEUED", "RINGING", "IN_PROGRESS", "CONNECTING", "CALLING_CRM_USER"]
 
 const COMMON = ["hubspot_owner_id", "hs_timestamp", "hs_createdate", "hs_lastmodifieddate"]
 
@@ -66,8 +69,7 @@ const ENGAGEMENTS: readonly Engagement[] = [
       (text(properties.hs_call_direction) === "INBOUND" ? "incoming call" : "outgoing call"),
     body: () => null,
     dueAt: () => null,
-    done: (properties) =>
-      !["SCHEDULED", "QUEUED", "RINGING", "IN_PROGRESS"].includes(text(properties.hs_call_status) ?? ""),
+    done: (properties) => !CALL_OPEN.includes(text(properties.hs_call_status) ?? ""),
   },
   {
     type: "emails",
@@ -129,20 +131,39 @@ const toActivity = (engagement: Engagement, raw: Raw, on: CrmActivity["on"]): Cr
   }
 }
 
-/** `<engagement index>.<from>.<offset>@<round start>`, keyset by modified time as the record changes are. */
+/**
+ * `<engagement index>.<from>.<offset>@<round start>` reads by search, keyset by modified time as the record changes
+ * are; `<engagement index>.<from>.L<after>@<round start>` lists the type in full, for a moment past the search cap.
+ * HubSpot's `after` is opaque, so the round's start is read after the last `@`.
+ */
 const pageOf = (page: string | undefined, since: number, now: number) => {
-  const found = /^(\d+)\.(-?\d+)\.(\d+)@(\d+)$/.exec(page ?? "")
-  if (!found) return { at: 0, spot: { from: since - OVERLAP_MS, offset: 0 }, started: now }
+  const fresh = { at: 0, spot: { from: since - OVERLAP_MS, offset: 0 }, after: undefined, started: now }
+  const cut = (page ?? "").lastIndexOf("@")
+  const started = Number(page?.slice(cut + 1))
+  const found = /^(\d+)\.(-?\d+)\.(?:(\d+)|L(.*))$/s.exec(page?.slice(0, cut) ?? "")
+  if (cut < 0 || !found || !Number.isSafeInteger(started)) return fresh
   return {
     at: Number(found[1]),
-    spot: { from: Number(found[2]), offset: Number(found[3]) },
-    started: Number(found[4]),
+    spot: { from: Number(found[2]), offset: Number(found[3] ?? 0) },
+    after: found[4] === undefined ? undefined : found[4] || "",
+    started,
   }
+}
+
+export interface ActivityPages {
+  /** Rows a search asks per page (search guide: 200 at most). */
+  search: number
+  /** Rows a list asks per page (100 at most). */
+  list: number
 }
 
 /**
  * One page of one engagement type changed since `since`, the types one after another: notes, calls, e-mails,
  * meetings, tasks. A type the token's scopes refuse is a gap naming the scope, and the next type is read.
+ *
+ * More than the search cap changed at one moment (an import): the type is then listed in full, newest change or not,
+ * and only rows changed since the window's start are kept. Not a stop: cli-core resumes a failed activity round
+ * from the page it saved, which would hit the same cap on every run.
  */
 export const readActivities = async (
   caller: HubSpotTransport,
@@ -150,24 +171,41 @@ export const readActivities = async (
   page: string | undefined,
   context: CrmCallContext | undefined,
   now: () => number,
+  sizes: ActivityPages = { search: SEARCH_PAGE, list: 100 },
 ): Promise<CrmPage<CrmActivity>> => {
-  const { at, spot, started } = pageOf(page, since, now())
+  const { at, spot, after, started } = pageOf(page, since, now())
   const engagement = ENGAGEMENTS[at]
   const last = { hasMore: false as const, cursor: String(started) }
   if (!engagement) return { items: [], ...last }
-  const following = (items: CrmActivity[], next?: Spot): CrmPage<CrmActivity> => {
-    if (next) return { items, hasMore: true, nextCursor: `${at}.${next.from}.${next.offset}@${started}` }
+  const following = (items: CrmActivity[], next?: string): CrmPage<CrmActivity> => {
+    if (next) return { items, hasMore: true, nextCursor: `${at}.${next}@${started}` }
     if (at + 1 >= ENGAGEMENTS.length) return { items, ...last }
     return { items, hasMore: true, nextCursor: `${at + 1}.${since - OVERLAP_MS}.0@${started}` }
   }
   let rows: Raw[]
   let more: boolean
+  let listedNext: string | null = null
   try {
-    ;({ rows, more } = await search(
-      caller.post,
-      engagement.type,
-      modifiedSince("hs_lastmodifieddate", spot, SEARCH_PAGE, engagement.properties),
-    ))
+    if (after === undefined)
+      ({ rows, more } = await search(
+        caller.post,
+        engagement.type,
+        modifiedSince("hs_lastmodifieddate", spot, sizes.search, engagement.properties),
+      ))
+    else {
+      const body = await caller.get(`/crm/objects/2026-03/${engagement.type}`, {
+        limit: sizes.list,
+        properties: engagement.properties.join(","),
+        archived: false,
+        ...(after ? { after } : {}),
+      })
+      listedNext = nextOf(body)
+      more = listedNext !== null
+      rows = resultsOf(body).filter((raw) => {
+        const changed = msOf(propertiesOf(raw).hs_lastmodifieddate) ?? msOf(raw.updatedAt)
+        return changed === null || changed >= spot.from
+      })
+    }
   } catch (error) {
     if (!isCliError(error) || error.code !== "permission_error") throw error
     context?.gap({
@@ -180,7 +218,7 @@ export const readActivities = async (
   const ids = rows.flatMap((raw) => id(raw.id) ?? [])
   const on = new Map<string, CrmActivity["on"]>()
   for (const [to, kind] of ON) {
-    let found: Map<string, string[]>
+    let found: Awaited<ReturnType<typeof associationsOf>>
     try {
       found = await associationsOf(caller.post, engagement.type, to, ids)
     } catch (error) {
@@ -188,17 +226,11 @@ export const readActivities = async (
       throw error
     }
     for (const [owner, linked] of found)
-      on.set(owner, [...(on.get(owner) ?? []), ...linked.map((externalId) => ({ kind, externalId }))])
+      on.set(owner, [...(on.get(owner) ?? []), ...linked.map((one) => ({ kind, externalId: one.id }))])
   }
   const items = rows.flatMap((raw) => toActivity(engagement, raw, on.get(String(raw.id)) ?? []) ?? [])
   if (!more) return following(items)
-  const next = nextSpot(spot, rows, "hs_lastmodifieddate", SEARCH_PAGE)
-  if (next === null) {
-    context?.gap({
-      kind: "activities",
-      message: `more than 10000 ${engagement.type} changed at one moment; HubSpot's search reads no further`,
-    })
-    return following(items)
-  }
-  return following(items, next)
+  if (after !== undefined) return following(items, `${spot.from}.L${listedNext}`)
+  const next = nextSpot(spot, rows, "hs_lastmodifieddate", sizes.search)
+  return following(items, next ? `${next.from}.${next.offset}` : `${spot.from}.L`)
 }

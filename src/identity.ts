@@ -14,6 +14,8 @@ export const IDENTITY: AppIdentity = {
   issues: "https://github.com/WireCatLabs/hubspot-cli/issues/new",
   messenger: false,
   contentLanguages: ["en", "es", "ru"],
+  // hubspot paces itself to 4 requests a second (PACE in src/hubspot/transport.ts); a run's budget counts on half that.
+  requestMs: 500,
   errors: { reasons: REASONS, details: DETAILS },
 }
 

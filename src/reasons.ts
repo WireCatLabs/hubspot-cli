@@ -15,7 +15,6 @@ const OWN: [reason: string, code: string, message: string][] = [
   ["hubspot.daily-limit", "rate_limited", "the HubSpot account spent its daily API allowance, shared by all its apps"],
   ["hubspot.rate-limit", "rate_limited", "HubSpot asked to slow down for a few seconds"],
   ["hubspot.too-many-filters", "validation_error", "a HubSpot search takes at most 6 conditions together"],
-  ["query.unsupported-field", "validation_error", "HubSpot cannot filter this kind of record by that field"],
   ["hubspot.search-cap", "validation_error", "a HubSpot search reaches only its first 10,000 results"],
 ]
 

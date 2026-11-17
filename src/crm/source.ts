@@ -86,7 +86,35 @@ const asked = (raw: Raw, types: readonly string[]): Raw => {
 
 /** The shared names a live list filters by, as HubSpot's properties. */
 const liveField = (kind: CrmLiveKind, field: string): string | undefined =>
-  ({ assigned_to: "hubspot_owner_id", created_at: OBJECTS[kind].created, updated_at: OBJECTS[kind].modified })[field]
+  ({
+    assigned_to: "hubspot_owner_id",
+    created_at: OBJECTS[kind].created,
+    updated_at: OBJECTS[kind].modified,
+    // A company's own `type` property (Prospect, Partner…), as b24 maps `type` to its company type.
+    ...(kind === "organization" ? { type: "type" } : {}),
+  })[field]
+
+/**
+ * The longest `properties=` a GET sends. Servers commonly refuse request lines past 8 KB; HubSpot names no limit, so
+ * an account with hundreds of custom properties reads the ones that fit, and the call says which it left out.
+ */
+export const MAX_PROPERTIES_CHARS = 6_000
+
+/** HubSpot's own properties first, always; then the account's own while they fit. */
+export const fitted = (own: readonly string[], custom: readonly string[]) => {
+  const kept = [...own]
+  let length = kept.join(",").length
+  const dropped: string[] = []
+  for (const name of custom) {
+    if (kept.includes(name)) continue
+    if (length + name.length + 1 > MAX_PROPERTIES_CHARS) dropped.push(name)
+    else {
+      kept.push(name)
+      length += name.length + 1
+    }
+  }
+  return { properties: kept.join(","), dropped }
+}
 
 const OPERATORS: Record<CrmCondition["op"], string> = {
   "=": "EQ",
@@ -205,13 +233,30 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
     ...new Set([...type.properties, ...defined.map(({ code }) => code)]),
   ]
 
-  /** Search answers carry no associations: one batch read per associated type (associations v4). */
-  const associate = async (type: ObjectType, rows: Raw[], caller: HubSpotTransport) => {
+  /**
+   * One batch read per associated type (associations v4): a search answers no associations, and a list none of the
+   * type ids that mark the primary company.
+   */
+  const associate = async (type: ObjectType, rows: Raw[], caller: HubSpotTransport, types: readonly string[]) => {
     let linked = rows
     const ids = rows.flatMap((raw) => id(raw.id) ?? [])
-    for (const to of type.associations)
-      linked = withAssociations(linked, to, await associationsOf(caller.post, type.name, to, ids))
+    for (const to of types) linked = withAssociations(linked, to, await associationsOf(caller.post, type.name, to, ids))
     return linked
+  }
+  const everyLink = (type: ObjectType) => [...type.associations, ...type.linked]
+
+  /** The GET query's properties, the ones that do not fit named as a gap. */
+  const getProperties = (kind: CrmKind, defined: readonly CrmField[], context?: CrmCallContext) => {
+    const { properties, dropped } = fitted(
+      OBJECTS[kind].properties,
+      defined.map(({ code }) => code),
+    )
+    if (dropped.length)
+      context?.gap({
+        kind,
+        message: `${dropped.length} of the account's own ${OBJECTS[kind].name} properties do not fit one request and were not read`,
+      })
+    return properties
   }
 
   const readChanges = async <K extends CrmKind>(
@@ -219,6 +264,7 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
     cursor: string | null,
     page: string | undefined,
     caller: HubSpotTransport,
+    context?: CrmCallContext,
   ): Promise<CrmChanges<CrmRecords[K]>> => {
     const type = OBJECTS[kind]
     const since = cursor === null ? null : Date.parse(cursor)
@@ -230,13 +276,18 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
     if (since === null) {
       const query: Query = {
         limit: listPage,
-        properties: properties.join(","),
+        properties: getProperties(kind, defined, context),
         archived: false,
         ...(type.associations.length ? { associations: type.associations.join(",") } : {}),
         ...(after ? { after } : {}),
       }
       const body = await caller.get(`/crm/objects/2026-03/${type.path}`, query)
-      const rows = resultsOf(body).map((raw) => asked(raw, type.associations))
+      const rows = await associate(
+        type,
+        resultsOf(body).map((raw) => asked(raw, type.associations)),
+        caller,
+        type.linked,
+      )
       const items = await mapped(kind, rows, defined, caller)
       const next = nextOf(body)
       return next ? { items, hasMore: true, nextCursor: `l${next}@${started}` } : { items, ...ended }
@@ -247,7 +298,7 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
       type.path,
       modifiedSince(type.modified, spot, searchPage, properties),
     )
-    const items = await mapped(kind, await associate(type, rows, caller), defined, caller)
+    const items = await mapped(kind, await associate(type, rows, caller, everyLink(type)), defined, caller)
     if (!more) return { items, ...ended }
     const next = nextSpot(spot, rows, type.modified, searchPage)
     // More than the search cap changed at one moment (a mass import): only a full list reads them all.
@@ -282,7 +333,7 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
       context?: CrmCallContext,
     ): Promise<CrmChanges<CrmRecords[K]>> {
       try {
-        return await readChanges(kind, cursor, page, metered(context))
+        return await readChanges(kind, cursor, page, metered(context), context)
       } catch (error) {
         // Leads need Sales Hub Professional or Enterprise: an account without them still syncs everything else.
         if (kind === "lead" && refused(error)) {
@@ -299,7 +350,7 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
       const type = OBJECTS[kind]
       try {
         const body = await metered(context).get(`/crm/objects/2026-03/${type.path}`, {
-          limit: LIST_PAGE,
+          limit: listPage,
           properties: "hs_object_id",
           archived: false,
           ...(page ? { after: page } : {}),
@@ -354,7 +405,7 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
           offset,
           ...(query.text ? { query: query.text } : {}),
         })
-        return { rows: await associate(type, rows, caller), more }
+        return { rows: await associate(type, rows, caller, everyLink(type)), more }
       })
       return { items: await mapped(kind, page.items, defined, caller), hasMore: page.hasMore }
     },
@@ -366,7 +417,7 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
       let body: unknown
       try {
         body = await caller.get(`/crm/objects/2026-03/${type.path}/${segment(externalId)}`, {
-          properties: propertiesFor(type, defined).join(","),
+          properties: getProperties(kind, defined, context),
           ...(type.associations.length ? { associations: type.associations.join(",") } : {}),
         })
       } catch (error) {
@@ -374,10 +425,12 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
         throw error
       }
       if (typeof body !== "object" || body === null) return null
-      const [record] = await mapped(kind, [asked(body as Raw, type.associations)], defined, caller)
+      const rows = await associate(type, [asked(body as Raw, type.associations)], caller, type.linked)
+      const [record] = await mapped(kind, rows, defined, caller)
       return record ?? null
     },
-    activities: (since, page, context) => readActivities(metered(context), since, page, context, now),
+    activities: (since, page, context) =>
+      readActivities(metered(context), since, page, context, now, { search: searchPage, list: listPage }),
   }
 }
 

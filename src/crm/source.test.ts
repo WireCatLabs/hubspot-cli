@@ -7,17 +7,23 @@ import { type MessageStore, openStore } from "@wirecat/cli-core/store"
 import { afterEach, expect, it } from "vitest"
 import { hubspotTransport } from "../hubspot/transport.js"
 import { FAKE_TOKEN, type FakeHubspot, fakeHubspot, seededHubspot } from "../testing/fake-hubspot.js"
-import { hubspotCrmSource, OVERLAP_MS } from "./source.js"
+import { fitted, hubspotCrmSource, MAX_PROPERTIES_CHARS, OVERLAP_MS } from "./source.js"
 
-const over = (hub: FakeHubspot, now: () => number = Date.now, page?: number) => {
+const over = (hub: FakeHubspot, now: () => number = Date.now, page?: number, searchPage?: number) => {
   const transport = hubspotTransport({ token: FAKE_TOKEN, fetch: hub.fetch, sleep: async () => {}, now })
-  return hubspotCrmSource(() => transport, { now, ...(page ? { page } : {}) })
+  return hubspotCrmSource(() => transport, {
+    now,
+    ...(page ? { page } : {}),
+    ...(searchPage ? { searchPage } : {}),
+  })
 }
 
-const full = async <T>(read: (page?: string) => Promise<CrmPage<T> | { reset: true }>) => {
+/** Every page of a round; a paging bug that never ends fails here instead of hanging the suite. */
+const full = async <T>(read: (page?: string) => Promise<CrmPage<T> | { reset: true }>, cap = 500) => {
   const items: T[] = []
   let page: string | undefined
-  for (;;) {
+  for (let read_ = 0; ; read_ += 1) {
+    if (read_ >= cap) throw new Error(`more than ${cap} pages`)
     const answer = await read(page)
     if ("reset" in answer) throw new Error("reset")
     items.push(...answer.items)
@@ -56,7 +62,10 @@ it("maps a deal into core's shape: decimal money, a day, its contacts and compan
   // A one-currency account leaves deal_currency_code empty: the account's currency stands in.
   expect(items.find((one) => one.externalId === ids.won)).toMatchObject({ amount: "900", currency: "EUR" })
   const list = hub.calls.find((call) => call.url.pathname === "/crm/objects/2026-03/0-3")
-  expect(list?.url.searchParams.get("associations")).toBe("contacts,companies")
+  expect(list?.url.searchParams.get("associations")).toBe("contacts")
+  expect(hub.calls.some((call) => call.url.pathname === "/crm/associations/2026-03/deals/companies/batch/read")).toBe(
+    true,
+  )
   expect(hub.refusals).toEqual([])
 })
 
@@ -180,7 +189,7 @@ it("refuses an id pass of a kind it may not read, so no stored row is marked del
   })
 })
 
-it("lists the pipelines' stages with their outcome from isClosed, probability and a lead's state", async () => {
+it("lists the pipelines' stages with their outcome from isClosed and probability, the only fields HubSpot documents", async () => {
   const { hub } = seededHubspot()
   const [sales] = await over(hub).pipelines("deal")
   expect(sales?.stages.map((stage) => [stage.externalId, stage.outcome])).toEqual([
@@ -189,7 +198,7 @@ it("lists the pipelines' stages with their outcome from isClosed, probability an
     ["closedlost", "lost"],
   ])
   const [leads] = await over(hub).pipelines("lead")
-  expect(leads?.stages.map((stage) => stage.outcome)).toEqual(["open", "won", "lost"])
+  expect(leads?.stages.map((stage) => stage.outcome)).toEqual(["open", "lost", "lost"])
 })
 
 it("lists the owners, the deactivated ones as inactive, and the account's own fields with their options", async () => {
@@ -271,3 +280,124 @@ it("get answers null for an id that is not a HubSpot id, without a request", asy
   expect(await over(hub).get?.("person", "../owners")).toBeNull()
   expect(hub.calls).toEqual([])
 })
+
+const DAY = 86_400_000
+
+it("an id pass pages by the source's page size, and a row removed on its second page is the only one deleted", async () => {
+  let now = Date.now()
+  const { hub } = seededHubspot()
+  const store = await openStore({ path: join(mkdtempSync(join(tmpdir(), "hubspot-ids-")), "store.db") })
+  stores.push(store)
+  const account = { provider: "hubspot", account: "4000001" }
+  const deals = async () => (await store.deals.list({ account, kind: "deal" })).items.map((one) => one.title).sort()
+  await syncCrm(
+    over(hub, () => now, 2),
+    store,
+    account,
+    { now },
+  )
+  expect(await deals()).toEqual(["Example kitchen", "Example lost", "Example won"])
+  const lost = Object.entries(hub.seededIds().deals ?? []).at(-1)?.[1]
+  hub.remove("deals", String(lost))
+  now += DAY
+  await syncCrm(
+    over(hub, () => now, 2),
+    store,
+    account,
+    { now },
+  )
+  expect(await deals()).toEqual(["Example kitchen", "Example won"])
+  const passes = hub.calls.filter(
+    (call) => call.query.properties === "hs_object_id" && call.url.pathname.endsWith("0-3"),
+  )
+  expect(passes.length).toBeGreaterThan(1)
+  expect(passes.every((call) => call.query.limit === "2")).toBe(true)
+})
+
+it("a deal's company is the one HubSpot marks primary, on a full list and on a change round alike", async () => {
+  const { hub, ids } = seededHubspot()
+  const source = over(hub)
+  const whole = await full<CrmItem>((page) => source.changes("deal", null, page))
+  expect(whole.items.find((one) => one.externalId === ids.kitchen)?.organization).toBe(ids.acme)
+  hub.touch("deals", ids.kitchen)
+  const changed = await full<CrmItem>((page) => source.changes("deal", whole.cursor, page))
+  expect(changed.items.find((one) => one.externalId === ids.kitchen)?.organization).toBe(ids.acme)
+})
+
+it("a change round says a deal with no contacts or company has none, so a removed link leaves the copy", async () => {
+  const { hub } = seededHubspot()
+  const source = over(hub)
+  const { cursor } = await full<CrmItem>((page) => source.changes("deal", null, page))
+  const changed = await full<CrmItem>((page) => source.changes("deal", cursor, page))
+  expect(changed.items.find((one) => one.title === "Example lost")).toMatchObject({ people: [], organization: null })
+})
+
+it("a lead's created time comes from createdate when hs_createdate is not there", async () => {
+  const hub = fakeHubspot()
+  const lead = hub.put("leads", {
+    hs_lead_name: "Example",
+    hs_pipeline: "lead-pipeline-id",
+    hs_pipeline_stage: "new-stage-id",
+  })
+  const row = hub.row("leads", lead)
+  if (!row) throw new Error("no lead")
+  row.properties.createdate = "2026-01-02T03:04:05Z"
+  delete row.properties.hs_createdate
+  const { items } = await full<CrmItem>((page) => over(hub).changes("lead", null, page))
+  expect(items[0]?.createdAt).toBe(Date.parse("2026-01-02T03:04:05Z"))
+})
+
+it("a live list of companies filters by their type", async () => {
+  const { hub } = seededHubspot()
+  await over(hub).list?.("organization", { conditions: [{ field: "type", op: "=", value: "PARTNER" }], limit: 5 })
+  expect(searches(hub)[0]?.body).toMatchObject({
+    filterGroups: [{ filters: [{ propertyName: "type", operator: "EQ", value: "PARTNER" }] }],
+  })
+})
+
+it("asks for the account's own properties only while the address stays short, and names the ones left out", async () => {
+  const { hub, ids } = seededHubspot()
+  for (let at = 0; at < 400; at += 1) hub.defineProperty(`example_custom_property_${at}`)
+  const person = await over(hub).get?.("person", ids.ana, context)
+  expect(person?.externalId).toBe(ids.ana)
+  const asked = hub.calls.find((call) => call.url.pathname.endsWith(`/contacts/${ids.ana}`))
+  expect(String(asked?.query.properties).length).toBeLessThanOrEqual(MAX_PROPERTIES_CHARS)
+  expect(String(asked?.query.properties)).toContain("email")
+  expect(gaps).toEqual([expect.objectContaining({ kind: "person" })])
+  expect(fitted(["a"], ["b", "a", "c".repeat(MAX_PROPERTIES_CHARS)])).toEqual({
+    properties: "a,b",
+    dropped: ["c".repeat(MAX_PROPERTIES_CHARS)],
+  })
+})
+
+it("reads activities page after page, and from ten minutes before since, in the first type and the next", async () => {
+  let clock = Date.parse("2026-11-17T10:00:00Z")
+  const hub = fakeHubspot({ now: () => clock })
+  for (let at = 0; at < 5; at += 1) hub.put("notes", { hs_note_body: `Note ${at}` })
+  hub.put("calls", { hs_call_title: "Call" })
+  const since = clock + 5 * 60_000
+  clock += 60 * 60_000
+  const source = over(hub, () => clock, undefined, 2)
+  const read = await full<CrmActivity>((page) => source.activities?.(since, page, context) ?? Promise.reject())
+  // Rows at the boundary moment are read twice; the store saves them twice, nothing more.
+  expect([...new Set(read.items.map((one) => one.subject || one.body))]).toEqual([
+    "Note 0",
+    "Note 1",
+    "Note 2",
+    "Note 3",
+    "Note 4",
+    "Call",
+  ])
+  expect(searches(hub).filter((call) => call.url.pathname.includes("/notes/")).length).toBeGreaterThan(1)
+})
+
+it("more activities than the search reaches at one moment are listed in full, none lost", async () => {
+  const clock = Date.parse("2026-11-17T10:00:00Z")
+  const hub = fakeHubspot({ now: () => clock })
+  for (let at = 0; at < 10_001; at += 1) hub.put("tasks", { hs_task_subject: `Task ${at}` })
+  const source = over(hub, () => clock + 60_000)
+  const read = await full<CrmActivity>((page) => source.activities?.(clock, page, context) ?? Promise.reject())
+  expect(new Set(read.items.map((one) => one.externalId)).size).toBe(10_001)
+  expect(hub.calls.some((call) => call.url.pathname === "/crm/objects/2026-03/tasks")).toBe(true)
+  expect(hub.refusals).toEqual([])
+}, 60_000)

@@ -147,13 +147,19 @@ export const fakeHubspot = (options: FakeHubspotOptions = {}) => {
     return id
   }
 
-  const link = (from: FakeType, fromId: string, to: FakeType, toId: string) => {
-    for (const [a, aId, b, bId] of [
-      [from, fromId, to, toId],
-      [to, toId, from, fromId],
+  /** The association type ids each link carries, for the batch read; the reverse direction gets the default type. */
+  const linkTypes = new Map<string, Map<string, number[]>>()
+  /** Links two records; `typeIds` from the first to the second, such as 5 for a deal's primary company. */
+  const link = (from: FakeType, fromId: string, to: FakeType, toId: string, typeIds: number[] = [0]) => {
+    for (const [a, aId, b, bId, types] of [
+      [from, fromId, to, toId, typeIds],
+      [to, toId, from, fromId, [0]],
     ] as const) {
       const key = linkKey(a, aId, b)
       links.set(key, new Set([...(links.get(key) ?? []), bId]))
+      const held = linkTypes.get(key) ?? new Map<string, number[]>()
+      held.set(bId, [...new Set([...(held.get(bId) ?? []), ...types])])
+      linkTypes.set(key, held)
     }
   }
 
@@ -213,8 +219,10 @@ export const fakeHubspot = (options: FakeHubspotOptions = {}) => {
         }
       const missing = types.find((type) => refuse.has(type))
       if (missing)
+        // The spec's error schemas: `context.missingScopes` on the error and on each of its details.
         return error(403, "MISSING_SCOPES", {
-          errors: [{ message: "scope missing", context: { requiredGranularScopes: [`crm.objects.${missing}.read`] } }],
+          context: { missingScopes: [`crm.objects.${missing}.read`] },
+          errors: [{ message: "scope missing", context: { missingScopes: [`crm.objects.${missing}.read`] } }],
         })
       return answer(call)
     }
@@ -313,7 +321,11 @@ export const fakeHubspot = (options: FakeHubspotOptions = {}) => {
                   from: { id },
                   to: ids.map((toObjectId) => ({
                     toObjectId,
-                    associationTypes: [{ category: "HUBSPOT_DEFINED", typeId: 1 }],
+                    associationTypes: (linkTypes.get(linkKey(from, id, to))?.get(toObjectId) ?? [0]).map((typeId) =>
+                      typeId === 5 || typeId === 1 || typeId === 580
+                        ? { category: "HUBSPOT_DEFINED", typeId, label: "Primary" }
+                        : { category: "HUBSPOT_DEFINED", typeId },
+                    ),
                   })),
                 },
               ]
@@ -353,8 +365,8 @@ export const fakeHubspot = (options: FakeHubspotOptions = {}) => {
     leads: [
       pipeline("lead-pipeline-id", "Lead pipeline", [
         stage("new-stage-id", "New", 0, { isClosed: "false" }),
-        stage("qualified-stage-id", "Qualified", 1, { isClosed: "true", leadState: "QUALIFIED" }),
-        stage("unqualified-stage-id", "Disqualified", 2, { isClosed: "true", leadState: "UNQUALIFIED" }),
+        stage("qualified-stage-id", "Qualified", 1, { isClosed: "true" }),
+        stage("unqualified-stage-id", "Disqualified", 2, { isClosed: "true" }),
       ]),
     ],
   }
@@ -470,6 +482,8 @@ export const fakeHubspot = (options: FakeHubspotOptions = {}) => {
     setSearchLag: (ms: number) => {
       lagMs = ms
     },
+    /** One more property the account defined itself, on every object type. */
+    defineProperty: (name: string) => PROPERTIES.push(property(name, name)),
     seededIds: () => Object.fromEntries([...rows].map(([type, held]) => [type, [...held.keys()]])),
   }
 }
@@ -501,7 +515,7 @@ export const seededHubspot = (options: FakeHubspotOptions = {}) => {
   })
   const ben = hub.put("contacts", { firstname: "Ben", email: "ben@example.com", example_source: "web" })
   const cy = hub.put("contacts", { lastname: "Cy" })
-  hub.link("contacts", ana, "companies", acme)
+  hub.link("contacts", ana, "companies", acme, [1, 279])
   hub.link("contacts", ben, "companies", beta)
   const kitchen = hub.put("deals", {
     dealname: "Example kitchen",
@@ -516,7 +530,9 @@ export const seededHubspot = (options: FakeHubspotOptions = {}) => {
   const won = hub.put("deals", { dealname: "Example won", pipeline: "default", dealstage: "closedwon", amount: "900" })
   hub.put("deals", { dealname: "Example lost", pipeline: "default", dealstage: "closedlost", hubspot_owner_id: "502" })
   hub.link("deals", kitchen, "contacts", ana)
-  hub.link("deals", kitchen, "companies", acme)
+  // Listed first but not primary: the primary company is the one association type 5 marks.
+  hub.link("deals", kitchen, "companies", beta, [341])
+  hub.link("deals", kitchen, "companies", acme, [5, 341])
   hub.link("deals", won, "contacts", ben)
   const lead = hub.put("leads", {
     hs_lead_name: "Example lead",

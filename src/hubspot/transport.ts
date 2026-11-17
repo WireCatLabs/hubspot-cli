@@ -1,7 +1,9 @@
 import { CliError, type CliErrorDetails, isCliError, realSleep, type SleepLike } from "@wirecat/cli-base"
 import { hostFetch, providerWaitMs, readJsonResponse, statusToCode } from "@wirecat/cli-base/http"
-import { type EventSink, providerRequest } from "@wirecat/cli-core/cli"
+import { currentAttempt, type EventSink, providerEvent, providerRequest } from "@wirecat/cli-core/cli"
+import { providerCall } from "@wirecat/cli-core/crm"
 import type { Pacer } from "@wirecat/cli-core/sends"
+import { DESKTOP } from "../identity.js"
 
 export const HUBSPOT_API = "https://api.hubapi.com"
 export const SERVICE = "HubSpot"
@@ -15,10 +17,11 @@ export const SERVICE = "HubSpot"
  */
 export const PACE = { perMinute: 240, burst: 1 }
 
-const TIMEOUT_MS = 30_000
+/** A third of a one-shot command's 30 s deadline, so a read that timed out can be tried again (amo-cli, bitrix24-cli). */
+const TIMEOUT_MS = 10_000
 const LARGEST_ANSWER = 16 * 1024 * 1024
-/** A pace wait longer than this ends the run with `rate_limited` instead of sitting in it. */
-const LONGEST_PACE_WAIT_MS = 60_000
+/** A pace wait longer than this ends the run with `rate_limited` instead of sitting in it (amo-cli). */
+const LONGEST_PACE_WAIT_MS = 20_000
 /** The rolling window of the per-app limit, when HubSpot sends no header to say (usage-guidelines). */
 const WINDOW_MS = 10_000
 /** Search answers carry no rate-limit header (usage-guidelines); its limit is per second. */
@@ -37,10 +40,10 @@ export interface TransportOptions {
   now?: () => number
   timeoutMs?: number
   /**
-   * The account's offset from UTC (`accountDetails().utcOffsetMs`): the daily limit resets at midnight in the
-   * account's time zone (usage-guidelines). Absent, midnight UTC is assumed.
+   * The account's IANA time zone (`accountDetails().timeZone`): the daily limit resets at midnight there
+   * (usage-guidelines). Absent or unknown, midnight UTC is assumed.
    */
-  utcOffsetMs?: number
+  timeZone?: string
 }
 
 export type Query = Record<string, string | number | boolean | undefined>
@@ -69,19 +72,22 @@ const CATEGORY = /^[A-Z][A-Z0-9_]{0,63}$/
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
 
+/** Where a refusal names scopes: the spec's `Error.context` and `ErrorDetail.context` examples, and HubSpot's own. */
+const SCOPE_KEYS = ["missingScopes", "requiredGranularScopes"]
+
 /**
- * The scopes a 403 names, if it names any: only scope-shaped words are taken, never HubSpot's text. Where HubSpot puts
- * them in the body is not in its docs (error-handling shows no 403 body); `errors[].context` is where the standard
- * error's `context` sits (`StandardError` in the spec), under any key with "scope" in its name.
+ * The scopes a 403 names, if it names any: only scope-shaped words are taken, never HubSpot's text. The spec's error
+ * schemas show `context: {missingScopes: [...]}` at the top and on each of `errors[]`; error-handling shows no 403 body.
  */
 const scopesOf = (body: unknown): string[] => {
-  const errors = isRecord(body) && Array.isArray(body.errors) ? body.errors : []
-  const named = errors.flatMap((error) =>
-    isRecord(error) && isRecord(error.context)
-      ? Object.entries(error.context).flatMap(([key, value]) =>
-          /scope/i.test(key) && Array.isArray(value) ? value : [],
-        )
-      : [],
+  const contexts = [
+    isRecord(body) ? body.context : undefined,
+    ...(isRecord(body) && Array.isArray(body.errors)
+      ? body.errors.map((one) => (isRecord(one) ? one.context : undefined))
+      : []),
+  ]
+  const named = contexts.flatMap((context) =>
+    isRecord(context) ? SCOPE_KEYS.flatMap((key) => (Array.isArray(context[key]) ? context[key] : [])) : [],
   )
   return [...new Set(named.filter((one): one is string => typeof one === "string" && SCOPE.test(one)))]
 }
@@ -91,10 +97,38 @@ const categoryOf = (body: unknown) => {
   return typeof category === "string" && CATEGORY.test(category) ? category : undefined
 }
 
-/** Milliseconds to the account's next midnight, when HubSpot's daily allowance comes back (usage-guidelines). */
-export const untilNextDay = (now: number, utcOffsetMs = 0): number => {
-  const local = now + utcOffsetMs
-  return DAY_MS - (((local % DAY_MS) + DAY_MS) % DAY_MS)
+/** The zone's offset from UTC at `at`; 0 for a zone Intl does not know. */
+const offsetAt = (timeZone: string | undefined, at: number): number => {
+  if (!timeZone) return 0
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      hourCycle: "h23",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }).formatToParts(at)
+    const part = (type: string) => Number(parts.find((one) => one.type === type)?.value)
+    const local = Date.UTC(part("year"), part("month") - 1, part("day"), part("hour"), part("minute"), part("second"))
+    return local - (at - (((at % 1000) + 1000) % 1000))
+  } catch {
+    return 0
+  }
+}
+
+/**
+ * Milliseconds to the next midnight in the account's time zone, when HubSpot's daily allowance comes back
+ * (usage-guidelines). The offset is read at the moment, and again at that midnight, so a change of summer time between
+ * the two still lands on midnight.
+ */
+export const untilNextDay = (now: number, timeZone?: string): number => {
+  const offset = offsetAt(timeZone, now)
+  const local = now + offset
+  const wait = DAY_MS - (((local % DAY_MS) + DAY_MS) % DAY_MS)
+  return wait + offset - offsetAt(timeZone, now + wait)
 }
 
 export interface Refused {
@@ -104,7 +138,7 @@ export interface Refused {
   body?: unknown
   headers?: Headers
   now?: number
-  utcOffsetMs?: number
+  timeZone?: string
   search?: boolean
 }
 
@@ -120,7 +154,7 @@ export const failureOf = ({
   body,
   headers = new Headers(),
   now = Date.now(),
-  utcOffsetMs,
+  timeZone,
   search = false,
 }: Refused): CliError => {
   const category = categoryOf(body)
@@ -147,7 +181,7 @@ export const failureOf = ({
   if (status === 429) {
     const policy = isRecord(body) ? body.policyName : undefined
     if (policy === "DAILY") {
-      const wait = untilNextDay(now, utcOffsetMs)
+      const wait = untilNextDay(now, timeZone)
       return new CliError(
         "rate_limited",
         `the ${SERVICE} account spent its daily API allowance, shared by every app on it; it comes back at midnight ` +
@@ -190,26 +224,24 @@ const queryOf = (url: URL, query: Query = {}) => {
 
 /**
  * The only code that holds the token: it goes in the Authorization header, never in an address, an error or a run
- * record (WC-SECR-7). Nothing here retries. A read the caller may run again; a write is never sent twice, since the
- * first may have landed (WC-OUT-20).
+ * record (WC-SECR-7). Each call goes through cli-core's `providerCall`: paced, a read tried again on a retryable failure
+ * or a short rate wait, a write only on a refused rate; a daily limit waits for no one and ends the call.
  */
 export const hubspotTransport = (options: TransportOptions): HubSpotTransport => {
+  // DESKTOP.hosts is what `wcat` shows the owner; our own deadline below fires first.
   const fetchOf = hostFetch({
-    hosts: [new URL(HUBSPOT_API).hostname],
+    hosts: DESKTOP.hosts ?? [],
     ...(options.fetch ? { fetch: options.fetch } : {}),
+    timeoutMs: (options.timeoutMs ?? TIMEOUT_MS) * 2,
   })
   const sleep = options.sleep ?? realSleep
   const now = options.now ?? Date.now
-
-  const turn = async () => {
-    if (!options.pacer) return
-    const wait = (await options.pacer.reserve()) - now()
-    if (wait <= 0) return
-    if (wait > LONGEST_PACE_WAIT_MS)
-      throw new CliError("rate_limited", `this profile must wait ${Math.ceil(wait / 1000)} s before its next request`, {
-        retry_after_ms: wait,
-      })
-    await sleep(wait, options.signal, "retry")
+  const wait = async (ms: number) => {
+    try {
+      await sleep(ms, options.signal, "retry")
+    } catch {
+      throw new CliError("cancelled", `stopped while waiting for ${SERVICE}`)
+    }
   }
 
   const unanswered = (writes: boolean, error: unknown): CliError => {
@@ -225,12 +257,14 @@ export const hubspotTransport = (options: TransportOptions): HubSpotTransport =>
       : new CliError("network_error", `${SERVICE} could not be reached`, { retryable: true })
   }
 
-  const send = async <T>(method: "GET" | "POST", path: string, query?: Query, body?: Record<string, unknown>) => {
-    if (!path.startsWith("/") || path.startsWith("//") || /[?#]|\/\.\.?(\/|$)/.test(path))
-      throw new CliError("validation_error", `${path} is not a ${SERVICE} API path`)
-    const writes = method === "POST" && !READING_POST.test(path)
-    const url = queryOf(new URL(path, HUBSPOT_API), query)
-    await turn()
+  const once = async <T>(
+    method: "GET" | "POST",
+    path: string,
+    url: URL,
+    writes: boolean,
+    attempt: number,
+    body?: Record<string, unknown>,
+  ): Promise<T> => {
     // Not AbortSignal.timeout: its timer keeps the run's async context alive until it fires.
     const deadline = new AbortController()
     const timer = setTimeout(
@@ -239,7 +273,11 @@ export const hubspotTransport = (options: TransportOptions): HubSpotTransport =>
     )
     timer.unref()
     const signal = options.signal ? AbortSignal.any([options.signal, deadline.signal]) : deadline.signal
-    const end = providerRequest(`${method} ${templateOf(path)}`, options.events, { method, transport: "http" })
+    const end = providerRequest(`${method} ${templateOf(path)}`, options.events ?? providerEvent, {
+      method,
+      transport: "http",
+      ...(currentAttempt() ? {} : { attempt }),
+    })
     try {
       let response: Response
       try {
@@ -268,12 +306,17 @@ export const hubspotTransport = (options: TransportOptions): HubSpotTransport =>
           body: answer,
           headers: response.headers,
           now: now(),
-          ...(options.utcOffsetMs === undefined ? {} : { utcOffsetMs: options.utcOffsetMs }),
+          ...(options.timeZone ? { timeZone: options.timeZone } : {}),
           search: path.endsWith("/search"),
         })
-        end({ status: response.status, errorCode: failure.code })
-        // Every process of the profile holds off, not only this one: a daily limit is the whole account's.
-        if (failure.code === "rate_limited" && typeof failure.details.retry_after_ms === "number")
+        const category = failure.details.provider_error
+        end({
+          status: response.status,
+          errorCode: failure.code,
+          ...(typeof category === "string" ? { providerError: category } : {}),
+        })
+        // Every process of the profile holds off till midnight: the daily allowance is the whole account's.
+        if (failure.details.reason === "hubspot.daily-limit" && typeof failure.details.retry_after_ms === "number")
           await options.pacer?.holdFor(failure.details.retry_after_ms).catch(() => undefined)
         throw failure
       }
@@ -297,6 +340,31 @@ export const hubspotTransport = (options: TransportOptions): HubSpotTransport =>
     } finally {
       clearTimeout(timer)
     }
+  }
+
+  const send = <T>(method: "GET" | "POST", path: string, query?: Query, body?: Record<string, unknown>) => {
+    if (!path.startsWith("/") || path.startsWith("//") || /[?#]|\/\.\.?(\/|$)/.test(path))
+      return Promise.reject(new CliError("validation_error", `${path} is not a ${SERVICE} API path`))
+    const writes = method === "POST" && !READING_POST.test(path)
+    const url = queryOf(new URL(path, HUBSPOT_API), query)
+    let attempt = 0
+    return providerCall<T>({
+      write: writes,
+      sleep: wait,
+      ...(options.pacer
+        ? {
+            pace: {
+              pacer: options.pacer,
+              name: SERVICE,
+              operation: `${method} ${templateOf(path)}`,
+              now,
+              sleep: wait,
+              longestWaitMs: LONGEST_PACE_WAIT_MS,
+            },
+          }
+        : {}),
+      send: () => once<T>(method, path, url, writes, ++attempt, body),
+    })
   }
 
   return {

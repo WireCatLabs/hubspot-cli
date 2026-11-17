@@ -45,14 +45,14 @@ it("mcp serve refuses a --permission that names no command, and a --profiles thi
 })
 
 it("mcp config prints an entry that serves the named profile, with the permission example, or every profile only when told", async () => {
-  const one = await hubspot(["work", "mcp", "config", "--permission", "deals.delete=deny", "--json"])
+  const one = await hubspot(["work", "mcp", "config", "--permission", "people.list=deny", "--json"])
   const entry = one.json().item as { config: { mcpServers: Record<string, { args: string[] }> } }
   expect(entry.config.mcpServers["hubspot-work"]?.args.slice(-5)).toEqual([
     "work",
     "mcp",
     "serve",
     "--permission",
-    "deals.delete=deny",
+    "people.list=deny",
   ])
   const all = await hubspot(["mcp", "config", "--profiles", "all", "--json"])
   expect(JSON.stringify(all.json())).toContain('"--profiles","all"')

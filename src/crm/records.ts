@@ -29,6 +29,11 @@ export interface ObjectType {
   properties: readonly string[]
   /** What a list returns the ids of, `?associations=` (contacts guide); search returns none. */
   associations: readonly string[]
+  /**
+   * What is read by the associations batch read on every path, for the type ids a list does not give: the one that
+   * marks the primary company (associations v4 guide, association type ids).
+   */
+  linked: readonly string[]
   /** The read scope its object API needs (legacy-apps/authentication/scopes). */
   scope: string
 }
@@ -41,6 +46,7 @@ export const OBJECTS: Record<CrmKind, ObjectType> = {
     created: "createdate",
     properties: ["name", "domain", "website", "phone", "hubspot_owner_id", "createdate", "hs_lastmodifieddate"],
     associations: [],
+    linked: [],
     scope: "crm.objects.companies.read",
   },
   person: {
@@ -62,6 +68,7 @@ export const OBJECTS: Record<CrmKind, ObjectType> = {
       "lastmodifieddate",
     ],
     associations: ["companies"],
+    linked: [],
     scope: "crm.objects.contacts.read",
   },
   deal: {
@@ -82,7 +89,8 @@ export const OBJECTS: Record<CrmKind, ObjectType> = {
       "createdate",
       "hs_lastmodifieddate",
     ],
-    associations: ["contacts", "companies"],
+    associations: ["contacts"],
+    linked: ["companies"],
     scope: "crm.objects.deals.read",
   },
   lead: {
@@ -96,9 +104,11 @@ export const OBJECTS: Record<CrmKind, ObjectType> = {
       "hs_pipeline_stage",
       "hubspot_owner_id",
       "hs_createdate",
+      "createdate",
       "hs_lastmodifieddate",
     ],
-    associations: ["contacts", "companies"],
+    associations: ["contacts"],
+    linked: ["companies"],
     scope: "crm.objects.leads.read",
   },
 }
@@ -119,6 +129,21 @@ export const propertiesOf = (raw: Raw): Raw => (isRaw(raw.properties) ? raw.prop
 export const msOf = (value: unknown): number | null => {
   if (typeof value === "string" && /^\d{10,16}$/.test(value)) return Number(value)
   return epoch(value)
+}
+
+/**
+ * The primary-company association type ids by the record's type (associations v4 guide, "Association type ID
+ * values"): deal 5, contact 1, lead 580.
+ */
+const PRIMARY_COMPANY: Record<string, number> = { deals: 5, contacts: 1, leads: 580 }
+
+/** The company the record's primary-company association names; the first one when none is marked. */
+const primaryCompanyOf = (raw: Raw, from: string): string | null => {
+  const results = rawsOf(fieldOf(fieldOf(raw.associations, "companies"), "results"))
+  const marked = results.find(
+    (one) => Array.isArray(one.typeIds) && one.typeIds.includes(PRIMARY_COMPANY[from] ?? Number.NaN),
+  )
+  return id(marked?.id) ?? id(results[0]?.id)
 }
 
 /** Ids a list's `associations` holds of one type, each once: a pair with two labels is listed twice. */
@@ -167,7 +192,7 @@ const valuesOf = (properties: Raw, defined: readonly CrmField[]) => {
 const timesOf = (raw: Raw, type: ObjectType) => {
   const properties = propertiesOf(raw)
   return {
-    createdAt: msOf(properties[type.created]) ?? msOf(raw.createdAt),
+    createdAt: msOf(properties[type.created]) ?? msOf(properties.createdate) ?? msOf(raw.createdAt),
     updatedAt: msOf(properties[type.modified]) ?? msOf(raw.updatedAt),
   }
 }
@@ -180,7 +205,7 @@ export const toPerson = (raw: Raw, defined: readonly CrmField[] = []): CrmPerson
     ...(text(properties.hs_additional_emails) ?? "").split(";").map((one) => text(one)),
   ])
   const companies = associatedOf(raw, "companies")
-  const primary = id(properties.associatedcompanyid)
+  const primary = id(properties.associatedcompanyid) ?? (companies?.length ? primaryCompanyOf(raw, "contacts") : null)
   const metadata = valuesOf(properties, defined)
   return {
     externalId: id(raw.id) ?? "",
@@ -220,13 +245,16 @@ export const toOrganization = (raw: Raw, defined: readonly CrmField[] = []): Crm
   }
 }
 
-/** A deal's or lead's contacts and company from its list associations; left out when it was read without them. */
-const linksOf = (raw: Raw): Pick<CrmItem, "people" | "organization"> => {
+/**
+ * A deal's or lead's contacts and its primary company; each left out when it was read without them, so the stored
+ * ones stay.
+ */
+const linksOf = (raw: Raw, from: string): Pick<CrmItem, "people" | "organization"> => {
   const contacts = associatedOf(raw, "contacts")
   const companies = associatedOf(raw, "companies")
   return {
     ...(contacts ? { people: contacts.map((externalId) => ({ externalId, role: "contact" as const })) } : {}),
-    ...(companies ? { organization: companies[0] ?? null } : {}),
+    ...(companies ? { organization: primaryCompanyOf(raw, from) } : {}),
   }
 }
 
@@ -244,7 +272,7 @@ export const toDeal = (raw: Raw, defined: readonly CrmField[] = [], currency: st
     closedReason: text(properties.closed_won_reason) ?? text(properties.closed_lost_reason),
     assignee: id(properties.hubspot_owner_id),
     ...timesOf(raw, OBJECTS.deal),
-    ...linksOf(raw),
+    ...linksOf(raw, "deals"),
     ...(metadata ? { metadata } : {}),
   }
 }
@@ -259,22 +287,19 @@ export const toLead = (raw: Raw, defined: readonly CrmField[] = []): CrmItem => 
     stage: text(properties.hs_pipeline_stage) ?? "",
     assignee: id(properties.hubspot_owner_id),
     ...timesOf(raw, OBJECTS.lead),
-    ...linksOf(raw),
+    ...linksOf(raw, "leads"),
     ...(metadata ? { metadata } : {}),
   }
 }
 
 /**
- * A stage's outcome from its `metadata` (pipelines guide): a deal stage is closed won at probability 1 and closed
- * lost at 0. A lead stage's `leadState` is not in the docs read; a closed one without a probability counts as lost
- * unless it says it qualified.
+ * A stage's outcome from its `metadata`: a deal stage is closed won at probability 1.0 and closed lost at 0.0
+ * (pipelines guide). HubSpot documents no such field for a lead stage, so a closed lead stage without a probability
+ * counts as lost, a qualified one too.
  */
 export const outcomeOf = (metadata: unknown): StageOutcome => {
   if (text(fieldOf(metadata, "isClosed")) !== "true") return "open"
-  const state = text(fieldOf(metadata, "leadState"))?.toUpperCase()
-  if (state === "QUALIFIED") return "won"
-  const probability = Number(text(fieldOf(metadata, "probability")))
-  return probability === 1 ? "won" : "lost"
+  return Number(text(fieldOf(metadata, "probability"))) === 1 ? "won" : "lost"
 }
 
 export const toPipeline = (raw: Raw): CrmPipeline | null => {

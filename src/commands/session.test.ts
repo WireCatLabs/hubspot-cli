@@ -1,9 +1,10 @@
-import { mkdtempSync } from "node:fs"
+import { mkdtempSync, readdirSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { memoryKeyring } from "@wirecat/cli-base"
+import { memoryKeyring, resolvePaths } from "@wirecat/cli-base"
 import { describe, expect, it } from "vitest"
 import { decodeSignIn } from "../context.js"
+import { IDENTITY } from "../identity.js"
 import { FAKE_TOKEN, fakeHubspot } from "../testing/fake-hubspot.js"
 import { FAKE_ACCOUNT, hubspot } from "../testing/harness.js"
 
@@ -23,6 +24,7 @@ describe("session start", () => {
     expect(ran.json().item).toEqual({
       profile: "work",
       state: "saved",
+      kind: "token",
       stored_in: "keyring",
       verified: true,
       account: FAKE_ACCOUNT,
@@ -35,7 +37,7 @@ describe("session start", () => {
       token: FAKE_TOKEN,
       portalId: FAKE_ACCOUNT,
       uiDomain: "app-eu1.hubspot.com",
-      utcOffsetMs: 3_600_000,
+      timeZone: "Europe/Madrid",
     })
   })
 
@@ -93,6 +95,7 @@ describe("session status, end and list", () => {
     expect(plain.json().item).toEqual({
       profile: "work",
       state: "saved",
+      kind: "token",
       token_from: "keyring",
       account: FAKE_ACCOUNT,
       verified: false,
@@ -112,7 +115,17 @@ describe("session status, end and list", () => {
 
   it("says missing for a profile that never signed in", async () => {
     const ran = await hubspot(["work", "session", "status", "--check", "--json"], { keyring: memoryKeyring() })
-    expect(ran.json().item).toMatchObject({ state: "missing", account: null, verified: false })
+    expect(ran.json().item).toMatchObject({ state: "missing", kind: null, account: null, verified: false })
+  })
+
+  it("reads an entry written before the time zone was kept, and paces by the account", async () => {
+    const old = JSON.stringify({ token: FAKE_TOKEN, portalId: FAKE_ACCOUNT, uiDomain: null, utcOffsetMs: 3_600_000 })
+    const ran = await hubspot(["work", "session", "status", "--check", "--json"], {
+      keyring: memoryKeyring({ "hubspot-cli:token:work": old }),
+    })
+    expect(ran.json().item).toMatchObject({ verified: true, account: FAKE_ACCOUNT })
+    const paces = join(resolvePaths({ appName: IDENTITY.appName, prefix: IDENTITY.envPrefix }).state, "pace")
+    expect(readdirSync(paces)).toContain(`account-${FAKE_ACCOUNT}.json`)
   })
 
   it("refuses a saved entry hubspot did not write", async () => {

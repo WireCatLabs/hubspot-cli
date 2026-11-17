@@ -1,7 +1,7 @@
 # Settings
 
-Decide what your AI agent may do with your HubSpot account before you hand it over. This release reads only, and each
-profile can still narrow what an agent reads, or stop `api` from changing anything.
+Decide what your AI agent may do with your HubSpot account before you hand it over. This release only reads, and each
+profile can still narrow what an agent reads.
 
 Settings live in one file, `config.json`, in the folder `hubspot doctor` shows. Each profile has its own part, and
 `defaults` apply to every profile. `hubspot work config show` lists each setting and where it came from: the file, a
@@ -33,12 +33,11 @@ hubspot work config set permissions.people deny
 hubspot work config set permissions.api readonly
 ```
 
-Every operation that deletes asks first: `batch/archive`, `merge` and `gdpr-delete` among them. Each of those also
-checks the key of the command it does the same as, such as `deals.delete` or `people.delete`, so
-`deals.delete=deny` stops a deal's deletion through `api` too.
+This release only reads, `api` included: no command creates, changes or deletes anything in HubSpot. The
+permissions decide what an agent may read.
 
 Over MCP there is no one to ask, so `ask` lets the command run. Set a key to `readonly` or `deny` to stop an agent.
-`hubspot work mcp serve --permission deals.delete=deny` makes a key stricter for one server only, and never looser.
+`hubspot work mcp serve --permission people.list=deny` makes a key stricter for one server only, and never looser.
 `WCHUBSPOT_READ_ONLY=1` refuses every write, whatever the permissions say.
 
 ## Activities

@@ -34,8 +34,8 @@ Agent:  (runs hubspot work deals show deal:12)
   sync takes only the changes. Lists, the pipeline and search then answer with no request to HubSpot, also offline.
 - **The key stays in the system keyring.** It never appears in output, errors or run records, and no command takes it
   as an argument.
-- **A permission on every command.** Each command and each operation of HubSpot's API has its own level: allow, ask,
-  read only or deny. `WCHUBSPOT_READ_ONLY=1` stops every write.
+- **A permission on every command.** Each command and each read operation of HubSpot's API has its own level, so
+  you decide what an agent may read.
 - **Your CRM beside your other context.** Deals sit in the same local store as your messages, notes and meetings from
   the other WireCat tools, and `search all` finds them together.
 - **As many accounts as you need.** Each HubSpot account is a profile you name in the command, and none is ever picked
@@ -103,11 +103,11 @@ hubspot work users list                                # the account's owners
 hubspot work activities list                           # notes, calls, e-mails, meetings and tasks
 hubspot work changes list "at>=1d"                     # what changed in the last day
 hubspot work search all "Example LLC"                  # the deal beside your other WireCat data
-hubspot work api deals-list --limit 5                  # any operation of HubSpot's CRM API
+hubspot work api deals-list --limit 5                  # any read of HubSpot's CRM API
 ```
 
 Activities are copied once you turn on the activities setting. `activities list` names the setting.
-`api list` shows every operation of HubSpot's CRM API version 2026-03, each with its own permission.
+`api list` shows every read operation of HubSpot's CRM API version 2026-03, each with its own permission.
 
 More: [use it](docs/usage.md) · [command reference](docs/commands.md)
 
@@ -124,7 +124,7 @@ More: [use it](docs/usage.md) · [command reference](docs/commands.md)
 ## Limits
 
 - `hubspot` is tested against a fake account built from HubSpot's API reference, not yet against a live account.
-- Read only: no command changes deals, contacts or companies in this release.
+- Read only: no command changes deals, contacts or companies in this release, `api` included.
 - Tickets are read only through `api`, not copied.
 - Leads need Sales Hub Professional or Enterprise.
 - Before 1.0, a minor version may change commands, `--json` fields and MCP tools. The changelog marks each such

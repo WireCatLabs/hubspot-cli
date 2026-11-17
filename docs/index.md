@@ -2,8 +2,8 @@
 
 `hubspot` reads a HubSpot account's CRM from the terminal, from scripts and from AI agents. `sync` copies the deals,
 contacts and companies into WireCat's local store, so lists, the pipeline and `search all` answer offline. Contacts,
-companies and owners are also read live. `api` offers every operation of HubSpot's CRM API, version 2026-03, each with
-its own permission. This release changes nothing in HubSpot.
+companies and owners are also read live. `api` offers every read operation of HubSpot's CRM API, version 2026-03, each
+with its own permission. This release changes nothing in HubSpot.
 
 It has the commands every WireCat CLI shares: `doctor`, `commands`, `config`, `setup`, `skill`, `mcp`, `runs`,
 `schedule` and `upgrade`, and the CRM commands every WireCat CRM CLI shares: `sync`, `store status`, `deals`, `leads`,

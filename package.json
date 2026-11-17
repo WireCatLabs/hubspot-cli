@@ -1,7 +1,7 @@
 {
   "name": "@wirecat/hubspot-cli",
   "version": "0.0.0",
-  "description": "A new WireCat CLI, started from cli-template",
+  "description": "Read a HubSpot account's CRM (deals, contacts, companies, owners and activities) from the terminal, scripts and AI agents",
   "license": "Apache-2.0",
   "author": "Viacheslav Ptsarev",
   "repository": {
