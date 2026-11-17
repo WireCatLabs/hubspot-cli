@@ -18,6 +18,8 @@ export default defineConfig({
         "src/testing/**",
         // The entry point: one line handing argv to run(), which the suite drives directly.
         "src/bin/**",
+        // Written by pnpm generate from HubSpot's specs; src/api.test.ts sends operations through it.
+        "src/generated/**",
       ],
       reporter: ["text-summary", "json-summary"],
       thresholds: {
