@@ -11,7 +11,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 
 const COMMAND = "hubspot"
-const PREFIX = "HUBSPOT"
+const PREFIX = "WCHUBSPOT"
 
 const runtime = "Bun" in globalThis ? "bun" : "node"
 const failures: string[] = []

@@ -1,0 +1,63 @@
+import { mkdtempSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { crmSourceContract, crmSyncContract } from "@wirecat/cli-core/crm/testing"
+import { type MessageStore, openStore } from "@wirecat/cli-core/store"
+import { afterEach, describe, expect, it } from "vitest"
+import { hubspotTransport } from "../hubspot/transport.js"
+import { FAKE_TOKEN, type FakeHubspot, seededHubspot } from "../testing/fake-hubspot.js"
+import { hubspotCrmSource } from "./source.js"
+
+const over = (hub: FakeHubspot, now: () => number = Date.now) => {
+  const transport = hubspotTransport({ token: FAKE_TOKEN, fetch: hub.fetch, sleep: async () => {} })
+  return hubspotCrmSource(() => transport, { now, page: 2 })
+}
+
+const fixture = () => {
+  const { hub, ids } = seededHubspot()
+  return {
+    source: over(hub),
+    deadCursor: { kind: "deal" as const, cursor: "not a time" },
+    live: { person: [ids.ana, ids.ben, ids.cy], organization: [ids.acme, ids.beta] },
+    faults: {
+      deny: (status: 403 | 404) => {
+        hub.deny("contacts", ids.ana, status)
+        return { kind: "person" as const, id: ids.ana }
+      },
+      skewed: (ms: number) => over(hub, () => Date.now() + ms),
+      change: () => {
+        hub.touch("deals", ids.kitchen, { dealname: "Example kitchen, changed" })
+        return { kind: "deal" as const, id: ids.kitchen }
+      },
+      sameToken: () => over(hub),
+    },
+    hub,
+  }
+}
+
+describe("crmSourceContract over the fake HubSpot", () => {
+  const fakes: FakeHubspot[] = []
+  afterEach(() => {
+    for (const hub of fakes.splice(0)) expect(hub.refusals).toEqual([])
+  })
+  for (const { name, run } of crmSourceContract(() => {
+    const made = fixture()
+    fakes.push(made.hub)
+    return made
+  }))
+    it(name, run)
+})
+
+const stores: MessageStore[] = []
+afterEach(async () => {
+  for (const store of stores.splice(0)) await store.close()
+})
+
+describe("crmSyncContract over cli-core's store", () => {
+  for (const { name, run } of crmSyncContract(async () => {
+    const store = await openStore({ path: join(mkdtempSync(join(tmpdir(), "hubspot-sync-")), "store.db") })
+    stores.push(store)
+    return { store, account: { provider: "hubspot", account: "4000001" } }
+  }))
+    it(name, run)
+})

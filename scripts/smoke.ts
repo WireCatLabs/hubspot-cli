@@ -66,16 +66,16 @@ try {
     { encoding: "utf8", env: npmEnv, stdio: "pipe" },
   )
   const env = {
-    ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^(XDG_|HUBSPOT_)/.test(key))),
+    ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^(XDG_|WCHUBSPOT_)/.test(key))),
     NODE_OPTIONS: "",
     HOME: temp,
     DBUS_SESSION_BUS_ADDRESS: "disabled:",
-    HUBSPOT_CONFIG_DIR: join(temp, "config"),
-    HUBSPOT_STATE_DIR: join(temp, "state"),
-    HUBSPOT_CACHE_DIR: join(temp, "cache"),
+    WCHUBSPOT_CONFIG_DIR: join(temp, "config"),
+    WCHUBSPOT_STATE_DIR: join(temp, "state"),
+    WCHUBSPOT_CACHE_DIR: join(temp, "cache"),
     WIRECAT_STATE_DIR: join(temp, "wirecat"),
     MESSAGING_STORE: join(temp, "never-owner.db"),
-    HUBSPOT_NO_UPDATE_CHECK: "1",
+    WCHUBSPOT_NO_UPDATE_CHECK: "1",
   }
   const bin = join(installed, "node_modules", name, "dist/bin/hubspot.js")
   const run = (args: string[]) =>

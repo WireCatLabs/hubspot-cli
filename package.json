@@ -1,7 +1,20 @@
 {
   "name": "@wirecat/hubspot-cli",
   "version": "0.0.0",
-  "description": "A new WireCat CLI, started from cli-template",
+  "description": "HubSpot CRM CLI for AI agents: a local copy of deals, contacts and companies, an MCP server and every CRM read of HubSpot's API",
+  "keywords": [
+    "hubspot",
+    "hubspot-api",
+    "crm",
+    "cli",
+    "ai-agents",
+    "mcp",
+    "mcp-server",
+    "claude-code",
+    "codex",
+    "local-first",
+    "wirecat"
+  ],
   "license": "Apache-2.0",
   "author": "Viacheslav Ptsarev",
   "repository": {

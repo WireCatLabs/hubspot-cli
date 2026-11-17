@@ -21,3 +21,41 @@ regex = '''(?:^|[^A-Za-z0-9/])(1//[A-Za-z0-9_-]{30,})'''
 secretGroup = 1
 entropy = 3.5
 keywords = ["1//"]
+
+# A HubSpot private app token or service key: `pat-`, the account's data region (any of them), a UUID (HubSpot's
+# private apps guide shows `pat-na1-…`). The tests' fake is no UUID, and an all-zero first group is kept for made-up
+# keys.
+[[rules]]
+id = "hubspot-key"
+description = "HubSpot private app token or service key"
+regex = '''\b(pat-[a-z]{2}\d+-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b'''
+secretGroup = 1
+keywords = ["pat-"]
+
+[[rules.allowlists]]
+regexes = ['''^pat-[a-z]{2}\d+-0{8}-''']
+
+# A CRM holds its clients' phone numbers and e-mail addresses; neither may reach a fixture, a doc or a capture.
+[[rules]]
+id = "phone-number-e164"
+description = "A phone number of a contact, a company or an owner"
+regex = '''(?i)(?:phone|msisdn|number)["'\s:=]{1,10}\+?[1-9]\d{9,14}'''
+tags = ["pii"]
+
+[[rules]]
+id = "email-address"
+description = "An e-mail address of a contact, a company or an owner"
+regex = '''\b[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}\b'''
+tags = ["pii"]
+
+[[rules.allowlists]]
+regexTarget = "match"
+regexes = [
+  # The domains RFC 2606 and RFC 6761 keep for examples, and the addresses of tools that commit here.
+  '''@(?:[A-Za-z0-9-]+\.)*(?:example\.(?:com|org|net)|example|test|invalid|localhost)$''',
+  '''@wirecat\.dev$''',
+  '''^noreply@anthropic\.com$''',
+  '''@users\.noreply\.github\.com$''',
+  # The example contact in HubSpot's own contacts spec, copied into the generated manifest.
+  '''^jon@website\.com$''',
+]

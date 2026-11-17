@@ -1,0 +1,19 @@
+{
+  "key.title": "Make a key",
+  "key.intro": "hubspot reads your deals, contacts and companies from one HubSpot account. It changes nothing there.",
+  "key.service": "A super admin, or a user with HubSpot's **Developer tools access** permission, does this once in HubSpot:\n\n1. Open **Development**, then **Keys → Service keys** in the left menu. Some accounts show it under **Settings → Integrations → Service keys** instead.\n2. Click **Create service key** and name it *WireCat*.\n3. Click **Add new scope**, tick each read scope below, and click **Update**. A key gets only the scopes its maker has.\n4. Click **Create** and confirm.\n\nHubSpot's guide: https://developers.hubspot.com/docs/apps/developer-platform/build-apps/authentication/account-service-keys\n\nThe read scopes:",
+  "key.leads": "On Sales Hub Professional or Enterprise, add `crm.objects.leads.read` to read leads too. Add `tickets` if you want `api` to read tickets.",
+  "key.private.title": "Already have a legacy private app?",
+  "key.private": "HubSpot stopped new private apps on 26 October 2026, but an existing one's token still works. Give it the same read scopes, then copy its access token from the app's **Auth** tab.",
+  "token.title": "Paste the key",
+  "token.where": "In **Keys → Service keys**, click the key's name, then **Show** and **Copy**. A private app's token is on its **Auth** tab. Both start with `pat-`.",
+  "token.label": "Service key or access token",
+  "token.hint": "Kept in your system keyring or, without one, in a file only you can read.",
+  "token.rights": "The key reads only what its scopes allow. Each profile signs in to its own HubSpot account: a second profile on the same account is refused.",
+  "check.title": "Checking the key",
+  "check.body": "hubspot asks HubSpot which account the key belongs to. It saves the key only if HubSpot answers.",
+  "failed.title": "The check did not pass",
+  "failed.body": "The key did not pass hubspot's check, so nothing was saved. Check the key and your connection, then try again.",
+  "done.title": "Connected",
+  "done.body": "The profile is ready. Copy your deals and their contacts and companies into WireCat, then list the open ones:"
+}

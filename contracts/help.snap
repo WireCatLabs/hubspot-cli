@@ -1,21 +1,30 @@
-hubspot — a new WireCat CLI, started from cli-template
+hubspot — a HubSpot account's CRM for scripts and agents, read into one local store.
 
 Usage: hubspot <profile> <command> [options]
 Account commands start with your profile, a name you choose; none is ever assumed.
 
-Works with:
-  tg                      Telegram in the same local store: search, review and tasks offline
-  max                     MAX in the same local store: search, review and tasks offline
-  wa                      WhatsApp in the same local store: search, review and tasks offline
-  zm                      Zoom meetings: transcripts and summaries, searchable with your other WireCat data
-  drive                   Google Drive and Docs as local text, searchable with your other WireCat data
-  gcal                    Google Calendar events, searchable with your other WireCat data
-  memo context <person>   one person across messengers, mail, notes and meetings
-  mail                    IMAP mail in the same local store: search your mailbox offline, next to your other WireCat data
-  b24                     Bitrix24 CRM: deals, leads and pipelines, searchable with your other WireCat data
-  pbx                     Asterisk PBX calls and recordings, searchable with your other WireCat data
-  notion                  Notion pages and databases as local text, searchable with your other WireCat data
+What you can do:
+  sync                      copy your deals, contacts and companies; the next sync takes the changes
+  deals list status:open    open deals with stage, amount and owner, from the store, offline
+  search all "kitchen"      stored deals beside your other WireCat tools' data
+  people list "Anna"        any contact, read live from the account
+  activities list           notes, calls, e-mails, meetings and tasks on your deals
+  api deals-list --limit 5  any CRM read of HubSpot's API, one command per operation
 
-Next:         hubspot commands      every command, by section
-              hubspot help options  output, offline, timeouts, dry run
-For agents:   hubspot skill show    rules and the discovery loop
+Works with:
+  tg                        Telegram in the same local store: search, review and tasks offline
+  max                       MAX in the same local store: search, review and tasks offline
+  wa                        WhatsApp in the same local store: search, review and tasks offline
+  zm                        Zoom meetings: transcripts and summaries, searchable with your other WireCat data
+  drive                     Google Drive and Docs as local text, searchable with your other WireCat data
+  gcal                      Google Calendar events, searchable with your other WireCat data
+  memo context <person>     one person across messengers, mail, notes and meetings
+  mail                      IMAP mail in the same local store: search your mailbox offline, next to your other WireCat data
+  b24                       Bitrix24 CRM: deals, leads and pipelines, searchable with your other WireCat data
+  pbx                       Asterisk PBX calls and recordings, searchable with your other WireCat data
+  notion                    Notion pages and databases as local text, searchable with your other WireCat data
+
+Start here:   hubspot work session start  (any profile name works)
+Next:         hubspot commands            every command, by section
+              hubspot help options        output, offline, timeouts, dry run
+For agents:   hubspot skill show          rules and the discovery loop
