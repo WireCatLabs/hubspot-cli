@@ -1,6 +1,6 @@
 {
   "name": "@wirecat/hubspot-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "HubSpot CRM CLI for AI agents: a local copy of deals, contacts and companies, an MCP server, deal and contact writes, and every operation of HubSpot's CRM API",
   "keywords": [
     "hubspot",
