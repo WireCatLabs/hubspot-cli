@@ -53,9 +53,6 @@ crm.objects.emails.read       crm.objects.meetings.read     crm.objects.tasks.re
 Add `crm.objects.leads.read` on Sales Hub Professional or Enterprise to read leads, and `tickets` to read tickets
 through `api`. A scope you leave out fails only the commands that need it.
 
-The first release is not on npm yet. Until it is, run `hubspot` from a clone of this repository, as
-[development](#development) shows.
-
 ```sh
 npm install -g @wirecat/hubspot-cli
 hubspot skill install                  # the agent skill, for Claude Code, Codex and Gemini CLI
