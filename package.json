@@ -1,7 +1,20 @@
 {
   "name": "@wirecat/hubspot-cli",
   "version": "0.0.0",
-  "description": "Read a HubSpot account's CRM (deals, contacts, companies, owners and activities) from the terminal, scripts and AI agents",
+  "description": "HubSpot CRM CLI for AI agents: a local copy of deals, contacts and companies, an MCP server and every CRM read of HubSpot's API",
+  "keywords": [
+    "hubspot",
+    "hubspot-api",
+    "crm",
+    "cli",
+    "ai-agents",
+    "mcp",
+    "mcp-server",
+    "claude-code",
+    "codex",
+    "local-first",
+    "wirecat"
+  ],
   "license": "Apache-2.0",
   "author": "Viacheslav Ptsarev",
   "repository": {
