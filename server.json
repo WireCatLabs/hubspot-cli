@@ -1,0 +1,38 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "dev.wirecat/hubspot-cli",
+  "title": "WireCat hubspot",
+  "description": "hubspot for agents over MCP. Set up a profile with the hubspot CLI first.",
+  "websiteUrl": "https://wirecat.dev/en/docs/hubspot",
+  "repository": {
+    "url": "https://github.com/WireCatLabs/hubspot-cli",
+    "source": "github"
+  },
+  "version": "0.0.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@wirecat/hubspot-cli",
+      "version": "0.0.0",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        },
+        {
+          "type": "positional",
+          "value": "serve"
+        },
+        {
+          "type": "named",
+          "name": "--profiles",
+          "value": "all"
+        }
+      ]
+    }
+  ]
+}

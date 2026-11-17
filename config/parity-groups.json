@@ -1,0 +1,8 @@
+[
+  {
+    "name": "hubspot",
+    "members": ["hubspot", "tg", "max", "memo", "drive", "zm", "wa"],
+    "covers": ["commands", "upgrade"],
+    "differences": []
+  }
+]
