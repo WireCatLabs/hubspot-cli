@@ -9,7 +9,7 @@ export const IDENTITY: AppIdentity = {
   command: "hubspot",
   appName: "hubspot-cli",
   envPrefix: "WCHUBSPOT",
-  description: "read a HubSpot account's CRM",
+  description: "read and change a HubSpot account's CRM",
   version: VERSION,
   issues: "https://github.com/WireCatLabs/hubspot-cli/issues/new",
   messenger: false,
@@ -29,8 +29,8 @@ export const DESKTOP: ManifestIdentity = {
   tagline: "HubSpot CRM: deals, contacts and companies",
   syncs: "your deals, contacts and companies",
   signIn: {
-    gives: "Lets your agent read the account's CRM with the scopes you give the key; this release changes nothing.",
-    asks: "A service key or a legacy private app's access token from your HubSpot account, with read scopes.",
+    gives: "Lets your agent read the account's CRM, and change it if you give the key the write scopes.",
+    asks: "A service key or a legacy private app's access token from your HubSpot account, with read scopes, and write scopes if you want changes.",
   },
 }
 

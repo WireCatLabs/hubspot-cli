@@ -34,6 +34,11 @@ const COMMANDS: Record<string, string> = {
  */
 const READING_POST = /\/batch\/read$/
 const DELETING_POST = /\/(batch\/archive|batch\/labels\/archive|gdpr-delete|merge)$/
+/**
+ * A PUT of a whole pipeline must send its stages as one list (`stages` is required in PipelineReplaceInput). The spec
+ * does not say what becomes of a stage the list leaves out, so the replace counts as a delete.
+ */
+const REPLACED_PIPELINE = `PUT ${P}/{pipelineId}`
 
 /** The words of cli-core's CRM commands, so `people.delete` denied there also holds in `api`. */
 const GROUPS: Record<string, string> = {
@@ -50,15 +55,19 @@ const groupOf = (command: string) => {
 
 const root = resolve(import.meta.dirname, "..")
 const { model, notes } = await specModel(root)
-const effectOf = (path: string) =>
-  DELETING_POST.test(path)
-    ? { effect: "destructive" as const, reason: "a POST that archives, erases or merges away records" }
-    : READING_POST.test(path)
-      ? { effect: "read" as const, reason: "a batch read by ids, in the body because the list can be long" }
-      : undefined
+const effectOf = (method: string, path: string) =>
+  `${method} ${path}` === REPLACED_PIPELINE
+    ? { effect: "destructive" as const, reason: "a replace of a pipeline may drop each stage its body leaves out" }
+    : method !== "POST"
+      ? undefined
+      : DELETING_POST.test(path)
+        ? { effect: "destructive" as const, reason: "a POST that archives, erases or merges away records" }
+        : READING_POST.test(path)
+          ? { effect: "read" as const, reason: "a batch read by ids, in the body because the list can be long" }
+          : undefined
 const overrides = Object.fromEntries(
   model.operations.flatMap(({ id, binding }) => {
-    const override = binding.kind === "http" && binding.method === "POST" ? effectOf(binding.path) : undefined
+    const override = binding.kind === "http" ? effectOf(binding.method, binding.path) : undefined
     return override ? [[id, override]] : []
   }),
 )

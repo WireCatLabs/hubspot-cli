@@ -7,7 +7,7 @@ ran it · ⛔ not tested offline, with the reason and where it is checked instea
 Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 [TESTING.md](TESTING.md) for how, and for the states and failures that cut across commands.
 
-**436 ✅ · 61 ⛔ · 0 ❌** — 137 commands, 360 options.
+**839 ✅ · 61 ⛔ · 0 ❌** — 245 commands, 655 options.
 
 | Command | Option | | Note |
 |---|---|---|---|
@@ -52,6 +52,28 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `deals list` | `--page` | ✅ |  |
 | `deals list` | `--format` | ✅ |  |
 | `deals show` |  | ✅ |  |
+| `deals create` |  | ✅ |  |
+| `deals create` | `--title` | ✅ |  |
+| `deals create` | `--pipeline` | ✅ |  |
+| `deals create` | `--stage` | ✅ |  |
+| `deals create` | `--amount` | ✅ |  |
+| `deals create` | `--currency` | ✅ |  |
+| `deals create` | `--close-date` | ✅ |  |
+| `deals create` | `--owner` | ✅ |  |
+| `deals create` | `--field` | ✅ |  |
+| `deals update` |  | ✅ |  |
+| `deals update` | `--title` | ✅ |  |
+| `deals update` | `--pipeline` | ✅ |  |
+| `deals update` | `--stage` | ✅ |  |
+| `deals update` | `--amount` | ✅ |  |
+| `deals update` | `--currency` | ✅ |  |
+| `deals update` | `--close-date` | ✅ |  |
+| `deals update` | `--owner` | ✅ |  |
+| `deals update` | `--field` | ✅ |  |
+| `deals move` |  | ✅ |  |
+| `deals close` |  | ✅ |  |
+| `deals close` | `--reason` | ✅ |  |
+| `deals delete` |  | ✅ |  |
 | `leads list` |  | ✅ |  |
 | `leads list` | `--limit` | ✅ |  |
 | `leads list` | `--page` | ✅ |  |
@@ -67,11 +89,41 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `people list` | `--page` | ✅ |  |
 | `people list` | `--format` | ✅ |  |
 | `people show` |  | ✅ |  |
+| `people create` |  | ✅ |  |
+| `people create` | `--name` | ✅ |  |
+| `people create` | `--first-name` | ✅ |  |
+| `people create` | `--last-name` | ✅ |  |
+| `people create` | `--position` | ✅ |  |
+| `people create` | `--email` | ✅ |  |
+| `people create` | `--phone` | ✅ |  |
+| `people create` | `--owner` | ✅ |  |
+| `people create` | `--field` | ✅ |  |
+| `people update` |  | ✅ |  |
+| `people update` | `--name` | ✅ |  |
+| `people update` | `--first-name` | ✅ |  |
+| `people update` | `--last-name` | ✅ |  |
+| `people update` | `--position` | ✅ |  |
+| `people update` | `--email` | ✅ |  |
+| `people update` | `--phone` | ✅ |  |
+| `people update` | `--owner` | ✅ |  |
+| `people update` | `--field` | ✅ |  |
 | `organizations list` |  | ✅ |  |
 | `organizations list` | `--limit` | ✅ |  |
 | `organizations list` | `--page` | ✅ |  |
 | `organizations list` | `--format` | ✅ |  |
 | `organizations show` |  | ✅ |  |
+| `organizations create` |  | ✅ |  |
+| `organizations create` | `--name` | ✅ |  |
+| `organizations create` | `--email` | ✅ |  |
+| `organizations create` | `--phone` | ✅ |  |
+| `organizations create` | `--owner` | ✅ |  |
+| `organizations create` | `--field` | ✅ |  |
+| `organizations update` |  | ✅ |  |
+| `organizations update` | `--name` | ✅ |  |
+| `organizations update` | `--email` | ✅ |  |
+| `organizations update` | `--phone` | ✅ |  |
+| `organizations update` | `--owner` | ✅ |  |
+| `organizations update` | `--field` | ✅ |  |
 | `users list` |  | ✅ |  |
 | `users list` | `--limit` | ✅ |  |
 | `users list` | `--page` | ✅ |  |
@@ -104,10 +156,31 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api contacts-list` | `--properties` | ✅ |  |
 | `api contacts-list` | `--properties-with-history` | ✅ |  |
 | `api contacts-list` | `--all` | ✅ |  |
+| `api contacts-create` |  | ✅ |  |
+| `api contacts-create` | `--body` | ✅ |  |
+| `api contacts-create` | `--body-file` | ✅ |  |
+| `api contacts-batch-archive` |  | ✅ |  |
+| `api contacts-batch-archive` | `--body` | ✅ |  |
+| `api contacts-batch-archive` | `--body-file` | ✅ |  |
+| `api contacts-batch-create` |  | ✅ |  |
+| `api contacts-batch-create` | `--body` | ✅ |  |
+| `api contacts-batch-create` | `--body-file` | ✅ |  |
 | `api contacts-batch-read` |  | ✅ |  |
 | `api contacts-batch-read` | `--archived` | ✅ |  |
 | `api contacts-batch-read` | `--body` | ✅ |  |
 | `api contacts-batch-read` | `--body-file` | ✅ |  |
+| `api contacts-batch-update` |  | ✅ |  |
+| `api contacts-batch-update` | `--body` | ✅ |  |
+| `api contacts-batch-update` | `--body-file` | ✅ |  |
+| `api contacts-batch-upsert` |  | ✅ |  |
+| `api contacts-batch-upsert` | `--body` | ✅ |  |
+| `api contacts-batch-upsert` | `--body-file` | ✅ |  |
+| `api contacts-gdpr-delete` |  | ✅ |  |
+| `api contacts-gdpr-delete` | `--body` | ✅ |  |
+| `api contacts-gdpr-delete` | `--body-file` | ✅ |  |
+| `api contacts-merge` |  | ✅ |  |
+| `api contacts-merge` | `--body` | ✅ |  |
+| `api contacts-merge` | `--body-file` | ✅ |  |
 | `api contacts-search` |  | ✅ |  |
 | `api contacts-search` | `--body` | ✅ |  |
 | `api contacts-search` | `--body-file` | ✅ |  |
@@ -119,6 +192,30 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api contacts-get` | `--id-property` | ✅ |  |
 | `api contacts-get` | `--properties` | ✅ |  |
 | `api contacts-get` | `--properties-with-history` | ✅ |  |
+| `api contacts-update` |  | ✅ |  |
+| `api contacts-update` | `--contact-id` | ✅ |  |
+| `api contacts-update` | `--id-property` | ✅ |  |
+| `api contacts-update` | `--body` | ✅ |  |
+| `api contacts-update` | `--body-file` | ✅ |  |
+| `api contacts-delete` |  | ✅ |  |
+| `api contacts-delete` | `--contact-id` | ✅ |  |
+| `api associations-default-replace` |  | ✅ |  |
+| `api associations-default-replace` | `--from-object-id` | ✅ |  |
+| `api associations-default-replace` | `--from-object-type` | ✅ |  |
+| `api associations-default-replace` | `--to-object-id` | ✅ |  |
+| `api associations-default-replace` | `--to-object-type` | ✅ |  |
+| `api associations-replace` |  | ✅ |  |
+| `api associations-replace` | `--object-id` | ✅ |  |
+| `api associations-replace` | `--object-type` | ✅ |  |
+| `api associations-replace` | `--to-object-id` | ✅ |  |
+| `api associations-replace` | `--to-object-type` | ✅ |  |
+| `api associations-replace` | `--body` | ✅ |  |
+| `api associations-replace` | `--body-file` | ✅ |  |
+| `api associations-delete` |  | ✅ |  |
+| `api associations-delete` | `--object-id` | ✅ |  |
+| `api associations-delete` | `--object-type` | ✅ |  |
+| `api associations-delete` | `--to-object-id` | ✅ |  |
+| `api associations-delete` | `--to-object-type` | ✅ |  |
 | `api companies-list` |  | ✅ |  |
 | `api companies-list` | `--after` | ✅ |  |
 | `api companies-list` | `--archived` | ✅ |  |
@@ -127,10 +224,28 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api companies-list` | `--properties` | ✅ |  |
 | `api companies-list` | `--properties-with-history` | ✅ |  |
 | `api companies-list` | `--all` | ✅ |  |
+| `api companies-create` |  | ✅ |  |
+| `api companies-create` | `--body` | ✅ |  |
+| `api companies-create` | `--body-file` | ✅ |  |
+| `api companies-batch-archive` |  | ✅ |  |
+| `api companies-batch-archive` | `--body` | ✅ |  |
+| `api companies-batch-archive` | `--body-file` | ✅ |  |
+| `api companies-batch-create` |  | ✅ |  |
+| `api companies-batch-create` | `--body` | ✅ |  |
+| `api companies-batch-create` | `--body-file` | ✅ |  |
 | `api companies-batch-read` |  | ✅ |  |
 | `api companies-batch-read` | `--archived` | ✅ |  |
 | `api companies-batch-read` | `--body` | ✅ |  |
 | `api companies-batch-read` | `--body-file` | ✅ |  |
+| `api companies-batch-update` |  | ✅ |  |
+| `api companies-batch-update` | `--body` | ✅ |  |
+| `api companies-batch-update` | `--body-file` | ✅ |  |
+| `api companies-batch-upsert` |  | ✅ |  |
+| `api companies-batch-upsert` | `--body` | ✅ |  |
+| `api companies-batch-upsert` | `--body-file` | ✅ |  |
+| `api companies-merge` |  | ✅ |  |
+| `api companies-merge` | `--body` | ✅ |  |
+| `api companies-merge` | `--body-file` | ✅ |  |
 | `api companies-search` |  | ✅ |  |
 | `api companies-search` | `--body` | ✅ |  |
 | `api companies-search` | `--body-file` | ✅ |  |
@@ -142,6 +257,13 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api companies-get` | `--id-property` | ✅ |  |
 | `api companies-get` | `--properties` | ✅ |  |
 | `api companies-get` | `--properties-with-history` | ✅ |  |
+| `api companies-update` |  | ✅ |  |
+| `api companies-update` | `--company-id` | ✅ |  |
+| `api companies-update` | `--id-property` | ✅ |  |
+| `api companies-update` | `--body` | ✅ |  |
+| `api companies-update` | `--body-file` | ✅ |  |
+| `api companies-delete` |  | ✅ |  |
+| `api companies-delete` | `--company-id` | ✅ |  |
 | `api deals-list` |  | ✅ |  |
 | `api deals-list` | `--after` | ✅ |  |
 | `api deals-list` | `--archived` | ✅ |  |
@@ -150,10 +272,28 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api deals-list` | `--properties` | ✅ |  |
 | `api deals-list` | `--properties-with-history` | ✅ |  |
 | `api deals-list` | `--all` | ✅ |  |
+| `api deals-create` |  | ✅ |  |
+| `api deals-create` | `--body` | ✅ |  |
+| `api deals-create` | `--body-file` | ✅ |  |
+| `api deals-batch-archive` |  | ✅ |  |
+| `api deals-batch-archive` | `--body` | ✅ |  |
+| `api deals-batch-archive` | `--body-file` | ✅ |  |
+| `api deals-batch-create` |  | ✅ |  |
+| `api deals-batch-create` | `--body` | ✅ |  |
+| `api deals-batch-create` | `--body-file` | ✅ |  |
 | `api deals-batch-read` |  | ✅ |  |
 | `api deals-batch-read` | `--archived` | ✅ |  |
 | `api deals-batch-read` | `--body` | ✅ |  |
 | `api deals-batch-read` | `--body-file` | ✅ |  |
+| `api deals-batch-update` |  | ✅ |  |
+| `api deals-batch-update` | `--body` | ✅ |  |
+| `api deals-batch-update` | `--body-file` | ✅ |  |
+| `api deals-batch-upsert` |  | ✅ |  |
+| `api deals-batch-upsert` | `--body` | ✅ |  |
+| `api deals-batch-upsert` | `--body-file` | ✅ |  |
+| `api deals-merge` |  | ✅ |  |
+| `api deals-merge` | `--body` | ✅ |  |
+| `api deals-merge` | `--body-file` | ✅ |  |
 | `api deals-search` |  | ✅ |  |
 | `api deals-search` | `--body` | ✅ |  |
 | `api deals-search` | `--body-file` | ✅ |  |
@@ -165,6 +305,13 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api deals-get` | `--id-property` | ✅ |  |
 | `api deals-get` | `--properties` | ✅ |  |
 | `api deals-get` | `--properties-with-history` | ✅ |  |
+| `api deals-update` |  | ✅ |  |
+| `api deals-update` | `--deal-id` | ✅ |  |
+| `api deals-update` | `--id-property` | ✅ |  |
+| `api deals-update` | `--body` | ✅ |  |
+| `api deals-update` | `--body-file` | ✅ |  |
+| `api deals-delete` |  | ✅ |  |
+| `api deals-delete` | `--deal-id` | ✅ |  |
 | `api tickets-list` |  | ✅ |  |
 | `api tickets-list` | `--after` | ✅ |  |
 | `api tickets-list` | `--archived` | ✅ |  |
@@ -173,10 +320,28 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api tickets-list` | `--properties` | ✅ |  |
 | `api tickets-list` | `--properties-with-history` | ✅ |  |
 | `api tickets-list` | `--all` | ✅ |  |
+| `api tickets-create` |  | ✅ |  |
+| `api tickets-create` | `--body` | ✅ |  |
+| `api tickets-create` | `--body-file` | ✅ |  |
+| `api tickets-batch-archive` |  | ✅ |  |
+| `api tickets-batch-archive` | `--body` | ✅ |  |
+| `api tickets-batch-archive` | `--body-file` | ✅ |  |
+| `api tickets-batch-create` |  | ✅ |  |
+| `api tickets-batch-create` | `--body` | ✅ |  |
+| `api tickets-batch-create` | `--body-file` | ✅ |  |
 | `api tickets-batch-read` |  | ✅ |  |
 | `api tickets-batch-read` | `--archived` | ✅ |  |
 | `api tickets-batch-read` | `--body` | ✅ |  |
 | `api tickets-batch-read` | `--body-file` | ✅ |  |
+| `api tickets-batch-update` |  | ✅ |  |
+| `api tickets-batch-update` | `--body` | ✅ |  |
+| `api tickets-batch-update` | `--body-file` | ✅ |  |
+| `api tickets-batch-upsert` |  | ✅ |  |
+| `api tickets-batch-upsert` | `--body` | ✅ |  |
+| `api tickets-batch-upsert` | `--body-file` | ✅ |  |
+| `api tickets-merge` |  | ✅ |  |
+| `api tickets-merge` | `--body` | ✅ |  |
+| `api tickets-merge` | `--body-file` | ✅ |  |
 | `api tickets-search` |  | ✅ |  |
 | `api tickets-search` | `--body` | ✅ |  |
 | `api tickets-search` | `--body-file` | ✅ |  |
@@ -188,6 +353,13 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api tickets-get` | `--id-property` | ✅ |  |
 | `api tickets-get` | `--properties` | ✅ |  |
 | `api tickets-get` | `--properties-with-history` | ✅ |  |
+| `api tickets-update` |  | ✅ |  |
+| `api tickets-update` | `--ticket-id` | ✅ |  |
+| `api tickets-update` | `--id-property` | ✅ |  |
+| `api tickets-update` | `--body` | ✅ |  |
+| `api tickets-update` | `--body-file` | ✅ |  |
+| `api tickets-delete` |  | ✅ |  |
+| `api tickets-delete` | `--ticket-id` | ✅ |  |
 | `api leads-list` |  | ✅ |  |
 | `api leads-list` | `--after` | ✅ |  |
 | `api leads-list` | `--archived` | ✅ |  |
@@ -196,10 +368,25 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api leads-list` | `--properties` | ✅ |  |
 | `api leads-list` | `--properties-with-history` | ✅ |  |
 | `api leads-list` | `--all` | ✅ |  |
+| `api leads-create` |  | ✅ |  |
+| `api leads-create` | `--body` | ✅ |  |
+| `api leads-create` | `--body-file` | ✅ |  |
+| `api leads-batch-archive` |  | ✅ |  |
+| `api leads-batch-archive` | `--body` | ✅ |  |
+| `api leads-batch-archive` | `--body-file` | ✅ |  |
+| `api leads-batch-create` |  | ✅ |  |
+| `api leads-batch-create` | `--body` | ✅ |  |
+| `api leads-batch-create` | `--body-file` | ✅ |  |
 | `api leads-batch-read` |  | ✅ |  |
 | `api leads-batch-read` | `--archived` | ✅ |  |
 | `api leads-batch-read` | `--body` | ✅ |  |
 | `api leads-batch-read` | `--body-file` | ✅ |  |
+| `api leads-batch-update` |  | ✅ |  |
+| `api leads-batch-update` | `--body` | ✅ |  |
+| `api leads-batch-update` | `--body-file` | ✅ |  |
+| `api leads-batch-upsert` |  | ✅ |  |
+| `api leads-batch-upsert` | `--body` | ✅ |  |
+| `api leads-batch-upsert` | `--body-file` | ✅ |  |
 | `api leads-search` |  | ✅ |  |
 | `api leads-search` | `--body` | ✅ |  |
 | `api leads-search` | `--body-file` | ✅ |  |
@@ -211,6 +398,13 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api leads-get` | `--id-property` | ✅ |  |
 | `api leads-get` | `--properties` | ✅ |  |
 | `api leads-get` | `--properties-with-history` | ✅ |  |
+| `api leads-update` |  | ✅ |  |
+| `api leads-update` | `--leads-id` | ✅ |  |
+| `api leads-update` | `--id-property` | ✅ |  |
+| `api leads-update` | `--body` | ✅ |  |
+| `api leads-update` | `--body-file` | ✅ |  |
+| `api leads-delete` |  | ✅ |  |
+| `api leads-delete` | `--leads-id` | ✅ |  |
 | `api notes-list` |  | ✅ |  |
 | `api notes-list` | `--after` | ✅ |  |
 | `api notes-list` | `--archived` | ✅ |  |
@@ -219,10 +413,25 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api notes-list` | `--properties` | ✅ |  |
 | `api notes-list` | `--properties-with-history` | ✅ |  |
 | `api notes-list` | `--all` | ✅ |  |
+| `api notes-create` |  | ✅ |  |
+| `api notes-create` | `--body` | ✅ |  |
+| `api notes-create` | `--body-file` | ✅ |  |
+| `api notes-batch-archive` |  | ✅ |  |
+| `api notes-batch-archive` | `--body` | ✅ |  |
+| `api notes-batch-archive` | `--body-file` | ✅ |  |
+| `api notes-batch-create` |  | ✅ |  |
+| `api notes-batch-create` | `--body` | ✅ |  |
+| `api notes-batch-create` | `--body-file` | ✅ |  |
 | `api notes-batch-read` |  | ✅ |  |
 | `api notes-batch-read` | `--archived` | ✅ |  |
 | `api notes-batch-read` | `--body` | ✅ |  |
 | `api notes-batch-read` | `--body-file` | ✅ |  |
+| `api notes-batch-update` |  | ✅ |  |
+| `api notes-batch-update` | `--body` | ✅ |  |
+| `api notes-batch-update` | `--body-file` | ✅ |  |
+| `api notes-batch-upsert` |  | ✅ |  |
+| `api notes-batch-upsert` | `--body` | ✅ |  |
+| `api notes-batch-upsert` | `--body-file` | ✅ |  |
 | `api notes-search` |  | ✅ |  |
 | `api notes-search` | `--body` | ✅ |  |
 | `api notes-search` | `--body-file` | ✅ |  |
@@ -234,6 +443,13 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api notes-get` | `--id-property` | ✅ |  |
 | `api notes-get` | `--properties` | ✅ |  |
 | `api notes-get` | `--properties-with-history` | ✅ |  |
+| `api notes-update` |  | ✅ |  |
+| `api notes-update` | `--note-id` | ✅ |  |
+| `api notes-update` | `--id-property` | ✅ |  |
+| `api notes-update` | `--body` | ✅ |  |
+| `api notes-update` | `--body-file` | ✅ |  |
+| `api notes-delete` |  | ✅ |  |
+| `api notes-delete` | `--note-id` | ✅ |  |
 | `api calls-list` |  | ✅ |  |
 | `api calls-list` | `--after` | ✅ |  |
 | `api calls-list` | `--archived` | ✅ |  |
@@ -242,10 +458,25 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api calls-list` | `--properties` | ✅ |  |
 | `api calls-list` | `--properties-with-history` | ✅ |  |
 | `api calls-list` | `--all` | ✅ |  |
+| `api calls-create` |  | ✅ |  |
+| `api calls-create` | `--body` | ✅ |  |
+| `api calls-create` | `--body-file` | ✅ |  |
+| `api calls-batch-archive` |  | ✅ |  |
+| `api calls-batch-archive` | `--body` | ✅ |  |
+| `api calls-batch-archive` | `--body-file` | ✅ |  |
+| `api calls-batch-create` |  | ✅ |  |
+| `api calls-batch-create` | `--body` | ✅ |  |
+| `api calls-batch-create` | `--body-file` | ✅ |  |
 | `api calls-batch-read` |  | ✅ |  |
 | `api calls-batch-read` | `--archived` | ✅ |  |
 | `api calls-batch-read` | `--body` | ✅ |  |
 | `api calls-batch-read` | `--body-file` | ✅ |  |
+| `api calls-batch-update` |  | ✅ |  |
+| `api calls-batch-update` | `--body` | ✅ |  |
+| `api calls-batch-update` | `--body-file` | ✅ |  |
+| `api calls-batch-upsert` |  | ✅ |  |
+| `api calls-batch-upsert` | `--body` | ✅ |  |
+| `api calls-batch-upsert` | `--body-file` | ✅ |  |
 | `api calls-search` |  | ✅ |  |
 | `api calls-search` | `--body` | ✅ |  |
 | `api calls-search` | `--body-file` | ✅ |  |
@@ -257,6 +488,13 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api calls-get` | `--id-property` | ✅ |  |
 | `api calls-get` | `--properties` | ✅ |  |
 | `api calls-get` | `--properties-with-history` | ✅ |  |
+| `api calls-update` |  | ✅ |  |
+| `api calls-update` | `--call-id` | ✅ |  |
+| `api calls-update` | `--id-property` | ✅ |  |
+| `api calls-update` | `--body` | ✅ |  |
+| `api calls-update` | `--body-file` | ✅ |  |
+| `api calls-delete` |  | ✅ |  |
+| `api calls-delete` | `--call-id` | ✅ |  |
 | `api emails-list` |  | ✅ |  |
 | `api emails-list` | `--after` | ✅ |  |
 | `api emails-list` | `--archived` | ✅ |  |
@@ -265,10 +503,25 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api emails-list` | `--properties` | ✅ |  |
 | `api emails-list` | `--properties-with-history` | ✅ |  |
 | `api emails-list` | `--all` | ✅ |  |
+| `api emails-create` |  | ✅ |  |
+| `api emails-create` | `--body` | ✅ |  |
+| `api emails-create` | `--body-file` | ✅ |  |
+| `api emails-batch-archive` |  | ✅ |  |
+| `api emails-batch-archive` | `--body` | ✅ |  |
+| `api emails-batch-archive` | `--body-file` | ✅ |  |
+| `api emails-batch-create` |  | ✅ |  |
+| `api emails-batch-create` | `--body` | ✅ |  |
+| `api emails-batch-create` | `--body-file` | ✅ |  |
 | `api emails-batch-read` |  | ✅ |  |
 | `api emails-batch-read` | `--archived` | ✅ |  |
 | `api emails-batch-read` | `--body` | ✅ |  |
 | `api emails-batch-read` | `--body-file` | ✅ |  |
+| `api emails-batch-update` |  | ✅ |  |
+| `api emails-batch-update` | `--body` | ✅ |  |
+| `api emails-batch-update` | `--body-file` | ✅ |  |
+| `api emails-batch-upsert` |  | ✅ |  |
+| `api emails-batch-upsert` | `--body` | ✅ |  |
+| `api emails-batch-upsert` | `--body-file` | ✅ |  |
 | `api emails-search` |  | ✅ |  |
 | `api emails-search` | `--body` | ✅ |  |
 | `api emails-search` | `--body-file` | ✅ |  |
@@ -280,6 +533,13 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api emails-get` | `--id-property` | ✅ |  |
 | `api emails-get` | `--properties` | ✅ |  |
 | `api emails-get` | `--properties-with-history` | ✅ |  |
+| `api emails-update` |  | ✅ |  |
+| `api emails-update` | `--email-id` | ✅ |  |
+| `api emails-update` | `--id-property` | ✅ |  |
+| `api emails-update` | `--body` | ✅ |  |
+| `api emails-update` | `--body-file` | ✅ |  |
+| `api emails-delete` |  | ✅ |  |
+| `api emails-delete` | `--email-id` | ✅ |  |
 | `api meetings-list` |  | ✅ |  |
 | `api meetings-list` | `--after` | ✅ |  |
 | `api meetings-list` | `--archived` | ✅ |  |
@@ -288,10 +548,25 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api meetings-list` | `--properties` | ✅ |  |
 | `api meetings-list` | `--properties-with-history` | ✅ |  |
 | `api meetings-list` | `--all` | ✅ |  |
+| `api meetings-create` |  | ✅ |  |
+| `api meetings-create` | `--body` | ✅ |  |
+| `api meetings-create` | `--body-file` | ✅ |  |
+| `api meetings-batch-archive` |  | ✅ |  |
+| `api meetings-batch-archive` | `--body` | ✅ |  |
+| `api meetings-batch-archive` | `--body-file` | ✅ |  |
+| `api meetings-batch-create` |  | ✅ |  |
+| `api meetings-batch-create` | `--body` | ✅ |  |
+| `api meetings-batch-create` | `--body-file` | ✅ |  |
 | `api meetings-batch-read` |  | ✅ |  |
 | `api meetings-batch-read` | `--archived` | ✅ |  |
 | `api meetings-batch-read` | `--body` | ✅ |  |
 | `api meetings-batch-read` | `--body-file` | ✅ |  |
+| `api meetings-batch-update` |  | ✅ |  |
+| `api meetings-batch-update` | `--body` | ✅ |  |
+| `api meetings-batch-update` | `--body-file` | ✅ |  |
+| `api meetings-batch-upsert` |  | ✅ |  |
+| `api meetings-batch-upsert` | `--body` | ✅ |  |
+| `api meetings-batch-upsert` | `--body-file` | ✅ |  |
 | `api meetings-search` |  | ✅ |  |
 | `api meetings-search` | `--body` | ✅ |  |
 | `api meetings-search` | `--body-file` | ✅ |  |
@@ -303,6 +578,13 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api meetings-get` | `--id-property` | ✅ |  |
 | `api meetings-get` | `--properties` | ✅ |  |
 | `api meetings-get` | `--properties-with-history` | ✅ |  |
+| `api meetings-update` |  | ✅ |  |
+| `api meetings-update` | `--meeting-id` | ✅ |  |
+| `api meetings-update` | `--id-property` | ✅ |  |
+| `api meetings-update` | `--body` | ✅ |  |
+| `api meetings-update` | `--body-file` | ✅ |  |
+| `api meetings-delete` |  | ✅ |  |
+| `api meetings-delete` | `--meeting-id` | ✅ |  |
 | `api tasks-list` |  | ✅ |  |
 | `api tasks-list` | `--after` | ✅ |  |
 | `api tasks-list` | `--archived` | ✅ |  |
@@ -311,10 +593,25 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api tasks-list` | `--properties` | ✅ |  |
 | `api tasks-list` | `--properties-with-history` | ✅ |  |
 | `api tasks-list` | `--all` | ✅ |  |
+| `api tasks-create` |  | ✅ |  |
+| `api tasks-create` | `--body` | ✅ |  |
+| `api tasks-create` | `--body-file` | ✅ |  |
+| `api tasks-batch-archive` |  | ✅ |  |
+| `api tasks-batch-archive` | `--body` | ✅ |  |
+| `api tasks-batch-archive` | `--body-file` | ✅ |  |
+| `api tasks-batch-create` |  | ✅ |  |
+| `api tasks-batch-create` | `--body` | ✅ |  |
+| `api tasks-batch-create` | `--body-file` | ✅ |  |
 | `api tasks-batch-read` |  | ✅ |  |
 | `api tasks-batch-read` | `--archived` | ✅ |  |
 | `api tasks-batch-read` | `--body` | ✅ |  |
 | `api tasks-batch-read` | `--body-file` | ✅ |  |
+| `api tasks-batch-update` |  | ✅ |  |
+| `api tasks-batch-update` | `--body` | ✅ |  |
+| `api tasks-batch-update` | `--body-file` | ✅ |  |
+| `api tasks-batch-upsert` |  | ✅ |  |
+| `api tasks-batch-upsert` | `--body` | ✅ |  |
+| `api tasks-batch-upsert` | `--body-file` | ✅ |  |
 | `api tasks-search` |  | ✅ |  |
 | `api tasks-search` | `--body` | ✅ |  |
 | `api tasks-search` | `--body-file` | ✅ |  |
@@ -326,6 +623,13 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api tasks-get` | `--id-property` | ✅ |  |
 | `api tasks-get` | `--properties` | ✅ |  |
 | `api tasks-get` | `--properties-with-history` | ✅ |  |
+| `api tasks-update` |  | ✅ |  |
+| `api tasks-update` | `--task-id` | ✅ |  |
+| `api tasks-update` | `--id-property` | ✅ |  |
+| `api tasks-update` | `--body` | ✅ |  |
+| `api tasks-update` | `--body-file` | ✅ |  |
+| `api tasks-delete` |  | ✅ |  |
+| `api tasks-delete` | `--task-id` | ✅ |  |
 | `api owners-list` |  | ✅ |  |
 | `api owners-list` | `--after` | ✅ |  |
 | `api owners-list` | `--archived` | ✅ |  |
@@ -338,19 +642,64 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api owners-get` | `--id-property` | ✅ |  |
 | `api pipelines-list` |  | ✅ |  |
 | `api pipelines-list` | `--object-type` | ✅ |  |
+| `api pipelines-create` |  | ✅ |  |
+| `api pipelines-create` | `--object-type` | ✅ |  |
+| `api pipelines-create` | `--body` | ✅ |  |
+| `api pipelines-create` | `--body-file` | ✅ |  |
 | `api pipelines-get` |  | ✅ |  |
 | `api pipelines-get` | `--object-type` | ✅ |  |
 | `api pipelines-get` | `--pipeline-id` | ✅ |  |
+| `api pipelines-replace` |  | ✅ |  |
+| `api pipelines-replace` | `--object-type` | ✅ |  |
+| `api pipelines-replace` | `--pipeline-id` | ✅ |  |
+| `api pipelines-replace` | `--validate-deal-stage-usages-before-delete` | ✅ |  |
+| `api pipelines-replace` | `--validate-references-before-delete` | ✅ |  |
+| `api pipelines-replace` | `--body` | ✅ |  |
+| `api pipelines-replace` | `--body-file` | ✅ |  |
+| `api pipelines-update` |  | ✅ |  |
+| `api pipelines-update` | `--object-type` | ✅ |  |
+| `api pipelines-update` | `--pipeline-id` | ✅ |  |
+| `api pipelines-update` | `--validate-deal-stage-usages-before-delete` | ✅ |  |
+| `api pipelines-update` | `--validate-references-before-delete` | ✅ |  |
+| `api pipelines-update` | `--body` | ✅ |  |
+| `api pipelines-update` | `--body-file` | ✅ |  |
+| `api pipelines-delete` |  | ✅ |  |
+| `api pipelines-delete` | `--object-type` | ✅ |  |
+| `api pipelines-delete` | `--pipeline-id` | ✅ |  |
+| `api pipelines-delete` | `--validate-deal-stage-usages-before-delete` | ✅ |  |
+| `api pipelines-delete` | `--validate-references-before-delete` | ✅ |  |
 | `api pipelines-audit-list` |  | ✅ |  |
 | `api pipelines-audit-list` | `--object-type` | ✅ |  |
 | `api pipelines-audit-list` | `--pipeline-id` | ✅ |  |
 | `api pipelines-stages-list` |  | ✅ |  |
 | `api pipelines-stages-list` | `--object-type` | ✅ |  |
 | `api pipelines-stages-list` | `--pipeline-id` | ✅ |  |
+| `api pipelines-stages-create` |  | ✅ |  |
+| `api pipelines-stages-create` | `--object-type` | ✅ |  |
+| `api pipelines-stages-create` | `--pipeline-id` | ✅ |  |
+| `api pipelines-stages-create` | `--body` | ✅ |  |
+| `api pipelines-stages-create` | `--body-file` | ✅ |  |
 | `api pipelines-stages-get` |  | ✅ |  |
 | `api pipelines-stages-get` | `--object-type` | ✅ |  |
 | `api pipelines-stages-get` | `--pipeline-id` | ✅ |  |
 | `api pipelines-stages-get` | `--stage-id` | ✅ |  |
+| `api pipelines-stages-replace` |  | ✅ |  |
+| `api pipelines-stages-replace` | `--object-type` | ✅ |  |
+| `api pipelines-stages-replace` | `--pipeline-id` | ✅ |  |
+| `api pipelines-stages-replace` | `--stage-id` | ✅ |  |
+| `api pipelines-stages-replace` | `--body` | ✅ |  |
+| `api pipelines-stages-replace` | `--body-file` | ✅ |  |
+| `api pipelines-stages-update` |  | ✅ |  |
+| `api pipelines-stages-update` | `--object-type` | ✅ |  |
+| `api pipelines-stages-update` | `--pipeline-id` | ✅ |  |
+| `api pipelines-stages-update` | `--stage-id` | ✅ |  |
+| `api pipelines-stages-update` | `--body` | ✅ |  |
+| `api pipelines-stages-update` | `--body-file` | ✅ |  |
+| `api pipelines-stages-delete` |  | ✅ |  |
+| `api pipelines-stages-delete` | `--object-type` | ✅ |  |
+| `api pipelines-stages-delete` | `--pipeline-id` | ✅ |  |
+| `api pipelines-stages-delete` | `--stage-id` | ✅ |  |
+| `api pipelines-stages-delete` | `--validate-references-before-delete` | ✅ |  |
 | `api pipelines-stages-audit-list` |  | ✅ |  |
 | `api pipelines-stages-audit-list` | `--object-type` | ✅ |  |
 | `api pipelines-stages-audit-list` | `--pipeline-id` | ✅ |  |
@@ -361,6 +710,18 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api properties-list` | `--data-sensitivity` | ✅ |  |
 | `api properties-list` | `--locale` | ✅ |  |
 | `api properties-list` | `--properties` | ✅ |  |
+| `api properties-create` |  | ✅ |  |
+| `api properties-create` | `--object-type` | ✅ |  |
+| `api properties-create` | `--body` | ✅ |  |
+| `api properties-create` | `--body-file` | ✅ |  |
+| `api properties-batch-archive` |  | ✅ |  |
+| `api properties-batch-archive` | `--object-type` | ✅ |  |
+| `api properties-batch-archive` | `--body` | ✅ |  |
+| `api properties-batch-archive` | `--body-file` | ✅ |  |
+| `api properties-batch-create` |  | ✅ |  |
+| `api properties-batch-create` | `--object-type` | ✅ |  |
+| `api properties-batch-create` | `--body` | ✅ |  |
+| `api properties-batch-create` | `--body-file` | ✅ |  |
 | `api properties-batch-read` |  | ✅ |  |
 | `api properties-batch-read` | `--object-type` | ✅ |  |
 | `api properties-batch-read` | `--locale` | ✅ |  |
@@ -369,10 +730,22 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api properties-groups-list` |  | ✅ |  |
 | `api properties-groups-list` | `--object-type` | ✅ |  |
 | `api properties-groups-list` | `--locale` | ✅ |  |
+| `api properties-groups-create` |  | ✅ |  |
+| `api properties-groups-create` | `--object-type` | ✅ |  |
+| `api properties-groups-create` | `--body` | ✅ |  |
+| `api properties-groups-create` | `--body-file` | ✅ |  |
 | `api properties-groups-get` |  | ✅ |  |
 | `api properties-groups-get` | `--group-name` | ✅ |  |
 | `api properties-groups-get` | `--object-type` | ✅ |  |
 | `api properties-groups-get` | `--locale` | ✅ |  |
+| `api properties-groups-update` |  | ✅ |  |
+| `api properties-groups-update` | `--group-name` | ✅ |  |
+| `api properties-groups-update` | `--object-type` | ✅ |  |
+| `api properties-groups-update` | `--body` | ✅ |  |
+| `api properties-groups-update` | `--body-file` | ✅ |  |
+| `api properties-groups-delete` |  | ✅ |  |
+| `api properties-groups-delete` | `--group-name` | ✅ |  |
+| `api properties-groups-delete` | `--object-type` | ✅ |  |
 | `api properties-get` |  | ✅ |  |
 | `api properties-get` | `--object-type` | ✅ |  |
 | `api properties-get` | `--property-name` | ✅ |  |
@@ -380,6 +753,36 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `api properties-get` | `--data-sensitivity` | ✅ |  |
 | `api properties-get` | `--locale` | ✅ |  |
 | `api properties-get` | `--properties` | ✅ |  |
+| `api properties-update` |  | ✅ |  |
+| `api properties-update` | `--object-type` | ✅ |  |
+| `api properties-update` | `--property-name` | ✅ |  |
+| `api properties-update` | `--body` | ✅ |  |
+| `api properties-update` | `--body-file` | ✅ |  |
+| `api properties-delete` |  | ✅ |  |
+| `api properties-delete` | `--object-type` | ✅ |  |
+| `api properties-delete` | `--property-name` | ✅ |  |
+| `api associations-usage-high-usage-report-update` |  | ✅ |  |
+| `api associations-usage-high-usage-report-update` | `--user-id` | ✅ |  |
+| `api associations-batch-archive` |  | ✅ |  |
+| `api associations-batch-archive` | `--from-object-type` | ✅ |  |
+| `api associations-batch-archive` | `--to-object-type` | ✅ |  |
+| `api associations-batch-archive` | `--body` | ✅ |  |
+| `api associations-batch-archive` | `--body-file` | ✅ |  |
+| `api associations-batch-associate-default` |  | ✅ |  |
+| `api associations-batch-associate-default` | `--from-object-type` | ✅ |  |
+| `api associations-batch-associate-default` | `--to-object-type` | ✅ |  |
+| `api associations-batch-associate-default` | `--body` | ✅ |  |
+| `api associations-batch-associate-default` | `--body-file` | ✅ |  |
+| `api associations-batch-create` |  | ✅ |  |
+| `api associations-batch-create` | `--from-object-type` | ✅ |  |
+| `api associations-batch-create` | `--to-object-type` | ✅ |  |
+| `api associations-batch-create` | `--body` | ✅ |  |
+| `api associations-batch-create` | `--body-file` | ✅ |  |
+| `api associations-batch-labels-archive` |  | ✅ |  |
+| `api associations-batch-labels-archive` | `--from-object-type` | ✅ |  |
+| `api associations-batch-labels-archive` | `--to-object-type` | ✅ |  |
+| `api associations-batch-labels-archive` | `--body` | ✅ |  |
+| `api associations-batch-labels-archive` | `--body-file` | ✅ |  |
 | `api associations-batch-read` |  | ✅ |  |
 | `api associations-batch-read` | `--from-object-type` | ✅ |  |
 | `api associations-batch-read` | `--to-object-type` | ✅ |  |

@@ -11,7 +11,13 @@ import {
 import { Pacer, pacePathFor } from "@wirecat/cli-core/sends"
 import type { Command } from "commander"
 import { configuration } from "./config.js"
-import { type HubSpotTransport, hubspotTransport, PACE, SERVICE } from "./hubspot/transport.js"
+import {
+  type HubSpotTransport,
+  type HubSpotWriteTransport,
+  hubspotTransport,
+  PACE,
+  SERVICE,
+} from "./hubspot/transport.js"
 import { IDENTITY } from "./identity.js"
 
 export { PACE }
@@ -161,7 +167,7 @@ export const hubFor = (
   command: Command,
   { token, portalId, timeZone }: { token: string; portalId?: string; timeZone?: string | undefined },
   events?: EventSink,
-): HubSpotTransport => {
+): HubSpotWriteTransport => {
   const { environment } = contextOf(command)
   return hubspotTransport({
     token,

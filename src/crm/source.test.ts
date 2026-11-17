@@ -200,6 +200,7 @@ it("lists the pipelines' stages with their outcome from isClosed and probability
   const [sales] = await over(hub).pipelines("deal")
   expect(sales?.stages.map((stage) => [stage.externalId, stage.outcome])).toEqual([
     ["appointmentscheduled", "open"],
+    ["qualifiedtobuy", "open"],
     ["closedwon", "won"],
     ["closedlost", "lost"],
   ])

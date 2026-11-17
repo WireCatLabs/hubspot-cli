@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # The release's live check against the real service (WC-TEST-18, WC-REL-17). The owner runs bin/live, which prints
 # the `# Needs:` lines below, passes the key on stdin and records the pass. Every folder is a temporary one and the
-# keyring is out of reach, so nothing touches the owner's store, keyring or settings. Every call reads: no request
-# changes the account.
+# keyring is out of reach, so nothing touches the owner's store, keyring or settings. After the reads it makes a deal,
+# a note on it and a contact named "WireCat live test", changes each and deletes each, also when a step fails.
 #   scripts/live.sh < key-file
 # Needs: a HubSpot developer test account, never one that matters
-# Needs: a service key or private app token on it with the read scopes of docs/installation.md, and nothing more
+# Needs: a service key or private app token on it with the read and the write scopes of docs/installation.md
 # Needs: at least one deal in a deal pipeline, with a contact and a company associated
 # Needs: at least one owner (a user of the test account)
 set -euo pipefail
@@ -51,5 +51,73 @@ node -e '
   "$work/status.json" "$work/pipelines.json" "$work/sync.json" "$work/deals.json" "$work/people.json" "$work/users.json"
 "${cli[@]}" live doctor --json >/dev/null
 
+# The write round trip. A run without a terminal refuses `ask`: this profile allows the writes it makes, and each
+# api delete, which also checks its own `api.<command>`, confirms with --yes.
+for key in deals.delete people.delete notes.write notes.delete; do
+  "${cli[@]}" live config set "permissions.$key" allow --json >/dev/null
+done
+made="$work/made"
+mkdir -p "$made"
+cleanup() {
+  [ -f "$made/note" ] && "${cli[@]}" live api notes-delete --note-id "$(cat "$made/note")" --yes --json >/dev/null 2>&1 || true
+  [ -f "$made/contact" ] && "${cli[@]}" live api contacts-delete --contact-id "$(cat "$made/contact")" --yes --json >/dev/null 2>&1 || true
+  [ -f "$made/deal" ] && "${cli[@]}" live deals delete "$(cat "$made/deal")" --json >/dev/null 2>&1 || true
+  "${cli[@]}" live session end --json >/dev/null 2>&1 || true
+  rm -rf "$work"
+}
+trap cleanup EXIT
+field() { node -e 'let v = JSON.parse(require("fs").readFileSync(0, "utf8")); for (const k of process.argv[1].split(".")) v = v?.[k]; if (v === undefined || v === null) process.exit(1); console.log(v)' "$1"; }
+
+stamp=$(date -u +%Y%m%dT%H%M%SZ)
+currency=$("${cli[@]}" live api account-info-details-list --json | field item.companyCurrency)
+stages=$(node -e '
+  const pipelines = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))
+  const [first] = pipelines.item?.results ?? pipelines.results ?? []
+  const open = (first?.stages ?? []).filter((one) => one.metadata?.isClosed !== "true")
+  if (open.length < 2) throw new Error("the first deal pipeline needs two open stages")
+  console.log([first.label, open[0].label, open[1].label].join("\t"))' "$work/pipelines.json")
+IFS=$'\t' read -r pipeline first_stage second_stage <<<"$stages"
+
+"${cli[@]}" live deals create --title "WireCat live test $stamp" --pipeline "$pipeline" \
+  --stage "$first_stage" --amount 100 --currency "$currency" --json >"$work/deal.json"
+# The ref names the deal in the copy, the external id in HubSpot: the commands take one, api the other.
+deal=$(field item.deal.ref <"$work/deal.json")
+deal_id=$(field item.deal.external_id <"$work/deal.json")
+echo "$deal" >"$made/deal"
+"${cli[@]}" live deals update "$deal" --title "WireCat live test $stamp, renamed" --json >/dev/null
+"${cli[@]}" live deals move "$deal" "$second_stage" --json >/dev/null
+"${cli[@]}" live deals close "$deal" won --reason "WireCat live test" --json >"$work/closed.json"
+"${cli[@]}" live api deals-get --deal-id "$deal_id" --properties dealname,dealstage,closed_won_reason --json \
+  >"$work/deal-read.json"
+
+# A note on the deal, associated with HubSpot's default note-to-deal type 214 (associations v4 guide).
+now_ms=$(($(date +%s) * 1000))
+note_body=$(printf '{"properties":{"hs_note_body":"WireCat live test %s","hs_timestamp":"%s"},"associations":[{"to":{"id":"%s"},"types":[{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":214}]}]}' "$stamp" "$now_ms" "$deal_id")
+"${cli[@]}" live api notes-create --body "$note_body" --json | field item.result.id >"$made/note"
+"${cli[@]}" live api notes-delete --note-id "$(cat "$made/note")" --yes --json >/dev/null
+rm "$made/note"
+
+"${cli[@]}" live people create --first-name WireCat --last-name "Live test $stamp" \
+  --email "live-$stamp@example.com" --json >"$work/contact.json"
+field item.person.id <"$work/contact.json" >"$made/contact"
+"${cli[@]}" live people update "$(cat "$made/contact")" --position "Live test" --json >/dev/null
+"${cli[@]}" live api contacts-delete --contact-id "$(cat "$made/contact")" --yes --json >/dev/null
+rm "$made/contact"
+
+"${cli[@]}" live deals delete "$deal" --json >/dev/null
+rm "$made/deal"
+node -e '
+  const fs = require("fs")
+  const read = (file) => JSON.parse(fs.readFileSync(file, "utf8"))
+  const [pipelines, got] = process.argv.slice(1).map(read)
+  const properties = got.item?.result?.properties ?? got.item?.properties ?? {}
+  if (!String(properties.dealname).endsWith(", renamed")) throw new Error("the update did not reach HubSpot")
+  if (properties.closed_won_reason !== "WireCat live test") throw new Error("the close kept no reason")
+  const stages = (pipelines.item?.results ?? pipelines.results ?? []).flatMap((one) => one.stages ?? [])
+  const stage = stages.find((one) => one.id === properties.dealstage)
+  if (stage?.metadata?.probability !== "1.0") throw new Error("the close did not reach a closed won stage")' \
+  "$work/pipelines.json" "$work/deal-read.json"
+
 "${cli[@]}" live session end --json >/dev/null
-echo "live check passed: describe format 2, sign-in, status --check, pipelines, sync, deals, people, users, doctor, sign-out"
+echo "live check passed: describe format 2, sign-in, status --check, pipelines, sync, deals, people, users, doctor," \
+  "deal create, update, move, close and delete, note create and delete, contact create, update and delete, sign-out"

@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "group": "hubspot",
+    "rule": "same-entity-schema",
+    "target": "entity hit",
+    "reason": "cli-core 0.688 added the crm_file hit kind; CLIs on older cores lag. Remove once every CLI is on cli-core 0.688 or later.",
+    "review_after": "2026-12-08"
+  }
+]

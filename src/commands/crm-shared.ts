@@ -1,9 +1,11 @@
 import { CliError } from "@wirecat/cli-base"
 import { metaOf } from "@wirecat/cli-base/commands"
+import { outputFor } from "@wirecat/cli-core/cli"
 import type { CrmRun } from "@wirecat/cli-core/crm/cli"
 import { addCrmCommands, openCrmStore } from "@wirecat/cli-core/crm/cli"
 import type { AccountKey } from "@wirecat/cli-core/store"
 import { Command } from "commander"
+import { crmApiKeys, permissions } from "../config.js"
 import {
   ACCOUNT_VARIABLE,
   contextOf,
@@ -13,7 +15,8 @@ import {
   signInOf,
   storedSignIn,
 } from "../context.js"
-import type { HubSpotTransport } from "../hubspot/transport.js"
+import { HUBSPOT_WRITES } from "../crm/writer.js"
+import type { HubSpotWriteTransport } from "../hubspot/transport.js"
 import { IDENTITY } from "../identity.js"
 import { accountAnswer } from "../whoami.js"
 
@@ -34,9 +37,10 @@ const savedAccount = async (env: NodeJS.ProcessEnv, profile: string): Promise<st
 /** The selected profile's account for one command; cli-core closes the store before the answer prints. */
 const openProfile = async (command: Command, { readOnly }: { readOnly: boolean }): Promise<CrmRun> => {
   const { env, profile, environment } = contextOf(command)
-  const [{ openHubspotStore, PROVIDER }, { hubspotCrmSource }] = await Promise.all([
+  const [{ openHubspotStore, PROVIDER }, { hubspotCrmSource }, { hubspotCrmWriter }] = await Promise.all([
     import("../store.js"),
     import("../crm/source.js"),
+    import("../crm/writer.js"),
   ])
   // A command that reaches HubSpot with `WCHUBSPOT_TOKEN` first asks whose token it is, once, on a transport of its
   // own; the answer's time zone then counts the daily limit to the account's midnight. A command that stays on this
@@ -52,7 +56,7 @@ const openProfile = async (command: Command, { readOnly }: { readOnly: boolean }
     timeZone = who.account_info.time_zone
   }
   const saved = fromToken && !online && !readOnly ? await savedAccount(env, profile) : undefined
-  let transport: HubSpotTransport | undefined
+  let transport: HubSpotWriteTransport | undefined
   const hub = () => (transport ??= hubFor(command, { ...signInOf(command), ...(timeZone ? { timeZone } : {}) }))
   const accountOf = (): AccountKey => {
     const signIn = storedSignIn(command) ?? signInOf(command)
@@ -75,6 +79,7 @@ const openProfile = async (command: Command, { readOnly }: { readOnly: boolean }
     account: accountOf,
   })
   let source: ReturnType<typeof hubspotCrmSource> | undefined
+  const crm = () => (source ??= hubspotCrmSource(hub, environment.now ? { now: environment.now } : {}))
   return {
     profile,
     account,
@@ -84,15 +89,25 @@ const openProfile = async (command: Command, { readOnly }: { readOnly: boolean }
     store,
     env,
     locked: Boolean(env[`${IDENTITY.envPrefix}_PROFILE_LOCK`]),
-    source: () => (source ??= hubspotCrmSource(hub, environment.now ? { now: environment.now } : {})),
+    source: crm,
+    // No `self`: the key is the account's, so every `--owner` gives the record to someone else (crm.assign-others).
+    writes: () => ({
+      writer: hubspotCrmWriter(hub, crm),
+      app: IDENTITY,
+      env,
+      warn: outputFor(command).renderer.warn,
+      alsoChecks: crmApiKeys,
+      // contextOf, not resolveSettings: it carries the levels `mcp serve --permission` tightened.
+      settings: () => ({ ...contextOf(command).settings, permissionDefaults: permissions.defaults }),
+    }),
     close: () => store.close(),
   }
 }
 
 /**
  * cli-core's shared CRM commands over the account: `sync`, `store status`, `deals`, `leads`, `pipelines`, `stages`,
- * `fields`, `activities`, `changes`, `search all`, and `people`, `organizations` and `users` read live. Read only in
- * this release: no `writes`.
+ * `fields`, `activities`, `changes`, `search all`, `people`, `organizations` and `users` read live, and the writes of
+ * deals, contacts and companies.
  */
 export const crmSharedCommands = (): Command[] => {
   const holder = new Command(IDENTITY.command)
@@ -100,6 +115,7 @@ export const crmSharedCommands = (): Command[] => {
     app: IDENTITY,
     open: openProfile,
     leads: true,
+    writes: HUBSPOT_WRITES,
     live: ["person", "organization", "user"],
     activities: true,
   })

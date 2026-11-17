@@ -25,7 +25,8 @@
   Codex or any app that speaks MCP.
 - **The morning starts with what changed.** `changes list` shows what each sync saw change, and a schedule sends it to
   you.
-- **Read only.** This release changes nothing in HubSpot. The key it signs in with needs read scopes only.
+- **Writes when you want them.** Create and update deals, contacts and companies, move a deal or close it. The key
+  stays read only until you give it the write scopes, and a delete asks first.
 
 ```text
 You:    What changed in the CRM since yesterday?
@@ -49,6 +50,9 @@ crm.objects.contacts.read     crm.objects.companies.read    crm.objects.deals.re
 crm.objects.owners.read       crm.schemas.contacts.read     crm.schemas.companies.read
 crm.schemas.deals.read        sales-email-read
 ```
+
+To let `hubspot` change records too, add `crm.objects.contacts.write`, `crm.objects.companies.write` and
+`crm.objects.deals.write`. Leave them out and the key only reads.
 
 Add `crm.objects.leads.read` on Sales Hub Professional or Enterprise to read leads, and `tickets` to read tickets
 through `api`. A scope you leave out fails only the commands that need it.
@@ -75,7 +79,10 @@ More: [install and connect](docs/installation.md)
   name.
 - **Find a client.** Any contact or company in the account, read live, with its phones and e-mails.
 - **Follow the work on a deal.** Notes, calls, e-mails, meetings and tasks, copied with the deals.
-- **Reach past the copy.** Every read operation of HubSpot's CRM API is a command of its own, tickets included.
+- **Change a deal from the chat.** Create a deal, rename it, move it to the next stage, close it won or lost, or add
+  a contact or a company, and the copy takes the change at once.
+- **Reach past the copy.** Every operation of HubSpot's CRM API is a command of its own: notes, tasks, tickets,
+  associations and merges included.
 - **Search across your work.** A deal turns up next to the chat where you agreed on it and the meeting where you
   discussed it, if you use the other WireCat tools.
 
@@ -95,9 +102,10 @@ hubspot work mcp add claude-code --allow-writes   # or: codex
 hubspot work mcp config                           # the entry for Claude Desktop, Cursor and others
 ```
 
-`--allow-writes` confirms you saw that the server offers commands that change something on this computer, such as
-`sync` and schedules. None of them changes anything in HubSpot. Text from the account reaches the agent marked as
-untrusted, so the agent reads it as data, never as instructions. The sign-in commands are not offered over MCP.
+`--allow-writes` confirms you saw that the server offers commands that change something: `sync` and schedules on this
+computer, and the writes to HubSpot, which only a key with write scopes can make. Text from the account reaches the
+agent marked as untrusted, so the agent reads it as data, never as instructions. The sign-in commands are not offered
+over MCP.
 
 More: [agents and MCP](docs/usage.md#agents)
 
@@ -107,8 +115,8 @@ More: [agents and MCP](docs/usage.md#agents)
   sync takes only the changes. Lists, the pipeline and search then answer with no request to HubSpot, also offline.
 - **The key stays in the system keyring.** It never appears in output, errors or run records, and no command takes it
   as an argument.
-- **A permission on every command.** Each command and each read operation of HubSpot's API has its own level, so
-  you decide what an agent may read.
+- **A permission on every command.** Each command and each operation of HubSpot's API has its own level, so you
+  decide what an agent may read and change.
 - **Your CRM beside your other context.** Deals sit in the same local store as your messages, notes and meetings from
   the other WireCat tools, and `search all` finds them together.
 - **As many accounts as you need.** Each HubSpot account is a profile you name in the command, and none is ever picked
@@ -124,6 +132,9 @@ hubspot work deals list stage:"Contract sent"          # from the copy, offline 
 hubspot work deals show deal:12                        # one deal with its stage, amount and the people on it
 hubspot work pipelines list                            # the deal pipelines and their stages
 hubspot work leads list                                # leads, on Sales Hub Professional or Enterprise
+hubspot work deals create --title "Example kitchen" --amount 15000 --currency EUR
+hubspot work deals move deal:12 "Contract sent"        # the next stage of its pipeline
+hubspot work deals close deal:12 won
 ```
 
 ### Contacts, companies and owners
@@ -132,6 +143,8 @@ hubspot work leads list                                # leads, on Sales Hub Pro
 hubspot work people list "Anna"                        # any contact in the account, read live
 hubspot work organizations list "Example LLC"          # any company, read live
 hubspot work users list                                # the account's owners
+hubspot work people create --name "Anna Example" --email anna@example.com
+hubspot work organizations update 4021 --phone "+34 600 000 000"
 ```
 
 ### Activities and what changed
@@ -143,15 +156,16 @@ hubspot work changes list "at>=1d"                     # what changed in the las
 
 Activities are copied once you turn on the activities setting. `activities list` names the setting.
 
-### Any read of the API
+### Any operation of the API
 
 ```sh
-hubspot work api list                                  # every read operation, without calling HubSpot
+hubspot work api list                                  # every operation, without calling HubSpot
 hubspot work api deals-list --limit 5                  # one of them
+hubspot work api notes-create --body-file note.json    # a note on a deal: a write, which asks first
 ```
 
-`api` offers every read operation of HubSpot's CRM API version 2026-03, from its 15 specs, each with its own
-permission. Tickets are read here.
+`api` offers every operation of HubSpot's CRM API version 2026-03, from its 15 specs, each with its own permission:
+reads, writes and deletes. Notes, tasks and tickets are written here.
 
 ### With your other sources
 
@@ -191,6 +205,12 @@ Each profile has a permission level for every command and every API operation: `
 A command's key is its name, such as `deals.list`. An API operation's key is `api.<command>`, such as
 `api.deals-search`, and `api` covers them all.
 
+Changing a deal, contact or company with its command goes ahead; deleting one asks. Every write of `api` also checks
+its group's `<group>.write`, such as `deals.write`, and every delete its `<group>.delete`: both ask. A write that does
+what a command does checks that command's key too, so `deals.update deny` holds on both paths. A key belongs to the
+account, not to a person, so giving a record an owner checks `crm.assign-others`, which is `deny` until you allow it.
+A GDPR delete of a contact checks `people.erase` as well, so you can deny it alone.
+
 ```sh
 hubspot work config set permissions.people deny   # this profile reads no contacts
 ```
@@ -203,9 +223,12 @@ More: [settings and permissions](docs/configuration.md#permissions)
 
 ## Limits
 
-- `hubspot` is tested against a fake account built from HubSpot's API reference, not yet against a live account.
-- Read only: no command changes deals, contacts or companies in this release, `api` included.
-- Tickets are read only through `api`, not copied.
+- `hubspot` is tested against a fake account built from HubSpot's API reference, and each release is checked against
+  a HubSpot test account.
+- A contact keeps one e-mail and two numbers (phone and mobile), and a company one number and no e-mail: a longer
+  list is refused. Leads, notes, tasks and a deal's contacts and company are written through `api`.
+- HubSpot takes no idempotency key: a write that ended in `outcome_unknown` may have happened. Check before repeating.
+- Tickets are read and written only through `api`, not copied.
 - Leads need Sales Hub Professional or Enterprise.
 - Before 1.0, a minor version may change commands, `--json` fields and MCP tools. The changelog marks each such
   change.

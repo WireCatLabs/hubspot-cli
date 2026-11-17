@@ -133,7 +133,7 @@ Run: pnpm generate
 | `get-/crm/pipelines/2026-03/{objectType}_getAll` | `GET /crm/pipelines/2026-03/{objectType}` | `hubspot <profile> api pipelines-list` | read | — | generated | Retrieve all pipelines |
 | `post-/crm/pipelines/2026-03/{objectType}_create` | `POST /crm/pipelines/2026-03/{objectType}` | `hubspot <profile> api pipelines-create` | write | contract | generated | Create a pipeline |
 | `get-/crm/pipelines/2026-03/{objectType}/{pipelineId}_getById` | `GET /crm/pipelines/2026-03/{objectType}/{pipelineId}` | `hubspot <profile> api pipelines-get` | read | — | generated | Return a pipeline by ID |
-| `put-/crm/pipelines/2026-03/{objectType}/{pipelineId}_replace` | `PUT /crm/pipelines/2026-03/{objectType}/{pipelineId}` | `hubspot <profile> api pipelines-replace` | write | contract | generated | Replace a pipeline |
+| `put-/crm/pipelines/2026-03/{objectType}/{pipelineId}_replace` | `PUT /crm/pipelines/2026-03/{objectType}/{pipelineId}` | `hubspot <profile> api pipelines-replace` | destructive | contract | generated | Replace a pipeline |
 | `patch-/crm/pipelines/2026-03/{objectType}/{pipelineId}_update` | `PATCH /crm/pipelines/2026-03/{objectType}/{pipelineId}` | `hubspot <profile> api pipelines-update` | write | contract | generated | Perform a partial update of the pipeline identified by pipelineId. |
 | `delete-/crm/pipelines/2026-03/{objectType}/{pipelineId}_archive` | `DELETE /crm/pipelines/2026-03/{objectType}/{pipelineId}` | `hubspot <profile> api pipelines-delete` | destructive | — | generated | Delete a pipeline |
 | `get-/crm/pipelines/2026-03/{objectType}/{pipelineId}/audit_getAudit` | `GET /crm/pipelines/2026-03/{objectType}/{pipelineId}/audit` | `hubspot <profile> api pipelines-audit-list` | read | — | generated | Return an audit of all changes to the pipeline |
@@ -207,6 +207,7 @@ Run: pnpm generate
 | `post-/crm/objects/2026-03/tasks/batch/archive_archive` | destructive | override: a POST that archives, erases or merges away records |
 | `post-/crm/objects/2026-03/tasks/batch/read_read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/objects/2026-03/tasks/search_doSearch` | read | a POST to a …/search or …/query path only reads (readingPosts rule) |
+| `put-/crm/pipelines/2026-03/{objectType}/{pipelineId}_replace` | destructive | override: a replace of a pipeline may drop each stage its body leaves out |
 | `post-/crm/properties/2026-03/{objectType}/batch/archive_/crm/properties/2025-09/{objectType}/batch/archive` | destructive | override: a POST that archives, erases or merges away records |
 | `post-/crm/properties/2026-03/{objectType}/batch/read_/crm/properties/2025-09/{objectType}/batch/read` | read | override: a batch read by ids, in the body because the list can be long |
 | `post-/crm/associations/2026-03/{fromObjectType}/{toObjectType}/batch/archive_/crm/associations/2025-09/{fromObjectType}/{toObjectType}/batch/archive` | destructive | override: a POST that archives, erases or merges away records |
@@ -276,6 +277,7 @@ Not from the source: a private app token or service key goes in Authorization: B
 | `delete-/crm/objects/2026-03/meetings/{meetingId}_archive` | `meetings.delete` | always |
 | `post-/crm/objects/2026-03/tasks/batch/archive_archive` | `tasks.delete` | always |
 | `delete-/crm/objects/2026-03/tasks/{taskId}_archive` | `tasks.delete` | always |
+| `put-/crm/pipelines/2026-03/{objectType}/{pipelineId}_replace` | `pipelines.delete` | always |
 | `delete-/crm/pipelines/2026-03/{objectType}/{pipelineId}_archive` | `pipelines.delete` | always |
 | `delete-/crm/pipelines/2026-03/{objectType}/{pipelineId}/stages/{stageId}_archive` | `pipelines.delete` | always |
 | `post-/crm/properties/2026-03/{objectType}/batch/archive_/crm/properties/2025-09/{objectType}/batch/archive` | `fields.delete` | always |

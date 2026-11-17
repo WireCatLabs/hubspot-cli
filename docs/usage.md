@@ -13,10 +13,11 @@ assumes the profile is signed in, as [install and connect](installation.md) show
 1. [The profile comes first](#the-profile-comes-first)
 2. [The first sync](#the-first-sync)
 3. [Read your deals](#read-your-deals)
-4. [Activities and what changed](#activities-and-what-changed)
-5. [Call the API](#call-the-api)
-6. [Output for scripts](#output-for-scripts)
-7. [Agents](#agents)
+4. [Change deals, contacts and companies](#change-deals-contacts-and-companies)
+5. [Activities and what changed](#activities-and-what-changed)
+6. [Call the API](#call-the-api)
+7. [Output for scripts](#output-for-scripts)
+8. [Agents](#agents)
 
 ## The profile comes first
 
@@ -71,6 +72,36 @@ hubspot work organizations show 9
 hubspot work users list
 ```
 
+## Change deals, contacts and companies
+
+These need the key's write scopes ([install](installation.md#make-a-key)). Run `sync` first: a stage or a pipeline is
+named as the copy knows it.
+
+```sh
+hubspot work deals create --title "Example kitchen" --amount 15000 --currency EUR --stage "Appointment scheduled"
+hubspot work deals update deal:12 --close-date 2026-12-24 --field "Lead source=Trade fair"
+hubspot work deals move deal:12 "Contract sent"
+hubspot work deals close deal:12 lost --reason "Example: chose another supplier"
+hubspot work deals delete deal:12
+hubspot work people create --first-name Anna --last-name Example --email anna@example.com
+hubspot work organizations update 9 --name "Example LLC"
+```
+
+Each change goes to HubSpot first, and the copy keeps HubSpot's answer. `close` moves the deal to its pipeline's closed
+won or lost stage. `delete` archives the deal in HubSpot, where it can be restored for 90 days, and asks first at a
+terminal. Over MCP nobody is there to answer, so only `deny` stops an agent
+([permissions](configuration.md#permissions)).
+`--dry-run` shows the permission keys a change checks and sends nothing.
+
+A contact keeps one e-mail and two numbers, phone and mobile; a company keeps one number and no e-mail. `--phone` and
+`--email` replace the whole list, so one `--phone` on a contact clears its mobile number, and `--name` sets the first
+and the last name both. Notes, tasks,
+leads and a deal's contacts and company are written through [the API](#call-the-api).
+
+The key belongs to the account, not to you, so setting an owner with `--owner` checks `crm.assign-others`, which is
+`deny` until you allow it ([permissions](configuration.md#permissions)). HubSpot takes no idempotency key: a change
+that ended in `outcome_unknown` may have been made, so look at the record before you send it again.
+
 ## Activities and what changed
 
 Notes, calls, e-mails, meetings and tasks are off by default. To copy them, turn on the activities setting with your
@@ -92,7 +123,7 @@ hubspot work schedule command crm-digest --at 08:30 -- changes list --format rep
 
 ## Call the API
 
-`hubspot work api list` lists every read operation of HubSpot's CRM API, version 2026-03, with its permission key.
+`hubspot work api list` lists every operation of HubSpot's CRM API, version 2026-03, with its effect and permission key.
 Each operation is a command of its own:
 
 ```sh
@@ -102,9 +133,14 @@ hubspot work api deals-search --body '{"after":"0","filterGroups":[],"limit":5,"
 hubspot work api deals-list --all
 ```
 
-Each operation checks its own key, `api.<command>`, so `permissions.api deny` keeps an agent out of the raw API. This
-release only reads: the API's writes are not offered, and `api show` on one of them says so. Writes come in a later
-release.
+Each operation checks its own key, `api.<command>`, so `permissions.api deny` keeps an agent out of the raw API. A
+write also checks its group's `.write` key and a delete its `.delete` key, and both ask first at a terminal; over MCP
+only `deny` stops an agent.
+`--dry-run` shows the keys without sending anything:
+
+```sh
+hubspot work api notes-create --body-file note.json --dry-run
+```
 
 ```sh
 hubspot work config set permissions.api deny

@@ -1,7 +1,7 @@
 # Settings
 
-Decide what your AI agent may do with your HubSpot account before you hand it over. This release only reads, and each
-profile can still narrow what an agent reads.
+Decide what your AI agent may do with your HubSpot account before you hand it over: what it reads, and what it may
+change.
 
 Settings live in one file, `config.json`, in the folder `hubspot doctor` shows. Each profile has its own part, and
 `defaults` apply to every profile. `hubspot work config show` lists each setting and where it came from: the file, a
@@ -33,8 +33,24 @@ hubspot work config set permissions.people deny
 hubspot work config set permissions.api readonly
 ```
 
-This release only reads, `api` included: no command creates, changes or deletes anything in HubSpot. The
-permissions decide what an agent may read.
+What each write checks, and its level unless you set another:
+
+| What | Keys | Built in |
+| --- | --- | --- |
+| `deals create`, `update`, `move`, `close`; `people` and `organizations` `create`, `update` | its own, such as `deals.update`; a stage also `deals.move`, a won or lost one `deals.close` | `allow` |
+| `deals delete` | `deals.delete` | `ask` |
+| An `api` write, such as `api deals-update` | `api.<command>`, its group's `<group>.write` (`deals.write`, `notes.write`…) and the key of the command that does the same; a deal stage also `deals.move` and `deals.close` | `ask` |
+| An `api` delete, archive or merge | `api.<command>` and its group's `<group>.delete` | `ask` |
+| An owner set on a record, on any path | `crm.assign-others` | `deny` |
+| `api contacts-gdpr-delete`, which erases a contact for good | also `people.erase`, to deny it alone | `ask` |
+
+```sh
+hubspot work config set permissions.notes.write allow     # let an agent add notes without a question
+hubspot work config set permissions.deals.update deny     # no deal updates, by deals update or api deals-update
+```
+
+A key belongs to the account, not to a person: `hubspot` cannot tell your own records from a colleague's, so any owner
+counts as someone else. The key itself still needs the write scopes ([install](installation.md#make-a-key)).
 
 Over MCP there is no one to ask, so `ask` lets the command run. Set a key to `readonly` or `deny` to stop an agent.
 `hubspot work mcp serve --permission people.list=deny` makes a key stricter for one server only, and never looser.

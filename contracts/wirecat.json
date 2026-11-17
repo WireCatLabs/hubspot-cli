@@ -1,7 +1,7 @@
 {
   "wcat_manifest": 2,
   "name": "hubspot",
-  "description": "read a HubSpot account's CRM",
+  "description": "read and change a HubSpot account's CRM",
   "docs_url": "https://github.com/WireCatLabs/hubspot-cli#readme",
   "package": "@wirecat/hubspot-cli",
   "bin": "wcat-hubspot",
@@ -320,6 +320,71 @@
     },
     {
       "path": [
+        "deals",
+        "create"
+      ],
+      "summary": "make a deal in the CRM, then store the CRM's copy of it",
+      "effects": {
+        "remote": "write",
+        "local": "write"
+      },
+      "permission": "deals.create",
+      "entity": "crm_write"
+    },
+    {
+      "path": [
+        "deals",
+        "update"
+      ],
+      "summary": "change a deal in the CRM; what is left out keeps its value; the CRM's copy…",
+      "effects": {
+        "remote": "write",
+        "local": "write"
+      },
+      "permission": "deals.update",
+      "entity": "crm_write"
+    },
+    {
+      "path": [
+        "deals",
+        "move"
+      ],
+      "summary": "move a deal to another stage of its pipeline; a won or lost stage checks the…",
+      "effects": {
+        "remote": "write",
+        "local": "write"
+      },
+      "permission": "deals.move",
+      "entity": "crm_write"
+    },
+    {
+      "path": [
+        "deals",
+        "close"
+      ],
+      "summary": "mark a deal won or lost, the CRM's own way",
+      "effects": {
+        "remote": "write",
+        "local": "write"
+      },
+      "permission": "deals.close",
+      "entity": "crm_write"
+    },
+    {
+      "path": [
+        "deals",
+        "delete"
+      ],
+      "summary": "delete a deal in the CRM; asks first unless allowed",
+      "effects": {
+        "remote": "write",
+        "local": "write"
+      },
+      "permission": "deals.delete",
+      "entity": "crm_removal"
+    },
+    {
+      "path": [
         "leads",
         "list"
       ],
@@ -411,6 +476,32 @@
     },
     {
       "path": [
+        "people",
+        "create"
+      ],
+      "summary": "make a person in the CRM, then store the CRM's copy of it",
+      "effects": {
+        "remote": "write",
+        "local": "write"
+      },
+      "permission": "people.create",
+      "entity": "crm_record_write"
+    },
+    {
+      "path": [
+        "people",
+        "update"
+      ],
+      "summary": "change a person in the CRM; what is left out keeps its value; the CRM's copy…",
+      "effects": {
+        "remote": "write",
+        "local": "write"
+      },
+      "permission": "people.update",
+      "entity": "crm_record_write"
+    },
+    {
+      "path": [
         "organizations",
         "list"
       ],
@@ -434,6 +525,32 @@
       },
       "permission": "organizations.show",
       "entity": "crm_organization"
+    },
+    {
+      "path": [
+        "organizations",
+        "create"
+      ],
+      "summary": "make an organization in the CRM, then store the CRM's copy of it",
+      "effects": {
+        "remote": "write",
+        "local": "write"
+      },
+      "permission": "organizations.create",
+      "entity": "crm_record_write"
+    },
+    {
+      "path": [
+        "organizations",
+        "update"
+      ],
+      "summary": "change a organization in the CRM; what is left out keeps its value; the…",
+      "effects": {
+        "remote": "write",
+        "local": "write"
+      },
+      "permission": "organizations.update",
+      "entity": "crm_record_write"
     },
     {
       "path": [
@@ -551,6 +668,42 @@
     {
       "path": [
         "api",
+        "contacts-create"
+      ],
+      "summary": "Create a contact — write (POST /crm/objects/2026-03/contacts)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.contacts-create"
+    },
+    {
+      "path": [
+        "api",
+        "contacts-batch-archive"
+      ],
+      "summary": "Archive a batch of contacts — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.contacts-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "contacts-batch-create"
+      ],
+      "summary": "Create a batch of contacts — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.contacts-batch-create"
+    },
+    {
+      "path": [
+        "api",
         "contacts-batch-read"
       ],
       "summary": "Retrieve a batch of contacts — read (POST…",
@@ -559,6 +712,54 @@
         "local": "none"
       },
       "permission": "api.contacts-batch-read"
+    },
+    {
+      "path": [
+        "api",
+        "contacts-batch-update"
+      ],
+      "summary": "Update a batch of contacts — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.contacts-batch-update"
+    },
+    {
+      "path": [
+        "api",
+        "contacts-batch-upsert"
+      ],
+      "summary": "Create or update a batch of contacts — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.contacts-batch-upsert"
+    },
+    {
+      "path": [
+        "api",
+        "contacts-gdpr-delete"
+      ],
+      "summary": "Permanently delete a contact (GDPR-compliant) — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.contacts-gdpr-delete"
+    },
+    {
+      "path": [
+        "api",
+        "contacts-merge"
+      ],
+      "summary": "Merge two contacts — destructive (POST /crm/objects/2026-03/contacts/merge)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.contacts-merge"
     },
     {
       "path": [
@@ -587,6 +788,66 @@
     {
       "path": [
         "api",
+        "contacts-update"
+      ],
+      "summary": "Update a contact — write (PATCH /crm/objects/2026-03/contacts/{contactId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.contacts-update"
+    },
+    {
+      "path": [
+        "api",
+        "contacts-delete"
+      ],
+      "summary": "Archive a contact — destructive (DELETE…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.contacts-delete"
+    },
+    {
+      "path": [
+        "api",
+        "associations-default-replace"
+      ],
+      "summary": "— write (PUT…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.associations-default-replace"
+    },
+    {
+      "path": [
+        "api",
+        "associations-replace"
+      ],
+      "summary": "— write (PUT…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.associations-replace"
+    },
+    {
+      "path": [
+        "api",
+        "associations-delete"
+      ],
+      "summary": "— destructive (DELETE…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.associations-delete"
+    },
+    {
+      "path": [
+        "api",
         "companies-list"
       ],
       "summary": "Retrieve companies — read (GET /crm/objects/2026-03/companies)",
@@ -599,6 +860,42 @@
     {
       "path": [
         "api",
+        "companies-create"
+      ],
+      "summary": "Create a company — write (POST /crm/objects/2026-03/companies)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.companies-create"
+    },
+    {
+      "path": [
+        "api",
+        "companies-batch-archive"
+      ],
+      "summary": "Archive a batch of companies — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.companies-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "companies-batch-create"
+      ],
+      "summary": "Create a batch of companies — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.companies-batch-create"
+    },
+    {
+      "path": [
+        "api",
         "companies-batch-read"
       ],
       "summary": "Retrieve a batch of companies — read (POST…",
@@ -607,6 +904,42 @@
         "local": "none"
       },
       "permission": "api.companies-batch-read"
+    },
+    {
+      "path": [
+        "api",
+        "companies-batch-update"
+      ],
+      "summary": "Update a batch of companies — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.companies-batch-update"
+    },
+    {
+      "path": [
+        "api",
+        "companies-batch-upsert"
+      ],
+      "summary": "Create or update a batch of companies by unique property values — write…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.companies-batch-upsert"
+    },
+    {
+      "path": [
+        "api",
+        "companies-merge"
+      ],
+      "summary": "Merge two companies — destructive (POST /crm/objects/2026-03/companies/merge)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.companies-merge"
     },
     {
       "path": [
@@ -635,6 +968,30 @@
     {
       "path": [
         "api",
+        "companies-update"
+      ],
+      "summary": "Update a company — write (PATCH /crm/objects/2026-03/companies/{companyId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.companies-update"
+    },
+    {
+      "path": [
+        "api",
+        "companies-delete"
+      ],
+      "summary": "Archive a company — destructive (DELETE…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.companies-delete"
+    },
+    {
+      "path": [
+        "api",
         "deals-list"
       ],
       "summary": "List — read (GET /crm/objects/2026-03/0-3)",
@@ -647,6 +1004,42 @@
     {
       "path": [
         "api",
+        "deals-create"
+      ],
+      "summary": "Create — write (POST /crm/objects/2026-03/0-3)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.deals-create"
+    },
+    {
+      "path": [
+        "api",
+        "deals-batch-archive"
+      ],
+      "summary": "Archive a batch of deals by ID — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.deals-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "deals-batch-create"
+      ],
+      "summary": "Create a batch of deals — write (POST /crm/objects/2026-03/0-3/batch/create)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.deals-batch-create"
+    },
+    {
+      "path": [
+        "api",
         "deals-batch-read"
       ],
       "summary": "Read a batch of deals by internal ID, or unique property values — read (POST…",
@@ -655,6 +1048,42 @@
         "local": "none"
       },
       "permission": "api.deals-batch-read"
+    },
+    {
+      "path": [
+        "api",
+        "deals-batch-update"
+      ],
+      "summary": "Update a batch of deals by internal ID, or unique property values — write…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.deals-batch-update"
+    },
+    {
+      "path": [
+        "api",
+        "deals-batch-upsert"
+      ],
+      "summary": "Create or update a batch of deals by unique property values — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.deals-batch-upsert"
+    },
+    {
+      "path": [
+        "api",
+        "deals-merge"
+      ],
+      "summary": "Merge two deals with same type — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.deals-merge"
     },
     {
       "path": [
@@ -683,6 +1112,30 @@
     {
       "path": [
         "api",
+        "deals-update"
+      ],
+      "summary": "Update — write (PATCH /crm/objects/2026-03/0-3/{dealId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.deals-update"
+    },
+    {
+      "path": [
+        "api",
+        "deals-delete"
+      ],
+      "summary": "Archive — destructive (DELETE /crm/objects/2026-03/0-3/{dealId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.deals-delete"
+    },
+    {
+      "path": [
+        "api",
         "tickets-list"
       ],
       "summary": "List — read (GET /crm/objects/2026-03/tickets)",
@@ -695,6 +1148,42 @@
     {
       "path": [
         "api",
+        "tickets-create"
+      ],
+      "summary": "Create — write (POST /crm/objects/2026-03/tickets)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tickets-create"
+    },
+    {
+      "path": [
+        "api",
+        "tickets-batch-archive"
+      ],
+      "summary": "Archive a batch of tickets by ID — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tickets-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "tickets-batch-create"
+      ],
+      "summary": "Create a batch of tickets — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tickets-batch-create"
+    },
+    {
+      "path": [
+        "api",
         "tickets-batch-read"
       ],
       "summary": "Read a batch of tickets by internal ID, or unique property values — read…",
@@ -703,6 +1192,42 @@
         "local": "none"
       },
       "permission": "api.tickets-batch-read"
+    },
+    {
+      "path": [
+        "api",
+        "tickets-batch-update"
+      ],
+      "summary": "Update a batch of tickets by internal ID, or unique property values — write…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tickets-batch-update"
+    },
+    {
+      "path": [
+        "api",
+        "tickets-batch-upsert"
+      ],
+      "summary": "Create or update a batch of tickets by unique property values — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tickets-batch-upsert"
+    },
+    {
+      "path": [
+        "api",
+        "tickets-merge"
+      ],
+      "summary": "Merge two tickets — destructive (POST /crm/objects/2026-03/tickets/merge)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tickets-merge"
     },
     {
       "path": [
@@ -731,6 +1256,30 @@
     {
       "path": [
         "api",
+        "tickets-update"
+      ],
+      "summary": "Update — write (PATCH /crm/objects/2026-03/tickets/{ticketId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tickets-update"
+    },
+    {
+      "path": [
+        "api",
+        "tickets-delete"
+      ],
+      "summary": "Archive — destructive (DELETE /crm/objects/2026-03/tickets/{ticketId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tickets-delete"
+    },
+    {
+      "path": [
+        "api",
         "leads-list"
       ],
       "summary": "List — read (GET /crm/objects/2026-03/leads)",
@@ -743,6 +1292,42 @@
     {
       "path": [
         "api",
+        "leads-create"
+      ],
+      "summary": "Create — write (POST /crm/objects/2026-03/leads)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.leads-create"
+    },
+    {
+      "path": [
+        "api",
+        "leads-batch-archive"
+      ],
+      "summary": "Archive a batch of leads by ID — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.leads-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "leads-batch-create"
+      ],
+      "summary": "Create a batch of leads — write (POST /crm/objects/2026-03/leads/batch/create)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.leads-batch-create"
+    },
+    {
+      "path": [
+        "api",
         "leads-batch-read"
       ],
       "summary": "Read a batch of leads by internal ID, or unique property values — read (POST…",
@@ -751,6 +1336,30 @@
         "local": "none"
       },
       "permission": "api.leads-batch-read"
+    },
+    {
+      "path": [
+        "api",
+        "leads-batch-update"
+      ],
+      "summary": "Update a batch of leads by internal ID, or unique property values — write…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.leads-batch-update"
+    },
+    {
+      "path": [
+        "api",
+        "leads-batch-upsert"
+      ],
+      "summary": "Create or update a batch of leads by unique property values — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.leads-batch-upsert"
     },
     {
       "path": [
@@ -779,6 +1388,30 @@
     {
       "path": [
         "api",
+        "leads-update"
+      ],
+      "summary": "Update — write (PATCH /crm/objects/2026-03/leads/{leadsId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.leads-update"
+    },
+    {
+      "path": [
+        "api",
+        "leads-delete"
+      ],
+      "summary": "Archive — destructive (DELETE /crm/objects/2026-03/leads/{leadsId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.leads-delete"
+    },
+    {
+      "path": [
+        "api",
         "notes-list"
       ],
       "summary": "List — read (GET /crm/objects/2026-03/notes)",
@@ -791,6 +1424,42 @@
     {
       "path": [
         "api",
+        "notes-create"
+      ],
+      "summary": "Create — write (POST /crm/objects/2026-03/notes)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.notes-create"
+    },
+    {
+      "path": [
+        "api",
+        "notes-batch-archive"
+      ],
+      "summary": "Archive a batch of notes by ID — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.notes-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "notes-batch-create"
+      ],
+      "summary": "Create a batch of notes — write (POST /crm/objects/2026-03/notes/batch/create)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.notes-batch-create"
+    },
+    {
+      "path": [
+        "api",
         "notes-batch-read"
       ],
       "summary": "Read a batch of notes by internal ID, or unique property values — read (POST…",
@@ -799,6 +1468,30 @@
         "local": "none"
       },
       "permission": "api.notes-batch-read"
+    },
+    {
+      "path": [
+        "api",
+        "notes-batch-update"
+      ],
+      "summary": "Update a batch of notes by internal ID, or unique property values — write…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.notes-batch-update"
+    },
+    {
+      "path": [
+        "api",
+        "notes-batch-upsert"
+      ],
+      "summary": "Create or update a batch of notes by unique property values — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.notes-batch-upsert"
     },
     {
       "path": [
@@ -827,6 +1520,30 @@
     {
       "path": [
         "api",
+        "notes-update"
+      ],
+      "summary": "Update — write (PATCH /crm/objects/2026-03/notes/{noteId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.notes-update"
+    },
+    {
+      "path": [
+        "api",
+        "notes-delete"
+      ],
+      "summary": "Archive — destructive (DELETE /crm/objects/2026-03/notes/{noteId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.notes-delete"
+    },
+    {
+      "path": [
+        "api",
         "calls-list"
       ],
       "summary": "List — read (GET /crm/objects/2026-03/calls)",
@@ -839,6 +1556,42 @@
     {
       "path": [
         "api",
+        "calls-create"
+      ],
+      "summary": "Create — write (POST /crm/objects/2026-03/calls)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.calls-create"
+    },
+    {
+      "path": [
+        "api",
+        "calls-batch-archive"
+      ],
+      "summary": "Archive a batch of calls by ID — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.calls-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "calls-batch-create"
+      ],
+      "summary": "Create a batch of calls — write (POST /crm/objects/2026-03/calls/batch/create)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.calls-batch-create"
+    },
+    {
+      "path": [
+        "api",
         "calls-batch-read"
       ],
       "summary": "Read a batch of calls by internal ID, or unique property values — read (POST…",
@@ -847,6 +1600,30 @@
         "local": "none"
       },
       "permission": "api.calls-batch-read"
+    },
+    {
+      "path": [
+        "api",
+        "calls-batch-update"
+      ],
+      "summary": "Update a batch of calls by internal ID, or unique property values — write…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.calls-batch-update"
+    },
+    {
+      "path": [
+        "api",
+        "calls-batch-upsert"
+      ],
+      "summary": "Create or update a batch of calls by unique property values — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.calls-batch-upsert"
     },
     {
       "path": [
@@ -875,6 +1652,30 @@
     {
       "path": [
         "api",
+        "calls-update"
+      ],
+      "summary": "Update — write (PATCH /crm/objects/2026-03/calls/{callId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.calls-update"
+    },
+    {
+      "path": [
+        "api",
+        "calls-delete"
+      ],
+      "summary": "Archive — destructive (DELETE /crm/objects/2026-03/calls/{callId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.calls-delete"
+    },
+    {
+      "path": [
+        "api",
         "emails-list"
       ],
       "summary": "List — read (GET /crm/objects/2026-03/emails)",
@@ -887,6 +1688,42 @@
     {
       "path": [
         "api",
+        "emails-create"
+      ],
+      "summary": "Create — write (POST /crm/objects/2026-03/emails)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.emails-create"
+    },
+    {
+      "path": [
+        "api",
+        "emails-batch-archive"
+      ],
+      "summary": "Archive a batch of emails by ID — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.emails-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "emails-batch-create"
+      ],
+      "summary": "Create a batch of emails — write (POST /crm/objects/2026-03/emails/batch/create)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.emails-batch-create"
+    },
+    {
+      "path": [
+        "api",
         "emails-batch-read"
       ],
       "summary": "Read a batch of emails by internal ID, or unique property values — read…",
@@ -895,6 +1732,30 @@
         "local": "none"
       },
       "permission": "api.emails-batch-read"
+    },
+    {
+      "path": [
+        "api",
+        "emails-batch-update"
+      ],
+      "summary": "Update a batch of emails by internal ID, or unique property values — write…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.emails-batch-update"
+    },
+    {
+      "path": [
+        "api",
+        "emails-batch-upsert"
+      ],
+      "summary": "Create or update a batch of emails by unique property values — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.emails-batch-upsert"
     },
     {
       "path": [
@@ -923,6 +1784,30 @@
     {
       "path": [
         "api",
+        "emails-update"
+      ],
+      "summary": "Update — write (PATCH /crm/objects/2026-03/emails/{emailId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.emails-update"
+    },
+    {
+      "path": [
+        "api",
+        "emails-delete"
+      ],
+      "summary": "Archive — destructive (DELETE /crm/objects/2026-03/emails/{emailId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.emails-delete"
+    },
+    {
+      "path": [
+        "api",
         "meetings-list"
       ],
       "summary": "List — read (GET /crm/objects/2026-03/meetings)",
@@ -935,6 +1820,42 @@
     {
       "path": [
         "api",
+        "meetings-create"
+      ],
+      "summary": "Create — write (POST /crm/objects/2026-03/meetings)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.meetings-create"
+    },
+    {
+      "path": [
+        "api",
+        "meetings-batch-archive"
+      ],
+      "summary": "Archive a batch of meetings by ID — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.meetings-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "meetings-batch-create"
+      ],
+      "summary": "Create a batch of meetings — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.meetings-batch-create"
+    },
+    {
+      "path": [
+        "api",
         "meetings-batch-read"
       ],
       "summary": "Read a batch of meetings by internal ID, or unique property values — read…",
@@ -943,6 +1864,30 @@
         "local": "none"
       },
       "permission": "api.meetings-batch-read"
+    },
+    {
+      "path": [
+        "api",
+        "meetings-batch-update"
+      ],
+      "summary": "Update a batch of meetings by internal ID, or unique property values — write…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.meetings-batch-update"
+    },
+    {
+      "path": [
+        "api",
+        "meetings-batch-upsert"
+      ],
+      "summary": "Create or update a batch of meetings by unique property values — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.meetings-batch-upsert"
     },
     {
       "path": [
@@ -971,6 +1916,30 @@
     {
       "path": [
         "api",
+        "meetings-update"
+      ],
+      "summary": "Update — write (PATCH /crm/objects/2026-03/meetings/{meetingId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.meetings-update"
+    },
+    {
+      "path": [
+        "api",
+        "meetings-delete"
+      ],
+      "summary": "Archive — destructive (DELETE /crm/objects/2026-03/meetings/{meetingId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.meetings-delete"
+    },
+    {
+      "path": [
+        "api",
         "tasks-list"
       ],
       "summary": "List — read (GET /crm/objects/2026-03/tasks)",
@@ -983,6 +1952,42 @@
     {
       "path": [
         "api",
+        "tasks-create"
+      ],
+      "summary": "Create — write (POST /crm/objects/2026-03/tasks)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tasks-create"
+    },
+    {
+      "path": [
+        "api",
+        "tasks-batch-archive"
+      ],
+      "summary": "Archive a batch of tasks by ID — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tasks-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "tasks-batch-create"
+      ],
+      "summary": "Create a batch of tasks — write (POST /crm/objects/2026-03/tasks/batch/create)",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tasks-batch-create"
+    },
+    {
+      "path": [
+        "api",
         "tasks-batch-read"
       ],
       "summary": "Read a batch of tasks by internal ID, or unique property values — read (POST…",
@@ -991,6 +1996,30 @@
         "local": "none"
       },
       "permission": "api.tasks-batch-read"
+    },
+    {
+      "path": [
+        "api",
+        "tasks-batch-update"
+      ],
+      "summary": "Update a batch of tasks by internal ID, or unique property values — write…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tasks-batch-update"
+    },
+    {
+      "path": [
+        "api",
+        "tasks-batch-upsert"
+      ],
+      "summary": "Create or update a batch of tasks by unique property values — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tasks-batch-upsert"
     },
     {
       "path": [
@@ -1015,6 +2044,30 @@
         "local": "none"
       },
       "permission": "api.tasks-get"
+    },
+    {
+      "path": [
+        "api",
+        "tasks-update"
+      ],
+      "summary": "Update — write (PATCH /crm/objects/2026-03/tasks/{taskId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tasks-update"
+    },
+    {
+      "path": [
+        "api",
+        "tasks-delete"
+      ],
+      "summary": "Archive — destructive (DELETE /crm/objects/2026-03/tasks/{taskId})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.tasks-delete"
     },
     {
       "path": [
@@ -1055,6 +2108,18 @@
     {
       "path": [
         "api",
+        "pipelines-create"
+      ],
+      "summary": "Create a pipeline — write (POST /crm/pipelines/2026-03/{objectType})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.pipelines-create"
+    },
+    {
+      "path": [
+        "api",
         "pipelines-get"
       ],
       "summary": "Return a pipeline by ID — read (GET…",
@@ -1063,6 +2128,42 @@
         "local": "none"
       },
       "permission": "api.pipelines-get"
+    },
+    {
+      "path": [
+        "api",
+        "pipelines-replace"
+      ],
+      "summary": "Replace a pipeline — destructive (PUT…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.pipelines-replace"
+    },
+    {
+      "path": [
+        "api",
+        "pipelines-update"
+      ],
+      "summary": "Perform a partial update of the pipeline identified by pipelineId. — write…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.pipelines-update"
+    },
+    {
+      "path": [
+        "api",
+        "pipelines-delete"
+      ],
+      "summary": "Delete a pipeline — destructive (DELETE…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.pipelines-delete"
     },
     {
       "path": [
@@ -1091,6 +2192,18 @@
     {
       "path": [
         "api",
+        "pipelines-stages-create"
+      ],
+      "summary": "Create a pipeline stage — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.pipelines-stages-create"
+    },
+    {
+      "path": [
+        "api",
         "pipelines-stages-get"
       ],
       "summary": "Return a pipeline stage by ID — read (GET…",
@@ -1099,6 +2212,42 @@
         "local": "none"
       },
       "permission": "api.pipelines-stages-get"
+    },
+    {
+      "path": [
+        "api",
+        "pipelines-stages-replace"
+      ],
+      "summary": "Replace a pipeline stage — write (PUT…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.pipelines-stages-replace"
+    },
+    {
+      "path": [
+        "api",
+        "pipelines-stages-update"
+      ],
+      "summary": "Update specific properties of an existing pipeline stage. — write (PATCH…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.pipelines-stages-update"
+    },
+    {
+      "path": [
+        "api",
+        "pipelines-stages-delete"
+      ],
+      "summary": "Delete a pipeline stage — destructive (DELETE…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.pipelines-stages-delete"
     },
     {
       "path": [
@@ -1127,6 +2276,42 @@
     {
       "path": [
         "api",
+        "properties-create"
+      ],
+      "summary": "Create a property — write (POST /crm/properties/2026-03/{objectType})",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.properties-create"
+    },
+    {
+      "path": [
+        "api",
+        "properties-batch-archive"
+      ],
+      "summary": "Archive a batch of properties — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.properties-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "properties-batch-create"
+      ],
+      "summary": "Create a batch of properties — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.properties-batch-create"
+    },
+    {
+      "path": [
+        "api",
         "properties-batch-read"
       ],
       "summary": "Read a batch of properties — read (POST…",
@@ -1151,6 +2336,18 @@
     {
       "path": [
         "api",
+        "properties-groups-create"
+      ],
+      "summary": "Create a property group — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.properties-groups-create"
+    },
+    {
+      "path": [
+        "api",
         "properties-groups-get"
       ],
       "summary": "Read a property group — read (GET…",
@@ -1163,6 +2360,30 @@
     {
       "path": [
         "api",
+        "properties-groups-update"
+      ],
+      "summary": "Update a property group — write (PATCH…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.properties-groups-update"
+    },
+    {
+      "path": [
+        "api",
+        "properties-groups-delete"
+      ],
+      "summary": "Archive a property group — destructive (DELETE…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.properties-groups-delete"
+    },
+    {
+      "path": [
+        "api",
         "properties-get"
       ],
       "summary": "Read a property — read (GET /crm/properties/2026-03/{objectType}/{propertyName})",
@@ -1171,6 +2392,90 @@
         "local": "none"
       },
       "permission": "api.properties-get"
+    },
+    {
+      "path": [
+        "api",
+        "properties-update"
+      ],
+      "summary": "Update a property — write (PATCH…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.properties-update"
+    },
+    {
+      "path": [
+        "api",
+        "properties-delete"
+      ],
+      "summary": "Archive a property — destructive (DELETE…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.properties-delete"
+    },
+    {
+      "path": [
+        "api",
+        "associations-usage-high-usage-report-update"
+      ],
+      "summary": "Report high usage — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.associations-usage-high-usage-report-update"
+    },
+    {
+      "path": [
+        "api",
+        "associations-batch-archive"
+      ],
+      "summary": "Remove associations — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.associations-batch-archive"
+    },
+    {
+      "path": [
+        "api",
+        "associations-batch-associate-default"
+      ],
+      "summary": "Create Default Associations — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.associations-batch-associate-default"
+    },
+    {
+      "path": [
+        "api",
+        "associations-batch-create"
+      ],
+      "summary": "Associate records (labelled) — write (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.associations-batch-create"
+    },
+    {
+      "path": [
+        "api",
+        "associations-batch-labels-archive"
+      ],
+      "summary": "Delete Specific Labels — destructive (POST…",
+      "effects": {
+        "remote": "write",
+        "local": "none"
+      },
+      "permission": "api.associations-batch-labels-archive"
     },
     {
       "path": [
@@ -1856,8 +3161,8 @@
       "setup"
     ],
     "signIn": {
-      "gives": "Lets your agent read the account's CRM with the scopes you give the key; this release changes nothing.",
-      "asks": "A service key or a legacy private app's access token from your HubSpot account, with read scopes."
+      "gives": "Lets your agent read the account's CRM, and change it if you give the key the write scopes.",
+      "asks": "A service key or a legacy private app's access token from your HubSpot account, with read scopes, and write scopes if you want changes."
     },
     "skill": {
       "status": [
