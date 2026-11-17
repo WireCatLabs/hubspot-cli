@@ -30,7 +30,7 @@ HubSpot stopped new private apps on 26 October 2026
 ([HubSpot's notice](https://developers.hubspot.com/changelog/legacy-private-app-creation-sunset)). An existing private
 app's access token still works: give the app the same scopes and copy the token from its **Auth** tab.
 
-Give it read scopes only ([HubSpot's list of scopes](https://developers.hubspot.com/docs/apps/legacy-apps/authentication/scopes)):
+Give it these read scopes ([HubSpot's list of scopes](https://developers.hubspot.com/docs/apps/legacy-apps/authentication/scopes)):
 
 | Scope | What it reads |
 | --- | --- |
@@ -40,6 +40,14 @@ Give it read scopes only ([HubSpot's list of scopes](https://developers.hubspot.
 | `sales-email-read` | logged e-mails. Notes, calls, meetings and tasks need no scope of their own: the contacts scope reads them |
 | `crm.objects.leads.read` | leads, on Sales Hub Professional or Enterprise only |
 | `tickets` | tickets, through `api` only |
+
+Writes are optional. Add these scopes only if `hubspot` may change records; without them the key only reads:
+
+| Scope | What it changes |
+| --- | --- |
+| `crm.objects.deals.write` | deals: create, update, move, close and delete |
+| `crm.objects.contacts.write` | contacts. Notes, calls, meetings and tasks written through `api` may ask for their own scope: the error names it |
+| `crm.objects.companies.write` | companies |
 
 A scope you leave out fails only the commands that need it, with the scope named in the error.
 

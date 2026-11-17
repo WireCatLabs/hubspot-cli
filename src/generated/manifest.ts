@@ -5172,10 +5172,15 @@ export const operations: readonly ManifestOperation[] = [
       method: "PUT",
       path: "/crm/pipelines/2026-03/{objectType}/{pipelineId}",
     },
-    effect: "write",
+    effect: "destructive",
     summary: "Replace a pipeline",
     description: "Replace all properties of an existing pipeline with the provided values.",
     tags: ["Basic"],
+    permissions: [
+      {
+        key: "pipelines.delete",
+      },
+    ],
     parameters: [
       {
         name: "objectType",

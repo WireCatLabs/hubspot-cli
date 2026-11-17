@@ -4,7 +4,7 @@ import { hostFetch, retrying } from "@wirecat/cli-base/http"
 import { serviceApiCommand } from "@wirecat/cli-core/cli"
 import type { Pacer } from "@wirecat/cli-core/sends"
 import type { Command } from "commander"
-import { API, API_EXCLUDED, configuration } from "../config.js"
+import { API, configuration } from "../config.js"
 import { contextOf, pacerFor, storedSignIn, tokenOf } from "../context.js"
 import { failureOf, isRecord, LONGEST_PACE_WAIT_MS } from "../hubspot/transport.js"
 import { DESKTOP, IDENTITY } from "../identity.js"
@@ -37,10 +37,10 @@ const stopAtDailyLimit =
   }
 
 /**
- * HubSpot's CRM API from its spec: `api list`, `api show` and one command per read operation, through cli-core's
- * shared group. This release only reads, so a write is not offered and `api show` says why. The requests keep the
- * account's pace beside the CRM commands, the token is the profile's own, and a refusal reads as the CRM commands'
- * do: the scope a 403 names, the daily limit and its midnight.
+ * HubSpot's CRM API from its spec: `api list`, `api show` and one command per operation, through cli-core's shared
+ * group, each write and delete behind its keys. The requests keep the account's pace beside the CRM commands, the token
+ * is the profile's own, and a refusal reads as the CRM commands' do: the scope a 403 names, the daily limit and its
+ * midnight, and a write HubSpot failed during as `outcome_unknown`.
  */
 export const apiCommand = (): Command => {
   const sent: Sent = { now: Date.now }
@@ -48,7 +48,6 @@ export const apiCommand = (): Command => {
     ...API,
     app: IDENTITY,
     configuration,
-    excluded: API_EXCLUDED,
     fetch: (command) => {
       const { environment } = contextOf(command)
       const { now } = environment
@@ -66,8 +65,14 @@ export const apiCommand = (): Command => {
         ...(now ? { now: () => new Date(now()) } : {}),
       })
     },
-    failure: (status, answer) =>
-      failureOf({ status, writes: false, body: answer, now: sent.now(), timeZone: sent.timeZone }),
+    failure: (status, answer, operation) =>
+      failureOf({
+        status,
+        writes: operation.effect !== "read",
+        body: answer,
+        now: sent.now(),
+        timeZone: sent.timeZone,
+      }),
     token: tokenOf,
     schemas: () => import("../generated/schemas.js").then((module) => module.schemas),
     definitions: () => import("../generated/definitions.js").then((module) => module.definitions),

@@ -145,6 +145,28 @@ it("a search and a batch read are reads, tried again on a failure on HubSpot's s
   expect(sent).toBe(1)
 })
 
+it("a PATCH and a DELETE are writes too; a write answered with something unreadable is outcome_unknown", async () => {
+  let sent = 0
+  const failing = async () => {
+    sent += 1
+    return new Response("{}", { status: 503 })
+  }
+  const hub = hubspotTransport({ token: FAKE_TOKEN, fetch: failing, sleep: async () => {} })
+  await expect(hub.patch(`${COMPANIES}/1`, { properties: {} })).rejects.toMatchObject({ code: "outcome_unknown" })
+  await expect(hub.delete(`${COMPANIES}/1`)).rejects.toMatchObject({ code: "outcome_unknown" })
+  expect(sent).toBe(2)
+  const garbled = hubspotTransport({
+    token: FAKE_TOKEN,
+    fetch: async () => new Response("not json", { status: 201 }),
+    sleep: async () => {},
+  })
+  await expect(garbled.post(COMPANIES, { properties: {} })).rejects.toMatchObject({
+    code: "outcome_unknown",
+    details: { sent: true },
+  })
+  await expect(garbled.get(COMPANIES)).rejects.toMatchObject({ code: "invalid_response" })
+})
+
 it("a 400 says HubSpot refused it and keeps HubSpot's category, never its message", async () => {
   const hub = fakeHubspot()
   const error = (await transportOver(hub)

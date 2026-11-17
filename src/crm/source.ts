@@ -152,7 +152,12 @@ export interface HubSpotSourceOptions {
  * pass over every id, since HubSpot gives a private app no change feed (webhooks need a public app). A service key has
  * no user, so there is no `self()` and the copy is the whole account.
  */
-export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSourceOptions = {}): CrmSource => {
+export type HubSpotCrmSource = CrmSource & {
+  /** One record of any kind by its id, with its associations; null when HubSpot has none or this key cannot see it. */
+  record<K extends CrmKind>(kind: K, externalId: string, context?: CrmCallContext): Promise<CrmRecords[K] | null>
+}
+
+export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSourceOptions = {}): HubSpotCrmSource => {
   const now = options.now ?? Date.now
   const listPage = options.page ?? LIST_PAGE
   const searchPage = options.searchPage ?? SEARCH_PAGE
@@ -417,28 +422,35 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
       })
       return { items: await mapped(kind, page.items, defined, caller), hasMore: page.hasMore }
     },
-    async get(kind, externalId, context) {
-      if (!/^\d{1,20}$/.test(externalId)) return null
-      const caller = metered(context)
-      const type = OBJECTS[kind]
-      const defined = await known(kind, caller)
-      let body: unknown
-      try {
-        body = await caller.get(`/crm/objects/2026-03/${type.path}/${segment(externalId)}`, {
-          properties: getProperties(kind, defined, context),
-          ...(type.associations.length ? { associations: type.associations.join(",") } : {}),
-        })
-      } catch (error) {
-        if (unseen(error)) return null
-        throw error
-      }
-      if (typeof body !== "object" || body === null) return null
-      const rows = await associate(type, [asked(body as Raw, type.associations)], caller, type.linked)
-      const [record] = await mapped(kind, rows, defined, caller)
-      return record ?? null
-    },
+    get: (kind, externalId, context) => record(kind, externalId, context),
+    record,
     activities: (since, page, context) =>
       readActivities(metered(context), since, page, context, now, { search: searchPage, list: listPage }),
+  }
+
+  async function record<K extends CrmKind>(
+    kind: K,
+    externalId: string,
+    context?: CrmCallContext,
+  ): Promise<CrmRecords[K] | null> {
+    if (!/^\d{1,20}$/.test(externalId)) return null
+    const caller = metered(context)
+    const type = OBJECTS[kind]
+    const defined = await fields(kind, caller)
+    let body: unknown
+    try {
+      body = await caller.get(`/crm/objects/2026-03/${type.path}/${segment(externalId)}`, {
+        properties: getProperties(kind, defined, context),
+        ...(type.associations.length ? { associations: type.associations.join(",") } : {}),
+      })
+    } catch (error) {
+      if (unseen(error)) return null
+      throw error
+    }
+    if (typeof body !== "object" || body === null) return null
+    const rows = await associate(type, [asked(body as Raw, type.associations)], caller, type.linked)
+    const [found] = await mapped(kind, rows, defined, caller)
+    return found ?? null
   }
 }
 

@@ -27,6 +27,30 @@ const PATHS: Record<string, string> = {
 }
 export type FakeType = keyof typeof PATHS
 
+/** The types the fake takes a create, an update and a delete of: what the CRM writer sends. */
+const WRITTEN: FakeType[] = ["deals", "contacts", "companies", "notes"]
+
+/**
+ * HubSpot's own properties a write may set, by HubSpot's default properties pages; anything else must be one the
+ * account defined, so a misspelt name fails a test as it fails in HubSpot.
+ */
+const WRITABLE: Partial<Record<FakeType, readonly string[]>> = {
+  deals: [
+    "dealname",
+    "pipeline",
+    "dealstage",
+    "amount",
+    "deal_currency_code",
+    "closedate",
+    "closed_won_reason",
+    "closed_lost_reason",
+    "hubspot_owner_id",
+  ],
+  contacts: ["firstname", "lastname", "email", "phone", "mobilephone", "jobtitle", "hubspot_owner_id"],
+  companies: ["name", "domain", "website", "phone", "hubspot_owner_id"],
+  notes: ["hs_note_body", "hs_timestamp", "hubspot_owner_id"],
+}
+
 /** The last-change property per type (search guide). */
 const MODIFIED = (type: FakeType) => (type === "contacts" ? "lastmodifieddate" : "hs_lastmodifieddate")
 const CREATED = (type: FakeType) => (["companies", "contacts", "deals"].includes(type) ? "createdate" : "hs_createdate")
@@ -358,8 +382,9 @@ export const fakeHubspot = (options: FakeHubspotOptions = {}) => {
     deals: [
       pipeline("default", "Sales Pipeline", [
         stage("appointmentscheduled", "Appointment Scheduled", 0, { isClosed: "false", probability: "0.2" }),
-        stage("closedwon", "Closed Won", 1, { isClosed: "true", probability: "1.0" }),
-        stage("closedlost", "Closed Lost", 2, { isClosed: "true", probability: "0.0" }),
+        stage("qualifiedtobuy", "Qualified To Buy", 1, { isClosed: "false", probability: "0.4" }),
+        stage("closedwon", "Closed Won", 2, { isClosed: "true", probability: "1.0" }),
+        stage("closedlost", "Closed Lost", 3, { isClosed: "true", probability: "0.0" }),
       ]),
     ],
     leads: [
@@ -419,6 +444,39 @@ export const fakeHubspot = (options: FakeHubspotOptions = {}) => {
     answers[idOf(`${type}-get`)] = gate([type], get(type))
     answers[idOf(`${type}-search`)] = gate([type], search(type))
   }
+  const unknownProperty = (type: FakeType, properties: Record<string, string>) =>
+    Object.keys(properties).some(
+      (name) => !WRITABLE[type]?.includes(name) && !PROPERTIES.some((one) => one.name === name && !one.hubspotDefined),
+    )
+  /** HubSpot answers a write with the record's properties as they now are (objects guide). */
+  const written = (type: FakeType, id: string) => {
+    const row = rows.get(type)?.get(id)
+    return row
+      ? { status: 200, body: shown(row, { query: {} } as FakeCall, type, false) }
+      : error(404, "OBJECT_NOT_FOUND")
+  }
+  for (const type of WRITTEN) {
+    answers[idOf(`${type}-create`)] = gate([type], (call) => {
+      const { properties } = call.body as { properties: Record<string, string> }
+      if (unknownProperty(type, properties)) return error(400, "VALIDATION_ERROR")
+      const id = put(type, properties)
+      return { ...written(type, id), status: 201 }
+    })
+    answers[idOf(`${type}-update`)] = gate([type], (call) => {
+      const id = Object.values(call.path)[0] ?? ""
+      if (!rows.get(type)?.has(id)) return error(404, "OBJECT_NOT_FOUND")
+      const { properties } = call.body as { properties: Record<string, string> }
+      if (unknownProperty(type, properties)) return error(400, "VALIDATION_ERROR")
+      if (type === "deals" && properties.dealstage !== undefined && !DEAL_STAGES.has(properties.dealstage))
+        return error(400, "VALIDATION_ERROR")
+      put(type, properties, id)
+      return written(type, id)
+    })
+    answers[idOf(`${type}-delete`)] = gate([type], (call) => {
+      rows.get(type)?.delete(Object.values(call.path)[0] ?? "")
+      return { status: 204 }
+    })
+  }
   answers[idOf("associations-batch-read")] = (call) =>
     gate([call.path.fromObjectType as FakeType, call.path.toObjectType as FakeType], associations)(call)
   answers[idOf("pipelines-list")] = (call) =>
@@ -456,6 +514,10 @@ export const fakeHubspot = (options: FakeHubspotOptions = {}) => {
     },
   }))
 
+  const DEAL_STAGES = new Set(
+    (PIPELINES.deals as { stages: { id: string }[] }[]).flatMap((one) => one.stages.map((stage) => stage.id)),
+  )
+
   const api = fakeApi({
     operations,
     definitions: DEFINITIONS,
@@ -464,8 +526,26 @@ export const fakeHubspot = (options: FakeHubspotOptions = {}) => {
     answers,
   })
 
+  let lose = false
+  const writing = (method: string, url: URL) => method !== "GET" && !/\/(search|batch\/read)$/.test(url.pathname)
+  /** The fake did the write; the answer never reaches the CLI, as on a dropped connection. */
+  const send: typeof fetch = async (input, init) => {
+    const response = await (api.fetch as typeof fetch)(input, init)
+    const url = new URL(input instanceof Request ? input.url : String(input))
+    if (lose && writing(init?.method ?? "GET", url)) {
+      lose = false
+      throw new TypeError("fetch failed")
+    }
+    return response
+  }
+
   return {
-    fetch: api.fetch as typeof fetch,
+    fetch: send,
+    /** Write requests that reached the fake so far. */
+    writes: () => api.calls.filter((call) => writing(call.method, call.url)).length,
+    loseNextAnswer: () => {
+      lose = true
+    },
     calls: api.calls,
     refusals: api.refusals,
     put,

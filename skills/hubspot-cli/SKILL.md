@@ -1,6 +1,6 @@
 ---
 name: hubspot-cli
-description: "Use hubspot to read a HubSpot account's CRM - deals, leads, pipelines and stages, contacts (people), companies (organizations), owners (users), notes, calls, e-mails, meetings and tasks - with the owner's profile and JSON answers. Deals with their contacts and companies are synced into the local WireCat store and read offline, and `changes list` shows what changed for a morning digest. Use when a question could be answered from the owner's HubSpot sales data (how a deal stands, what is open, what changed, who a client is), or to set hubspot up. Read only: it changes nothing in HubSpot."
+description: "Use hubspot to read and change a HubSpot account's CRM - deals, leads, pipelines and stages, contacts (people), companies (organizations), owners (users), notes, calls, e-mails, meetings and tasks - with the owner's profile and JSON answers. Deals with their contacts and companies are synced into the local WireCat store and read offline, and `changes list` shows what changed for a morning digest. Use when a question could be answered from the owner's HubSpot sales data (how a deal stands, what is open, what changed, who a client is), to create, update, move or close a deal or change a contact or company, or to set hubspot up."
 metadata:
   openclaw:
     requires:
@@ -13,8 +13,9 @@ metadata:
 
 # hubspot: a HubSpot account's CRM from the command line
 
-`hubspot` reads the owner's **real company CRM**. It changes nothing there in this release: no command creates, moves
-or deletes a record, and the raw `api` group offers only HubSpot's read operations.
+`hubspot` reads and changes the owner's **real company CRM**. Every write goes through the owner's permissions: a
+delete and every `api` write ask first at a terminal, while over MCP only `deny` stops one, and a key without write
+scopes changes nothing.
 
 Find only the commands the task needs: `hubspot commands info deals list --json` is one command's contract,
 `hubspot help deals list` the short help with its query fields, `hubspot commands --json` the whole tree.
@@ -60,7 +61,7 @@ The first word is the profile: `hubspot work deals list` is profile `work`. Ther
 
 ## The raw API
 
-`api` has one command per read operation of HubSpot's CRM API, version 2026-03, named like `deals-search` or
+`api` has one command per operation of HubSpot's CRM API, version 2026-03, named like `deals-search` or
 `contacts-list`. [references/api.md](references/api.md) (`hubspot skill show api`) lists the groups, and
 `hubspot skill show api-<group>` one group with each command's flags.
 
@@ -70,8 +71,11 @@ The first word is the profile: `hubspot work deals list` is profile `work`. Ther
   field the spec requires: `--body '{"after":"0","filterGroups":[],"limit":5,"properties":["dealname","amount"],"sorts":[]}'`.
 - A search returns at most 10,000 results and HubSpot allows about 5 searches a second for the account. Prefer the
   store for anything `deals list` can answer.
-- **No writes.** Creating, changing or deleting a record is not offered in this release, through `api` or any other
-  command (`api show <write>` says so). Tell the owner it must be done in HubSpot.
+- **Writes.** `deals create|update|move|close|delete`, `people create|update` and `organizations create|update`
+  change records and store HubSpot's answer. Notes, tasks, a deal's contacts and company go through `api`
+  (`api notes-create`, `api associations-default-replace`). Run a write with `--dry-run` first: it names each key it
+  checks. An `outcome_unknown` write may have happened: read the record before repeating it. `--email` and
+  `--phone` replace the whole list and `--name` both name parts: one `--phone` clears the mobile number.
 - **Exit `5` is the owner's decision, not a fault.** Do not work around a refused read with settings, another profile
   or another command. Say what was refused and why.
 - Over MCP, `session start`, `session end` and adding a timer are refused: ask the owner to run them in a terminal.
@@ -84,8 +88,9 @@ token hidden or from stdin. Never ask for the key, and never pass it as an argum
 profile on the same account is refused (`session.duplicate`).
 
 The key needs read scopes: `crm.objects.{contacts,companies,deals,owners}.read`,
-`crm.schemas.{contacts,companies,deals}.read`, and `crm.objects.{notes,calls,emails,meetings,tasks}.read` for
-activities. A `hubspot.scope-missing` error names the scope to add: tell the owner, do not retry.
+`crm.schemas.{contacts,companies,deals}.read`, and `sales-email-read` for logged e-mails. Writes need
+`crm.objects.{contacts,companies,deals}.write`, which the owner may leave out. A `hubspot.scope-missing` error names
+the scope to add: tell the owner, do not retry.
 
 ## Output
 

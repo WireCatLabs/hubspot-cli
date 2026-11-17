@@ -53,6 +53,14 @@ export interface HubSpotTransport {
   post<T = unknown>(path: string, body: Record<string, unknown>): Promise<T>
 }
 
+/** What the CRM writer sends beside a create's POST: a PATCH of a record's properties and its DELETE (archive). */
+export interface HubSpotWriteTransport extends HubSpotTransport {
+  patch<T = unknown>(path: string, body: Record<string, unknown>): Promise<T>
+  delete(path: string): Promise<void>
+}
+
+type Method = "GET" | "POST" | "PATCH" | "DELETE"
+
 /** An id put into a path: `new URL` folds a `.` or `..` segment into its parent, reaching another endpoint. */
 export const segment = (value: string): string => {
   if (value === "" || value === "." || value === "..")
@@ -218,7 +226,7 @@ export const failureOf = ({
           reason: "hubspot.scope-missing",
           scope,
         })
-      : new CliError("permission_error", `the ${SERVICE} token may not read this`, {
+      : new CliError("permission_error", `the ${SERVICE} token may not ${writes ? "change" : "read"} this`, {
           ...details,
           reason: "hubspot.access-denied",
         })
@@ -278,7 +286,7 @@ const queryOf = (url: URL, query: Query = {}) => {
  * record (WC-SECR-7). Each call goes through cli-core's `providerCall`: paced, a read tried again on a retryable failure
  * or a short rate wait, a write only on a refused rate; a daily limit waits for no one and ends the call.
  */
-export const hubspotTransport = (options: TransportOptions): HubSpotTransport => {
+export const hubspotTransport = (options: TransportOptions): HubSpotWriteTransport => {
   // DESKTOP.hosts is what `wcat` shows the owner; our own deadline below fires first.
   const fetchOf = hostFetch({
     hosts: DESKTOP.hosts ?? [],
@@ -309,7 +317,7 @@ export const hubspotTransport = (options: TransportOptions): HubSpotTransport =>
   }
 
   const once = async <T>(
-    method: "GET" | "POST",
+    method: Method,
     path: string,
     url: URL,
     writes: boolean,
@@ -379,8 +387,13 @@ export const hubspotTransport = (options: TransportOptions): HubSpotTransport =>
       try {
         answer = await readJsonResponse(response, { maxBytes: LARGEST_ANSWER, signal })
       } catch (error) {
-        const failure =
-          isCliError(error) && error.code !== "invalid_response"
+        // A write HubSpot answered with 2xx happened: an unreadable answer must not read as a failed one.
+        const failure = writes
+          ? new CliError("outcome_unknown", `${SERVICE} took the write but its answer could not be read; check it`, {
+              retryable: false,
+              sent: true,
+            })
+          : isCliError(error) && error.code !== "invalid_response"
             ? error
             : new CliError("invalid_response", `${SERVICE} answered with something other than bounded JSON`)
         end({ status: response.status, errorCode: failure.code })
@@ -393,10 +406,10 @@ export const hubspotTransport = (options: TransportOptions): HubSpotTransport =>
     }
   }
 
-  const send = <T>(method: "GET" | "POST", path: string, query?: Query, body?: Record<string, unknown>) => {
+  const send = <T>(method: Method, path: string, query?: Query, body?: Record<string, unknown>) => {
     if (!path.startsWith("/") || path.startsWith("//") || /[?#]|\/\.\.?(\/|$)/.test(path))
       return Promise.reject(new CliError("validation_error", `${path} is not a ${SERVICE} API path`))
-    const writes = method === "POST" && !READING_POST.test(path)
+    const writes = method !== "GET" && !READING_POST.test(path)
     const url = queryOf(new URL(path, HUBSPOT_API), query)
     let attempt = 0
     return providerCall<T>({
@@ -421,5 +434,7 @@ export const hubspotTransport = (options: TransportOptions): HubSpotTransport =>
   return {
     get: <T>(path: string, query?: Query) => send<T>("GET", path, query),
     post: <T>(path: string, body: Record<string, unknown>) => send<T>("POST", path, undefined, body),
+    patch: <T>(path: string, body: Record<string, unknown>) => send<T>("PATCH", path, undefined, body),
+    delete: (path: string) => send<void>("DELETE", path),
   }
 }

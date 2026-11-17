@@ -28,9 +28,16 @@ Decided 2026-11-17 with the plan in cli-private `plans/2026-11-16-cli-factory/hu
 
 - **Same shape as amo-cli and bitrix24-cli.** `session`, `account`, the shared CRM commands from cli-core's
   `addCrmCommands` only, `api` from the spec, `schedule`, `setup`. No command of hubspot's own repeats one of them.
-- **Read only in the first release, `api` included (NEED-1 → A, 2026-11-17).** `addCrmCommands` gets no `writes`,
-  and the api group offers only the operations whose effect is `read`; `api show` names a write as left for a later
-  release. Search and `batch/read` POSTs are reads.
+- **Read only in the first release, `api` included (NEED-1 → A, 2026-11-17).** Replaced in 0.2.0, below.
+- **Writes (0.2.0, 2026-11-17).** `addCrmCommands` gets `HUBSPOT_WRITES`: create, update, move, close and delete of
+  deals, create and update of contacts and companies (`src/crm/writer.ts`). Leads are left to `api`: no account it was
+  checked on has Sales Hub Professional. `api` offers every operation but the credential ones. A write checks
+  `api.<command>`, `<group>.write` (`ask`) and the CRM command it does the same as (`deals.update`, `allow`); a body
+  that sets `properties.dealstage` or `pipeline` checks `deals.move`, a stage `deals.close` too, and one that sets
+  `hubspot_owner_id` checks `crm.assign-others` (`deny`: a key has no user, so every owner is someone else). A delete
+  checks `<group>.delete` (`ask`); `api contacts-gdpr-delete` also checks `people.erase` (`ask`; a `deny` default fails
+  its `--dry-run`), and a pipeline replace counts as a delete. Search and `batch/read` POSTs are reads. cli-core has no
+  CRM write for notes or tasks, so they go through `api notes-create` and `tasks-create`.
 - **Sign-in:** a service key or a legacy private app token, hidden or on stdin, checked with
   `GET /account-info/2026-03/details` (never `/oauth/v1/access-tokens/{token}`, which puts the token in the address).
   The keyring entry keeps the token with `portalId` and `uiDomain`. OAuth is a later slice.

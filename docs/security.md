@@ -13,7 +13,8 @@ account's id in the OS keyring, or in a file only you can read where no keyring 
 `Authorization` header of a request to `api.hubapi.com`, never into an address, an answer, a run record or the send
 journal. `hubspot` never sends it to HubSpot's token-information endpoint, which takes the token in its address.
 
-The key reads what its scopes allow, for the whole account: give it read scopes only. `hubspot` cannot revoke it.
+The key reads and changes what its scopes allow, for the whole account: give it the write scopes only if you want
+writes. `hubspot` cannot revoke it.
 `session end` and `account remove` forget it on this computer, and after a leak you delete or rotate it in HubSpot.
 
 ## The copy
