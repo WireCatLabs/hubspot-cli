@@ -80,6 +80,48 @@ describe("the shared CRM commands over a HubSpot account", () => {
     expect(reading.calls).toEqual([])
   })
 
+  it("a live read with WCHUBSPOT_TOKEN on a fresh store checks the key once, then reads", async () => {
+    const env = { ...freshStore(), WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: FAKE_ACCOUNT }
+    const { hub: account } = seededHubspot()
+    const ran = await hubspot(["work", "people", "list", "--json"], { keyring: memoryKeyring(), env, account })
+    expect([ran.code, ran.err]).toEqual([0, ""])
+    expect(account.calls[0]?.url.pathname).toBe("/account-info/2026-03/details")
+    expect(account.calls.filter((one) => one.url.pathname.includes("account-info"))).toHaveLength(1)
+    expect(account.calls.length).toBeGreaterThan(1)
+  })
+
+  it("a local write with WCHUBSPOT_TOKEN asks nothing, and takes only the account a checked run saved", async () => {
+    const env = { ...freshStore(), WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: FAKE_ACCOUNT }
+    const keyring = memoryKeyring()
+    const apply = ["work", "store", "apply", "--offline", "--yes", "--json"]
+    const before = await hubspot(apply, { keyring, env })
+    expect(before.json()).toMatchObject({ error: { reason: "account.unchecked" } })
+    expect((await hubspot(["work", "sync"], { keyring, env })).code).toBe(0)
+    const { hub: account } = seededHubspot()
+    const after = await hubspot(apply, { keyring, env, account })
+    expect([after.code, after.err]).toEqual([0, ""])
+    expect(account.calls).toEqual([])
+  })
+
+  it("a WCHUBSPOT_TOKEN run keeps the account's time zone from its check for the daily limit", async () => {
+    const env = { ...freshStore(), WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: FAKE_ACCOUNT }
+    const { hub } = seededHubspot()
+    const daily = () =>
+      new Response(JSON.stringify({ status: "error", message: "x", errorType: "RATE_LIMIT", policyName: "DAILY" }), {
+        status: 429,
+        headers: { "content-type": "application/json" },
+      })
+    const account = {
+      fetch: (async (input, init) =>
+        String(input instanceof Request ? input.url : input).includes("/account-info/")
+          ? hub.fetch(input, init)
+          : daily()) as typeof fetch,
+    }
+    const ran = await hubspot(["work", "people", "list", "--json"], { keyring: memoryKeyring(), env, account })
+    expect(ran.json()).toMatchObject({ error: { reason: "hubspot.daily-limit" } })
+    expect(ran.err).toContain("midnight in the account's time zone, in")
+  })
+
   it("a profile that ended its session names the command that signs it in", async () => {
     const keyring = memoryKeyring()
     await hubspot(["home", "session", "start"], { keyring, stdin: FAKE_TOKEN })

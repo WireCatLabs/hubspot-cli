@@ -191,11 +191,11 @@ it("keeps the path's ids out of the run record", async () => {
 
 it("counts the next midnight in the account's own zone, across a change of summer time", () => {
   const at = Date.parse("2026-11-17T23:30:00Z")
-  // No zone: the next quarter hour, when some zone reaches midnight.
-  expect(untilNextDay(at)).toBe(15 * 60_000)
+  // No zone: the next midnight anywhere, 00:00 UTC itself here.
+  expect(untilNextDay(at)).toBe(30 * 60_000)
   expect(untilNextDay(at, "Europe/Madrid")).toBe(23 * 3_600_000 + 30 * 60_000)
   expect(untilNextDay(at, "America/New_York")).toBe(5 * 3_600_000 + 30 * 60_000)
-  expect(untilNextDay(at, "Not/A_Zone")).toBe(15 * 60_000)
+  expect(untilNextDay(at, "Not/A_Zone")).toBe(30 * 60_000)
   // 2026-03-29 02:00 Madrid goes to 03:00: from 23:00 local on the 28th, midnight is an hour away all the same.
   expect(untilNextDay(Date.parse("2026-03-28T22:00:00Z"), "Europe/Madrid")).toBe(3_600_000)
   // 2026-10-25 has 25 hours in Madrid: from 00:30 that day, the next midnight is 24.5 hours away.
@@ -246,7 +246,7 @@ it("reaches only HubSpot's API host: the list wcat shows is that one host", asyn
   expect(hosts).toEqual(["api.hubapi.com"])
 })
 
-it("without the account's time zone, the daily limit holds only till the next quarter hour and says why", async () => {
+it("without the account's time zone, the daily limit holds only till the next midnight anywhere and says why", async () => {
   const hub = fakeHubspot()
   hub.throttle("DAILY")
   const now = Date.parse("2026-11-17T20:05:00Z")
@@ -257,9 +257,10 @@ it("without the account's time zone, the daily limit holds only till the next qu
     .catch((caught: unknown) => caught)) as Error & { details?: unknown }
   expect(error).toMatchObject({
     code: "rate_limited",
-    details: { reason: "hubspot.daily-limit", retry_after_ms: 10 * 60_000 },
+    // 20:30 UTC is midnight in Tehran (+3:30); no zone reaches it at 20:15.
+    details: { reason: "hubspot.daily-limit", retry_after_ms: 25 * 60_000 },
   })
   expect(error.message).toContain("which this run does not know")
-  expect(error.message).toContain("20:15 UTC")
-  expect(held).toEqual([10 * 60_000])
+  expect(error.message).toContain("20:30 UTC")
+  expect(held).toEqual([25 * 60_000])
 })

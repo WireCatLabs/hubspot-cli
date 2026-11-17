@@ -1,4 +1,5 @@
 import { CliError } from "@wirecat/cli-base"
+import { metaOf } from "@wirecat/cli-base/commands"
 import type { CrmRun } from "@wirecat/cli-core/crm/cli"
 import { addCrmCommands, openCrmStore } from "@wirecat/cli-core/crm/cli"
 import type { AccountKey } from "@wirecat/cli-core/store"
@@ -16,23 +17,45 @@ import type { HubSpotTransport } from "../hubspot/transport.js"
 import { IDENTITY } from "../identity.js"
 import { accountAnswer } from "../whoami.js"
 
+/** The account the store saved for this profile after a checked run, read without writing; none when it has none. */
+const savedAccount = async (env: NodeJS.ProcessEnv, profile: string): Promise<string | undefined> => {
+  const { openHubspotStore } = await import("../store.js")
+  const store = await openHubspotStore(env, { readOnly: true }).catch(() => undefined)
+  if (!store) return undefined
+  try {
+    return (await store.accounts.profiles())[IDENTITY.command]?.[profile]?.account
+  } catch {
+    return undefined
+  } finally {
+    await store.close()
+  }
+}
+
 /** The selected profile's account for one command; cli-core closes the store before the answer prints. */
 const openProfile = async (command: Command, { readOnly }: { readOnly: boolean }): Promise<CrmRun> => {
-  const { env, profile, environment } = contextOf(command)
+  const { env, profile, environment, flags } = contextOf(command)
   const [{ openHubspotStore, PROVIDER }, { hubspotCrmSource }] = await Promise.all([
     import("../store.js"),
     import("../crm/source.js"),
   ])
-  let transport: HubSpotTransport | undefined
-  const hub = () => (transport ??= hubFor(command, signInOf(command)))
-  // A run that writes the store with `WCHUBSPOT_TOKEN` first asks HubSpot whose token it is, once. A store-only read
-  // stays offline: it reads the account a checked sync saved, and one with none saved is refused below.
+  // A command that reaches HubSpot with `WCHUBSPOT_TOKEN` first asks whose token it is, once, on a transport of its
+  // own; the answer's time zone then counts the daily limit to the account's midnight. A command that stays on this
+  // computer asks nothing: it takes the account the store saved for the profile after a checked run.
   const fromToken = fromEnvironment(command)
-  const checked = fromToken && !readOnly
-  if (checked) refuseAccountMismatch(signInOf(command).portalId, (await accountAnswer(hub())).account)
+  const online = !flags.offline && (metaOf(command).effects?.remote ?? (readOnly ? "none" : "read")) !== "none"
+  let timeZone: string | undefined
+  if (fromToken && online) {
+    const { token, portalId } = signInOf(command)
+    const who = await accountAnswer(hubFor(command, { token, portalId }))
+    refuseAccountMismatch(portalId, who.account)
+    timeZone = who.account_info.time_zone
+  }
+  const saved = fromToken && !online && !readOnly ? await savedAccount(env, profile) : undefined
+  let transport: HubSpotTransport | undefined
+  const hub = () => (transport ??= hubFor(command, { ...signInOf(command), ...(timeZone ? { timeZone } : {}) }))
   const accountOf = (): AccountKey => {
     const signIn = storedSignIn(command) ?? signInOf(command)
-    if (fromToken && !checked)
+    if (fromToken && !online && saved !== signIn.portalId)
       throw new CliError(
         "configuration_error",
         `run \`${IDENTITY.command} ${profile} sync\` once with ${IDENTITY.envPrefix}_TOKEN first: it checks ` +

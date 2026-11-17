@@ -39,11 +39,13 @@ Decided 2026-11-17 with the plan in cli-private `plans/2026-11-16-cli-factory/hu
 - **No user.** A key belongs to the account: the source has no `self`, the copy is the whole account, and every
   profile reads all of it offline (`user: null`). `owner:me` names nobody; the docs say to use `owner:<owner id>`.
 - **`WCHUBSPOT_TOKEN`** needs `WCHUBSPOT_ACCOUNT`, the portal id, as amo's `AMO_TOKEN` needs `AMO_HOST`
-  (`account.id-missing` without it). A CRM command that writes the store asks HubSpot once whose token it is and
-  refuses a mismatch (`account.mismatch`) before anything is written; a store-only read stays offline and needs a
-  copy a checked sync saved (`account.unchecked`). `session status --check` works with the token alone, to find the
-  id. `api` and the CRM commands share the account's pace file. Its time zone is unknown, so a spent daily limit
-  names the earliest UTC time it can be back.
+  (`account.id-missing` without it). A CRM command that reaches HubSpot (its effects say `remote`) asks once whose
+  token it is, on a transport of its own, refuses a mismatch (`account.mismatch`) before the store opens, and keeps
+  the answer's time zone for the daily limit. A command that stays on this computer asks nothing and takes the
+  account the store saved for the profile after a checked run (`account.unchecked` when none or another).
+  `session status --check` works with the token alone, to find the id. `api` and the CRM commands share the
+  account's pace file; `api` has no time zone with the token, so its spent daily limit names the earliest UTC time it
+  can be back.
 - **No `hs` alias** in the store's provider registry: `hs` is HubSpot's own CLI.
 - **Leads** are mounted; an account without Sales Hub Professional answers 403 for them, which the source reports.
 - **Tickets** only through `api` (owner's decision 4 in the research).

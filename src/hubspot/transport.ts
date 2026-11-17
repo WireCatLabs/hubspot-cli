@@ -120,8 +120,8 @@ const offsetAt = (timeZone: string | undefined, at: number): number | null => {
 }
 
 /**
- * Some zone reaches midnight at every quarter hour of UTC (+5:45, +5:30, +12:45, -9:30…): without the account's zone,
- * the next quarter hour is the earliest its allowance can come back.
+ * Every zone's offset is a whole number of quarter hours, so no zone's midnight comes before the next quarter hour of
+ * UTC: the hold when Intl cannot list its zones.
  */
 const QUARTER_MS = 15 * 60_000
 
@@ -135,10 +135,21 @@ export const knownZone = (timeZone: string | undefined): boolean => offsetAt(tim
  */
 export const untilNextDay = (now: number, timeZone?: string): number => {
   const offset = offsetAt(timeZone, now)
-  if (offset === null) return QUARTER_MS - (((now % QUARTER_MS) + QUARTER_MS) % QUARTER_MS)
+  if (offset === null) return firstMidnight(now)
   const local = now + offset
   const wait = DAY_MS - (((local % DAY_MS) + DAY_MS) % DAY_MS)
   return wait + offset - (offsetAt(timeZone, now + wait) ?? offset)
+}
+
+/**
+ * Without the account's zone: the next midnight in any zone Intl knows, the earliest its allowance can come back. A
+ * hold past it would stop every profile on an account whose day has already turned.
+ */
+const firstMidnight = (now: number): number => {
+  const zones = typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("timeZone") : []
+  const quarter = QUARTER_MS - (((now % QUARTER_MS) + QUARTER_MS) % QUARTER_MS)
+  const known = zones.filter((zone) => offsetAt(zone, now) !== null)
+  return known.length ? known.reduce((soonest, zone) => Math.min(soonest, untilNextDay(now, zone)), DAY_MS) : quarter
 }
 
 export interface Refused {

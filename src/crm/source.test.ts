@@ -508,6 +508,8 @@ it("a closed lead stage goes by its probability, then the default stage ids, and
     ["custom-won", "Converted", { isClosed: "true", probability: "1.0" }],
     ["custom-closed", "Parked", { isClosed: "true" }],
     ["custom-disqualified", "Disqualified", { isClosed: "true" }],
+    // The id goes before the label: a stage renamed "Qualified" that is HubSpot's unqualified one stays lost.
+    ["unqualified-stage-id", "Qualified", { isClosed: "true" }],
   ])
   const [leads] = await over(hub).pipelines("lead", context)
   expect(leads?.stages.map((stage) => [stage.name, stage.outcome])).toEqual([
@@ -517,6 +519,7 @@ it("a closed lead stage goes by its probability, then the default stage ids, and
     ["Converted", "won"],
     ["Parked", "lost"],
     ["Disqualified", "lost"],
+    ["Qualified", "lost"],
   ])
   expect(gaps).toEqual([
     expect.objectContaining({
