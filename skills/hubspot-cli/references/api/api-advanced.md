@@ -1,6 +1,6 @@
 <!-- Generated from the API manifest and the command tree by pnpm generate. Do not edit. -->
 
-# Example Comments API: Advanced
+# HubSpot API: Advanced
 
 ## `hubspot api companies-merge [options]`
 

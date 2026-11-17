@@ -138,7 +138,7 @@ const statusCommand = () =>
     effects: REMOTE_READ,
     examples: [`${HUBSPOT} work session status`, `${HUBSPOT} work session status --check --json`],
   })
-    .summary("show where this profile's key comes from, and with --check whose account it reads")
+    .summary("show where this profile's key comes from; --check names the account it reads")
     .description(
       "show which account this profile signs in to and where its key comes from: " +
         `${IDENTITY.envPrefix}_TOKEN, the keyring or a file; never the key`,

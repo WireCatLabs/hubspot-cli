@@ -1,8 +1,8 @@
 <!-- Generated from the API manifest and the command tree by pnpm generate. Do not edit. -->
 
-# Example Comments API
+# HubSpot API
 
-Every operation of the Example Comments API this CLI offers is a command of its own. Read only the group
+Every operation of the HubSpot API this CLI offers is a command of its own. Read only the group
 you need: `hubspot skill show api-<group>` prints it, as does the file `api/api-<group>.md` beside
 this one. Each command lists its usage and flags as `--help` prints them.
 

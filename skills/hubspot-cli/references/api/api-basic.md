@@ -1,6 +1,6 @@
 <!-- Generated from the API manifest and the command tree by pnpm generate. Do not edit. -->
 
-# Example Comments API: Basic
+# HubSpot API: Basic
 
 ## `hubspot api account-info-api-usage-daily-private-apps-list`
 

@@ -1,7 +1,7 @@
 {
   "wcat_manifest": 2,
   "name": "hubspot",
-  "description": "a new WireCat CLI, started from cli-template",
+  "description": "read a HubSpot account's CRM",
   "docs_url": "https://github.com/WireCatLabs/hubspot-cli#readme",
   "package": "@wirecat/hubspot-cli",
   "bin": "wcat-hubspot",
@@ -32,7 +32,7 @@
         "session",
         "start"
       ],
-      "summary": "sign in to Example Comments with an API token",
+      "summary": "sign in to HubSpot with a service key or a private app token",
       "effects": {
         "remote": "read",
         "local": "write"
@@ -43,7 +43,7 @@
         "session",
         "status"
       ],
-      "summary": "show where this profile's token comes from; never the token",
+      "summary": "show where this profile's key comes from; --check names the account it reads",
       "effects": {
         "remote": "read",
         "local": "read"
@@ -54,7 +54,7 @@
         "session",
         "end"
       ],
-      "summary": "forget this profile's token on this computer",
+      "summary": "forget this profile's key on this computer",
       "effects": {
         "remote": "none",
         "local": "write"
@@ -73,15 +73,456 @@
     },
     {
       "path": [
+        "account",
+        "remove"
+      ],
+      "summary": "sign this profile out and forget it, keeping or deleting its data",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "account.remove",
+      "entity": "account_removal"
+    },
+    {
+      "path": [
+        "sync"
+      ],
+      "summary": "bring the CRM's copy in the local store up to date: pipelines, companies,…",
+      "effects": {
+        "remote": "read",
+        "local": "write"
+      },
+      "permission": "sync",
+      "entity": "crm_sync"
+    },
+    {
+      "path": [
+        "store",
+        "status"
+      ],
+      "summary": "how far each kind's sync is: rows saved, partial or complete, when it last…",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "store.status",
+      "entity": "crm_sync_progress"
+    },
+    {
+      "path": [
+        "store",
+        "apply"
+      ],
+      "summary": "apply scope mine to the contacts already stored: remove those no deal or…",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "store.apply",
+      "entity": "crm_contacts_removed"
+    },
+    {
+      "path": [
+        "store",
+        "info"
+      ],
+      "summary": "the shared store's format, size and contents, and whether this tool can read it",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "store.info",
+      "entity": "store_info"
+    },
+    {
+      "path": [
+        "store",
+        "check"
+      ],
+      "summary": "check the local store for problems",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "store.check",
+      "entity": "store_check"
+    },
+    {
+      "path": [
+        "store",
+        "migrate"
+      ],
+      "summary": "migrate an older local store",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "store.migrate",
+      "entity": "store_migration"
+    },
+    {
+      "path": [
+        "store",
+        "rebuild"
+      ],
+      "summary": "rebuild the local store's search indexes",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "store.rebuild",
+      "entity": "store_reindex"
+    },
+    {
+      "path": [
+        "store",
+        "backup"
+      ],
+      "summary": "copy the store into a new file, while it is in use; never overwrites a file",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "store.backup",
+      "entity": "store_backup"
+    },
+    {
+      "path": [
+        "store",
+        "restore"
+      ],
+      "summary": "restore a backup and keep the current store, or roll back a breaking upgrade",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "store.restore",
+      "entity": "store_restore"
+    },
+    {
+      "path": [
+        "store",
+        "decrypt"
+      ],
+      "summary": "open a file written with --encrypt into a new file; asks for its password",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "store.decrypt",
+      "entity": "store_decrypt"
+    },
+    {
+      "path": [
+        "store",
+        "repair"
+      ],
+      "summary": "repair table shapes while keeping the old tables",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "store.repair",
+      "entity": "store_repair"
+    },
+    {
+      "path": [
+        "store",
+        "reset"
+      ],
+      "summary": "back up the local store and replace it with an empty one",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "store.reset",
+      "entity": "store_reset"
+    },
+    {
+      "path": [
+        "store",
+        "copies",
+        "delete"
+      ],
+      "summary": "delete one copy `store repair` kept, named exactly; refuses any other table",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "store.copies.delete",
+      "entity": "store_copy_removal"
+    },
+    {
+      "path": [
+        "store",
+        "tables",
+        "list"
+      ],
+      "summary": "every table of the local archive, with its kind and row count",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "store.tables.list",
+      "entity": "store_table"
+    },
+    {
+      "path": [
+        "store",
+        "recover"
+      ],
+      "summary": "what is damaged in the store and how to recover it",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "store.recover"
+    },
+    {
+      "path": [
+        "store",
+        "recover",
+        "run"
+      ],
+      "summary": "rebuild a damaged store from every row it can read",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "store.recover.run"
+    },
+    {
+      "path": [
+        "deals",
+        "list"
+      ],
+      "summary": "deals copied from the CRM, newest first; run sync to bring them up to date",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "deals.list",
+      "entity": "deal"
+    },
+    {
+      "path": [
+        "deals",
+        "show"
+      ],
+      "summary": "one deal with its pipeline, stage, status, amount and the people on it, and…",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "deals.show",
+      "entity": "deal"
+    },
+    {
+      "path": [
+        "leads",
+        "list"
+      ],
+      "summary": "leads copied from the CRM, newest first; run sync to bring them up to date",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "leads.list",
+      "entity": "lead"
+    },
+    {
+      "path": [
+        "leads",
+        "show"
+      ],
+      "summary": "one lead with its pipeline, stage, status, amount and the people on it, and…",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "leads.show",
+      "entity": "lead"
+    },
+    {
+      "path": [
+        "pipelines",
+        "list"
+      ],
+      "summary": "pipelines copied from the CRM, with their stages in order and how many are…",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "pipelines.list",
+      "entity": "pipeline"
+    },
+    {
+      "path": [
+        "pipelines",
+        "show"
+      ],
+      "summary": "one pipeline as a board and a funnel: how many stand in each stage and their…",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "pipelines.show",
+      "entity": "pipeline"
+    },
+    {
+      "path": [
+        "stages",
+        "list"
+      ],
+      "summary": "every stage of the CRM's pipelines in order, with its outcome and how many…",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "stages.list",
+      "entity": "stage"
+    },
+    {
+      "path": [
+        "people",
+        "list"
+      ],
+      "summary": "contacts in the CRM, newest first; another client is found here, never in…",
+      "effects": {
+        "remote": "read",
+        "local": "read"
+      },
+      "permission": "people.list",
+      "entity": "crm_person"
+    },
+    {
+      "path": [
+        "people",
+        "show"
+      ],
+      "summary": "one of the CRM's contacts, read live, with its phones and e-mails; one that…",
+      "effects": {
+        "remote": "read",
+        "local": "read"
+      },
+      "permission": "people.show",
+      "entity": "crm_person"
+    },
+    {
+      "path": [
+        "organizations",
+        "list"
+      ],
+      "summary": "companies in the CRM, newest first; another client is found here, never in…",
+      "effects": {
+        "remote": "read",
+        "local": "read"
+      },
+      "permission": "organizations.list",
+      "entity": "crm_organization"
+    },
+    {
+      "path": [
+        "organizations",
+        "show"
+      ],
+      "summary": "one of the CRM's companies, read live, with its phones and e-mails; one that…",
+      "effects": {
+        "remote": "read",
+        "local": "read"
+      },
+      "permission": "organizations.show",
+      "entity": "crm_organization"
+    },
+    {
+      "path": [
+        "users",
+        "list"
+      ],
+      "summary": "the CRM's users, read live, in the CRM's order",
+      "effects": {
+        "remote": "read",
+        "local": "read"
+      },
+      "permission": "users.list",
+      "entity": "crm_user"
+    },
+    {
+      "path": [
+        "users",
+        "show"
+      ],
+      "summary": "one of the CRM's users, read live",
+      "effects": {
+        "remote": "read",
+        "local": "read"
+      },
+      "permission": "users.show",
+      "entity": "crm_user"
+    },
+    {
+      "path": [
+        "activities",
+        "list"
+      ],
+      "summary": "activities copied from the CRM, open ones first by due time, then the rest…",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "activities.list",
+      "entity": "crm_activity"
+    },
+    {
+      "path": [
+        "changes",
+        "list"
+      ],
+      "summary": "deals and leads made, moved, won, lost and given another owner, activities…",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "changes.list",
+      "entity": "crm_change"
+    },
+    {
+      "path": [
+        "fields",
+        "list"
+      ],
+      "summary": "the CRM's custom fields of one kind, in its order, with a list field's options",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "fields.list",
+      "entity": "crm_field"
+    },
+    {
+      "path": [
+        "search",
+        "all"
+      ],
+      "summary": "search stored deals and leads, messages, notes, calendar events and meetings",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "search.all",
+      "entity": "hit"
+    },
+    {
+      "path": [
         "api",
         "list"
       ],
-      "summary": "list every Example Comments API operation this CLI offers, without calling…",
+      "summary": "list every HubSpot API operation this CLI offers, without calling HubSpot",
       "effects": {
         "remote": "none",
         "local": "none"
       },
-      "permission": "api.list",
       "entity": "api_operation"
     },
     {
@@ -89,12 +530,11 @@
         "api",
         "show"
       ],
-      "summary": "show one operation's parameters and request schema, without calling Example…",
+      "summary": "show one operation's parameters and request schema, without calling HubSpot",
       "effects": {
         "remote": "none",
         "local": "none"
-      },
-      "permission": "api.show"
+      }
     },
     {
       "path": [
@@ -1982,53 +2422,114 @@
     },
     {
       "path": [
-        "comments",
+        "schedule",
+        "command"
+      ],
+      "summary": "run hubspot <args…> on a timer — reads save what they read, so this is how a…",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "schedule.command"
+    },
+    {
+      "path": [
+        "schedule",
+        "agent"
+      ],
+      "summary": "start an agent (claude, codex, gemini, cursor, opencode, openclaw, hermes,…",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "schedule.agent"
+    },
+    {
+      "path": [
+        "schedule",
         "list"
       ],
-      "summary": "list the comments in Example Comments, newest first",
+      "summary": "the schedules, when they run and how their last run went",
       "effects": {
-        "remote": "read",
+        "remote": "none",
         "local": "read"
       },
-      "permission": "comments.list",
-      "entity": "comment"
+      "permission": "schedule.list",
+      "entity": "scheduled_job"
     },
     {
       "path": [
-        "comments",
-        "show"
+        "schedule",
+        "agents",
+        "list"
       ],
-      "summary": "show one comment in Example Comments",
+      "summary": "the agents a schedule may start, and which are on PATH here",
       "effects": {
-        "remote": "read",
+        "remote": "none",
         "local": "read"
       },
-      "permission": "comments.show",
-      "entity": "comment"
+      "permission": "schedule.agents.list",
+      "entity": "schedule_harness"
     },
     {
       "path": [
-        "comments",
-        "create"
+        "schedule",
+        "run"
       ],
-      "summary": "post a comment in Example Comments",
+      "summary": "run a schedule now, as its timer would, and wait for it; a paused one runs too",
       "effects": {
         "remote": "write",
         "local": "write"
       },
-      "permission": "comments.create"
+      "permission": "schedule.run"
     },
     {
       "path": [
-        "comments",
-        "update"
+        "schedule",
+        "remove"
       ],
-      "summary": "change the text of your comment in Example Comments",
+      "summary": "stop a schedule and remove its timer; its past output stays",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "schedule.remove"
+    },
+    {
+      "path": [
+        "schedule",
+        "pause"
+      ],
+      "summary": "take a schedule off its timer and keep it; run runs it, resume puts it back",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "schedule.pause"
+    },
+    {
+      "path": [
+        "schedule",
+        "resume"
+      ],
+      "summary": "put a paused schedule back on its timer",
+      "effects": {
+        "remote": "none",
+        "local": "write"
+      },
+      "permission": "schedule.resume"
+    },
+    {
+      "path": [
+        "schedule",
+        "exec"
+      ],
+      "summary": "what a timer runs, given the schedule's file; to run one by hand, use run",
       "effects": {
         "remote": "write",
         "local": "write"
       },
-      "permission": "comments.update"
+      "permission": "schedule.exec"
     },
     {
       "path": [
@@ -2256,6 +2757,53 @@
     },
     {
       "path": [
+        "setup"
+      ],
+      "summary": "connect this profile, question by question",
+      "effects": {
+        "remote": "read",
+        "local": "write"
+      },
+      "permission": "setup"
+    },
+    {
+      "path": [
+        "setup",
+        "show"
+      ],
+      "summary": "print the connection flow as JSON, for WireCat Desktop",
+      "effects": {
+        "remote": "none",
+        "local": "read"
+      },
+      "permission": "setup.show"
+    },
+    {
+      "path": [
+        "setup",
+        "apply"
+      ],
+      "summary": "check the answers on stdin against the flow, and save them",
+      "effects": {
+        "remote": "read",
+        "local": "write"
+      },
+      "permission": "setup.apply"
+    },
+    {
+      "path": [
+        "setup",
+        "run"
+      ],
+      "summary": "run one step of the flow, as WireCat Desktop does",
+      "effects": {
+        "remote": "read",
+        "local": "write"
+      },
+      "permission": "setup.run"
+    },
+    {
+      "path": [
         "runs",
         "list"
       ],
@@ -2292,15 +2840,123 @@
     }
   ],
   "entities": {
+    "store_table": {
+      "fields": [
+        "name",
+        "kind",
+        "rows",
+        "bytes"
+      ]
+    },
+    "deal": {
+      "fields": [
+        "status",
+        "organization"
+      ]
+    },
+    "lead": {
+      "fields": [
+        "status",
+        "organization"
+      ]
+    },
+    "pipeline": {
+      "fields": [
+        "kind"
+      ]
+    },
+    "stage": {
+      "fields": [
+        "kind"
+      ]
+    },
+    "crm_person": {
+      "fields": [
+        "id",
+        "name",
+        "first_name",
+        "last_name",
+        "position",
+        "organization_ids",
+        "assigned_to",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "crm_organization": {
+      "fields": [
+        "id",
+        "name",
+        "type",
+        "own",
+        "person_ids",
+        "assigned_to",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "crm_user": {
+      "fields": [
+        "id",
+        "name",
+        "email",
+        "position",
+        "active",
+        "department_ids"
+      ]
+    },
+    "crm_activity": {
+      "fields": [
+        "status",
+        "kind"
+      ]
+    },
+    "crm_change": {
+      "fields": [
+        "change"
+      ]
+    },
+    "crm_field": {
+      "fields": [
+        "code",
+        "label",
+        "type",
+        "multiple",
+        "filterable",
+        "untrusted"
+      ]
+    },
     "api_operation": {
       "fields": [
         "effect",
         "tag"
       ]
     },
-    "comment": {
+    "scheduled_job": {
       "fields": [
-        "author"
+        "name",
+        "kind",
+        "when",
+        "notify",
+        "deliver_to",
+        "harness",
+        "reports_cost",
+        "spent_today_usd",
+        "max_cost_usd",
+        "max_cost_per_day_usd"
+      ]
+    },
+    "schedule_harness": {
+      "fields": [
+        "id",
+        "name",
+        "programs",
+        "reports_cost",
+        "restricted",
+        "restricted_reason",
+        "allowed_with_ack",
+        "installed",
+        "path"
       ]
     },
     "run": {
@@ -2336,7 +2992,7 @@
   },
   "network": {
     "hosts": [
-      "comments.example.invalid",
+      "api.hubapi.com",
       "registry.npmjs.org",
       "huggingface.co",
       "*.huggingface.co",
@@ -2346,7 +3002,7 @@
     ]
   },
   "desktop": {
-    "tagline": "HubSpot CRM for scripts and agents",
+    "tagline": "HubSpot CRM: deals, contacts and companies",
     "profiles": {
       "args": [
         "session",
@@ -2385,12 +3041,11 @@
     "search": null,
     "setup": [
       "{profile}",
-      "session",
-      "start"
+      "setup"
     ],
     "signIn": {
-      "gives": "Lets your agent read and change your account through hubspot.",
-      "asks": "An API token or key from the service."
+      "gives": "Lets your agent read the account's CRM with the scopes you give the key; this release changes nothing.",
+      "asks": "A service key or a legacy private app's access token from your HubSpot account, with read scopes."
     },
     "skill": {
       "status": [
@@ -2460,7 +3115,27 @@
       ]
     },
     "tasks": null,
-    "sync": null,
+    "sync": {
+      "run": [
+        "{profile}",
+        "sync",
+        "--record",
+        "--json"
+      ],
+      "last": [
+        "runs",
+        "list",
+        "command:sync",
+        "status:success",
+        "--limit",
+        "50",
+        "--no-record",
+        "--json"
+      ],
+      "lastShape": "runs",
+      "what": "your deals, contacts and companies",
+      "note": null
+    },
     "storeInfo": null,
     "storeTables": null,
     "storeTableSizes": null,

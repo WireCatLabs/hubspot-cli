@@ -50,9 +50,9 @@ it("reads the account the token belongs to, with its time zone offset and curren
 
 it("a missing scope is permission_error naming the scope, never HubSpot's own text", async () => {
   const hub = fakeHubspot({ refuse: ["leads"] })
-  const error = await transportOver(hub)
+  const error = (await transportOver(hub)
     .get("/crm/objects/2026-03/leads")
-    .catch((caught: Error & { details?: unknown }) => caught)
+    .catch((caught: unknown) => caught)) as Error & { details?: unknown }
   expect(error).toMatchObject({
     code: "permission_error",
     details: { reason: "hubspot.scope-missing", scope: "crm.objects.leads.read", provider_error: "MISSING_SCOPES" },

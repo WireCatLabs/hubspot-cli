@@ -1,6 +1,6 @@
 <!-- Generated from the API manifest and the command tree by pnpm generate. Do not edit. -->
 
-# Example Comments API: Batch
+# HubSpot API: Batch
 
 ## `hubspot api associations-batch-archive [options]`
 

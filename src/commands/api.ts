@@ -19,11 +19,12 @@ export const apiCommand = (): Command =>
     configuration,
     fetch: (command) => {
       const { environment, env, profile } = contextOf(command)
+      const { now } = environment
       const send = hostFetch({ hosts: DESKTOP.hosts ?? [], ...(environment.fetch ? { fetch: environment.fetch } : {}) })
       return retrying(send, {
-        pacer: new Pacer(pacePathFor(IDENTITY, profile, env), PACE, environment.now),
+        pacer: new Pacer(pacePathFor(IDENTITY, profile, env), PACE, now),
         ...(environment.sleep ? { sleep: environment.sleep } : {}),
-        ...(environment.now ? { now: environment.now } : {}),
+        ...(now ? { now: () => new Date(now()) } : {}),
       })
     },
     token: tokenOf,
