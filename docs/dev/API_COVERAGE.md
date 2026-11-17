@@ -320,3 +320,5 @@ Not from the source: a private app token or service key goes in Authorization: B
 - merged: schemas/ValueWithTimestamp
 - merged: responses/Error
 - merged: schemas/BatchResponsePublicDefaultAssociation → AssociationsBatchResponsePublicDefaultAssociation (associations)
+- patched /components/schemas/PublicObjectSearchRequest/required: HubSpot's search guide (developers.hubspot.com/docs/api-reference/search/guide): a first page is asked without after
+- patched /components/schemas/PublicObjectSearchRequest/properties/sorts/items: HubSpot's search guide (developers.hubspot.com/docs/api-reference/search/guide): a sort is {propertyName, direction}, not a string

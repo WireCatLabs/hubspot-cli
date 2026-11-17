@@ -1,12 +1,15 @@
 import { Readable } from "node:stream"
 import { type KeyringStore, memoryKeyring } from "@wirecat/cli-base"
 import type { RunOptions } from "@wirecat/cli-core/cli"
-import type { ServiceEnvironment } from "../context.js"
+import { encodeSignIn, type HubspotEnvironment } from "../context.js"
 import { run } from "../program.js"
-import { FAKE_TOKEN, fakeComments } from "./fake-comments.js"
+import { FAKE_PORTAL, FAKE_TOKEN, seededHubspot } from "./fake-hubspot.js"
 
-/** A keyring where profile `personal` is already signed in to the fake service; never the real one (WC-TEST-2). */
-export const signedIn = (): KeyringStore => memoryKeyring({ "hubspot-cli:token:personal": FAKE_TOKEN })
+export const FAKE_ACCOUNT = String(FAKE_PORTAL)
+export const FAKE_SIGN_IN = encodeSignIn({ token: FAKE_TOKEN, portalId: FAKE_ACCOUNT, uiDomain: "app-eu1.hubspot.com" })
+
+/** A keyring where profile `work` is already signed in to the fake account; never the real one (WC-TEST-2). */
+export const signedIn = (): KeyringStore => memoryKeyring({ "hubspot-cli:token:work": FAKE_SIGN_IN })
 
 export interface Ran {
   code: number
@@ -16,31 +19,36 @@ export interface Ran {
   json: () => Record<string, unknown>
 }
 
-/** The CLI through its own `run()`, as a person or an agent types it, against the fake service (WC-TEST-6). */
-export const runCli = async (
+/** `hubspot` through its own `run()`, as a person or an agent types it, against the fake account, with no real waits. */
+export const hubspot = async (
   argv: string[],
   {
-    service = fakeComments(),
+    account = seededHubspot().hub,
     keyring = signedIn(),
     stdin,
     env,
     answer,
   }: {
-    service?: { fetch: (input: string | URL | Request, init?: RequestInit) => Promise<Response> }
+    account?: { fetch: typeof fetch }
     keyring?: KeyringStore
     stdin?: string
     env?: NodeJS.ProcessEnv
     /** The owner's answer to a question; cli-core never asks under --json, so a test of `ask` leaves it out. */
-    answer?: (question: string) => string | null
+    answer?: (question: string) => Promise<string | null> | string | null
   } = {},
 ): Promise<Ran> => {
   const out: string[] = []
   const err: string[] = []
-  const options: RunOptions & ServiceEnvironment = {
+  let clock = Date.now()
+  const options: RunOptions & HubspotEnvironment = {
     streams: { data: (text) => out.push(text), diagnostic: (text) => err.push(text) },
     tty: false,
     keyring,
-    fetch: service.fetch,
+    fetch: account.fetch,
+    sleep: async (ms) => {
+      clock += ms
+    },
+    now: () => clock,
     ...(env ? { env: { ...process.env, ...env } } : {}),
     ...(answer ? { answer } : {}),
     ...(stdin === undefined ? {} : { stdin: Object.assign(Readable.from([stdin]), { isTTY: false }) }),

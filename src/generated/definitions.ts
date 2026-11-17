@@ -824,11 +824,21 @@ export const definitions: Readonly<Record<string, SchemaNode>> = {
         description: "Specifies sorting order based on object properties.",
         type: "array",
         items: {
-          type: "string",
+          type: "object",
+          properties: {
+            propertyName: {
+              type: "string",
+            },
+            direction: {
+              type: "string",
+              enum: ["ASCENDING", "DESCENDING"],
+            },
+          },
+          required: ["propertyName"],
         },
       },
     },
-    required: ["after", "filterGroups", "limit", "properties", "sorts"],
+    required: ["filterGroups", "limit", "properties", "sorts"],
   },
   PublicObjectWarning: {
     description:

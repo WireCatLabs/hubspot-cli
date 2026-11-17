@@ -1,0 +1,19 @@
+{
+  "key.title": "Make a key",
+  "key.intro": "hubspot reads your deals, contacts and companies from one HubSpot account. It changes nothing there.",
+  "key.service": "A super admin does this once, in HubSpot: open **Development → Keys → Service keys**, create a key, name it *WireCat*, and give it these read scopes:",
+  "key.leads": "On Sales Hub Professional or Enterprise, add `crm.objects.leads.read` to read leads too. Add `tickets` if you want `api` to read tickets.",
+  "key.private.title": "Use a legacy private app instead",
+  "key.private": "HubSpot calls private apps legacy, but their tokens still work. Give the private app the same read scopes, then copy its access token from the app's **Auth** tab.",
+  "token.title": "Paste the key",
+  "token.where": "Copy the service key, or the private app's access token. It starts with `pat-`.",
+  "token.label": "Service key or access token",
+  "token.hint": "Kept in your system keyring or, without one, in a file only you can read.",
+  "token.rights": "The key reads only what its scopes allow. Each profile signs in to its own HubSpot account: a second profile on the same account is refused.",
+  "check.title": "Checking the key",
+  "check.body": "hubspot asks HubSpot which account the key belongs to. It saves the key only if HubSpot answers.",
+  "failed.title": "The check did not pass",
+  "failed.body": "The key did not pass hubspot's check, so nothing was saved. Check the key and your connection, then try again.",
+  "done.title": "Connected",
+  "done.body": "The profile is ready. Copy your deals and their contacts and companies into WireCat, then list the open ones:"
+}

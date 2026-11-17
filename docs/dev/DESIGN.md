@@ -39,4 +39,24 @@ Languages: en, es, ru.
 
 ## Further answers
 
+Decided 2026-11-17 with the plan in cli-private `plans/2026-11-16-cli-factory/hubspot-plan.md`.
+
+- **Same shape as amo-cli and bitrix24-cli.** `session`, `account`, the shared CRM commands from cli-core's
+  `addCrmCommands` only, `api` from the spec, `schedule`, `setup`. No command of hubspot's own repeats one of them.
+- **Read only in the first release.** `addCrmCommands` gets no `writes`. `api` keeps the spec's writes behind their
+  keys, and every delete (`batch/archive`, `merge`, `gdpr-delete`) also checks `deals.delete`, `people.delete` or
+  `organizations.delete`.
+- **Sign-in:** a service key or a legacy private app token, hidden or on stdin, checked with
+  `GET /account-info/2026-03/details` (never `/oauth/v1/access-tokens/{token}`, which puts the token in the address).
+  The keyring entry keeps the token with `portalId` and `uiDomain`. OAuth is a later slice.
+- **The account is the portal id.** The store's account key is `{ provider: "hubspot", account: "<portalId>" }`. A
+  second profile signing in to the same portal is refused (`session.duplicate`), so one copy is never synced twice.
+- **No user.** A key belongs to the account: the source has no `self`, the copy is the whole account, and every
+  profile reads all of it offline (`user: null`). `owner:me` names nobody; the docs say to use `owner:<owner id>`.
+- **`WCHUBSPOT_TOKEN`** names no account: a CRM command asks `account-info` once per command, kept nowhere. Offline,
+  a command that needs the account refuses (`offline.refused`).
+- **No `hs` alias** in the store's provider registry: `hs` is HubSpot's own CLI.
+- **Leads** are mounted; an account without Sales Hub Professional answers 403 for them, which the source reports.
+- **Tickets** only through `api` (owner's decision 4 in the research).
+
 ## Open questions for the owner

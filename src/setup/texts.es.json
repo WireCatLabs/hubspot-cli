@@ -1,0 +1,19 @@
+{
+  "key.title": "Crea una clave",
+  "key.intro": "hubspot lee tus negocios, contactos y empresas de una cuenta de HubSpot. No cambia nada en ella.",
+  "key.service": "Un superadministrador lo hace una vez, en HubSpot: abre **Development → Keys → Service keys**, crea una clave, llámala *WireCat* y dale estos permisos de lectura:",
+  "key.leads": "Con Sales Hub Professional o Enterprise, añade `crm.objects.leads.read` para leer también los leads. Añade `tickets` si quieres que `api` lea los tickets.",
+  "key.private.title": "Usar una aplicación privada antigua",
+  "key.private": "HubSpot llama antiguas (legacy) a las aplicaciones privadas, pero sus tokens siguen funcionando. Dale a la aplicación privada los mismos permisos de lectura y copia su token de acceso de la pestaña **Auth** de la aplicación.",
+  "token.title": "Pega la clave",
+  "token.where": "Copia la clave de servicio o el token de acceso de la aplicación privada. Empieza por `pat-`.",
+  "token.label": "Clave de servicio o token de acceso",
+  "token.hint": "Se guarda en el llavero del sistema o, si no hay, en un archivo que solo tú puedes leer.",
+  "token.rights": "La clave solo lee lo que permiten sus permisos. Cada perfil entra en su propia cuenta de HubSpot: se rechaza un segundo perfil en la misma cuenta.",
+  "check.title": "Comprobando la clave",
+  "check.body": "hubspot pregunta a HubSpot a qué cuenta pertenece la clave. Solo la guarda si HubSpot responde.",
+  "failed.title": "La comprobación no ha pasado",
+  "failed.body": "La clave no ha pasado la comprobación de hubspot, así que no se ha guardado nada. Revisa la clave y tu conexión e inténtalo de nuevo.",
+  "done.title": "Conectado",
+  "done.body": "El perfil está listo. Copia tus negocios con sus contactos y empresas a WireCat y lista los abiertos:"
+}

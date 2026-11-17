@@ -13,17 +13,21 @@ import {
   type RunOptions,
   run as runShared,
   runsCommand,
+  setupCommand,
   skillCommand,
   upgradeCommand,
 } from "@wirecat/cli-core/cli"
 import { appUpdate } from "@wirecat/cli-core/update"
 import type { Command } from "commander"
+import { accountCommand } from "./commands/account.js"
 import { apiCommand } from "./commands/api.js"
-import { commentsCommand } from "./commands/comments.js"
+import { crmSharedCommands } from "./commands/crm-shared.js"
+import { scheduleCommand } from "./commands/schedule.js"
 import { sessionCommand } from "./commands/session.js"
 import { configuration } from "./config.js"
+import { SERVICE } from "./hubspot/transport.js"
 import { IDENTITY, PACKAGE, SKILL } from "./identity.js"
-import { SERVICE } from "./sample/transport.js"
+import { hubspotSetup } from "./setup/flow.js"
 
 const update = appUpdate({
   packageName: PACKAGE,
@@ -40,9 +44,15 @@ const update = appUpdate({
 const mcpCommand = () =>
   appMcpCommand(IDENTITY, configuration, {
     name: SERVICE,
-    // SAMPLE: name the kinds of text other people wrote that your answers carry (WC-MCP-11).
-    untrusted: ["comment text", "author names"],
-    permissionExample: "comments.create=deny",
+    untrusted: [
+      "contact, company and deal names",
+      "pipeline and stage names",
+      "owner names",
+      "property values, notes and activity text",
+      "e-mail addresses, phone numbers and links",
+      "whatever api returns",
+    ],
+    permissionExample: "deals.delete=deny",
     skill: SKILL,
     signedIn: (profile, env, keyring) =>
       new ProfileTokenStore({ app: IDENTITY, env, ...(keyring ? { keyring } : {}) }).signedIn(profile),
@@ -52,11 +62,25 @@ export const definition = (): ProgramDefinition => ({
   app: IDENTITY,
   // The whole object: cli-core refuses a command by its key only when it gets the permission table too.
   configuration,
+  firstScreen: {
+    pitch: "a HubSpot account's CRM for scripts and agents, read into one local store.",
+    can: [
+      { command: "sync", does: "copy your deals, contacts and companies; the next sync takes the changes" },
+      { command: "deals list status:open", does: "open deals with stage, amount and owner, from the store, offline" },
+      { command: 'search all "kitchen"', does: "stored deals beside your other WireCat tools' data" },
+      { command: 'people list "Anna"', does: "any contact, read live from the account" },
+      { command: "activities list", does: "notes, calls, e-mails, meetings and tasks on your deals" },
+      { command: "api deals-list --limit 5", does: "any CRM read of HubSpot's API, one command per operation" },
+    ],
+    start: `${IDENTITY.command} work session start`,
+  },
   commands: () => [
     commandsCommand(IDENTITY),
     sessionCommand(),
+    accountCommand(),
+    ...crmSharedCommands(),
     apiCommand(),
-    commentsCommand(),
+    scheduleCommand(),
     appDoctorCommand(IDENTITY, configuration, { packageName: PACKAGE }),
     skillCommand(IDENTITY, SKILL),
     mcpCommand(),
@@ -67,6 +91,7 @@ export const definition = (): ProgramDefinition => ({
       install: (argv) => update.runUpdate(argv, {}),
     })),
     configCommand(IDENTITY, configuration),
+    setupCommand(hubspotSetup),
     runsCommand(IDENTITY),
   ],
 })

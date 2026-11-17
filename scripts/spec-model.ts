@@ -14,7 +14,28 @@ interface Provenance {
   sources: { name: string; url: string; file: string; sha256: string }[]
 }
 
-const PATCHES: SpecPatch[] = []
+const SEARCH_GUIDE = "HubSpot's search guide (developers.hubspot.com/docs/api-reference/search/guide)"
+const SEARCH = "/components/schemas/PublicObjectSearchRequest"
+
+const PATCHES: SpecPatch[] = [
+  {
+    pointer: `${SEARCH}/required`,
+    value: ["filterGroups", "limit", "properties", "sorts"],
+    reason: `${SEARCH_GUIDE}: a first page is asked without after`,
+  },
+  {
+    pointer: `${SEARCH}/properties/sorts/items`,
+    value: {
+      type: "object",
+      properties: {
+        propertyName: { type: "string" },
+        direction: { type: "string", enum: ["ASCENDING", "DESCENDING"] },
+      },
+      required: ["propertyName"],
+    },
+    reason: `${SEARCH_GUIDE}: a sort is {propertyName, direction}, not a string`,
+  },
+]
 
 const ASSOCIATION_PATHS = [
   ["put", "/crm/objects/2026-03/{fromObjectType}/{fromObjectId}/associations/default/{toObjectType}/{toObjectId}"],

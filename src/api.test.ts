@@ -5,13 +5,13 @@ import { apiFlagOf, manifestBaseUrl } from "@wirecat/cli-core/cli"
 import { afterEach, expect, it } from "vitest"
 import { API } from "./config.js"
 import { definitions } from "./generated/definitions.js"
-import { FAKE_TOKEN } from "./testing/fake-comments.js"
-import { runCli } from "./testing/harness.js"
+import { FAKE_TOKEN } from "./testing/fake-hubspot.js"
+import { hubspot } from "./testing/harness.js"
 
 const configFile = join(process.env.WCHUBSPOT_CONFIG_DIR ?? "", "config.json")
 const withPermissions = (permissions: Record<string, string>) => {
   mkdirSync(join(configFile, ".."), { recursive: true })
-  writeFileSync(configFile, JSON.stringify({ profiles: { personal: { permissions } } }))
+  writeFileSync(configFile, JSON.stringify({ profiles: { work: { permissions } } }))
 }
 afterEach(() => rmSync(configFile, { force: true }))
 
@@ -20,7 +20,6 @@ const fake = () =>
     operations: API.manifest.operations,
     definitions,
     baseUrl: manifestBaseUrl(API.manifest),
-    // SAMPLE: the header the spec's sign-in names; an `apiKey` scheme sends the bare token in its own header.
     auth: { header: "authorization", value: `Bearer ${FAKE_TOKEN}` },
   })
 
@@ -49,7 +48,7 @@ it("sends every operation the spec offers as the spec describes it, with the pro
   const service = fake()
   expect(API.manifest.operations.length).toBeGreaterThan(0)
   for (const operation of API.manifest.operations) {
-    const ran = await runCli(["personal", "api", operation.command, ...argsOf(operation), "--json"], { service })
+    const ran = await hubspot(["work", "api", operation.command, ...argsOf(operation), "--json"], { account: service })
     expect(ran.code, `${operation.command}: ${ran.err}`).toBe(0)
   }
   expect(service.refusals).toEqual([])
@@ -63,7 +62,7 @@ it("a delete through api checks the manifest's delete key too, before anything i
   const destructive = API.manifest.operations.filter((operation) => operation.effect === "destructive")
   expect(destructive.length).toBeGreaterThan(0)
   for (const operation of destructive) {
-    const ran = await runCli(["personal", "api", operation.command, ...argsOf(operation), "--json"], { service })
+    const ran = await hubspot(["work", "api", operation.command, ...argsOf(operation), "--json"], { account: service })
     expect(ran.json()).toMatchObject({ error: { code: "permission_error" } })
   }
   expect(service.calls).toEqual([])

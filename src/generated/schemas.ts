@@ -232,12 +232,17 @@ export const PublicObjectId: v.GenericSchema<unknown, T.PublicObjectId> = v.loos
 })
 
 export const PublicObjectSearchRequest: v.GenericSchema<unknown, T.PublicObjectSearchRequest> = v.looseObject({
-  after: v.string(),
+  after: v.optional(v.string()),
   filterGroups: v.array(v.lazy(() => FilterGroup)),
   limit: integer(),
   properties: v.array(v.string()),
   query: v.optional(v.string()),
-  sorts: v.array(v.string()),
+  sorts: v.array(
+    v.looseObject({
+      propertyName: v.string(),
+      direction: v.optional(v.picklist(["ASCENDING", "DESCENDING"])),
+    }),
+  ),
 })
 
 export const PublicObjectWarning: v.GenericSchema<unknown, T.PublicObjectWarning> = v.looseObject({

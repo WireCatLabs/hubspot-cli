@@ -310,7 +310,7 @@ export type PublicObjectId = {
 /** Describes a search request */
 export type PublicObjectSearchRequest = {
   /** A paging cursor token for retrieving subsequent pages. */
-  after: string
+  after?: string
   /** Up to 6 groups of filters defining additional query criteria. */
   filterGroups: Array<FilterGroup>
   /** The maximum results to return, up to 200 objects. */
@@ -320,7 +320,10 @@ export type PublicObjectSearchRequest = {
   /** The search query string, up to 3000 characters. */
   query?: string
   /** Specifies sorting order based on object properties. */
-  sorts: Array<string>
+  sorts: Array<{
+    propertyName: string
+    direction?: "ASCENDING" | "DESCENDING"
+  }>
 }
 
 /** Represents a warning message related to a public object in HubSpot, providing details about the nature and context of the warning. */

@@ -20,7 +20,11 @@ export const apiCommand = (): Command =>
     fetch: (command) => {
       const { environment, env, profile } = contextOf(command)
       const send = hostFetch({ hosts: DESKTOP.hosts ?? [], ...(environment.fetch ? { fetch: environment.fetch } : {}) })
-      return retrying(send, { pacer: new Pacer(pacePathFor(IDENTITY, profile, env), PACE) })
+      return retrying(send, {
+        pacer: new Pacer(pacePathFor(IDENTITY, profile, env), PACE, environment.now),
+        ...(environment.sleep ? { sleep: environment.sleep } : {}),
+        ...(environment.now ? { now: environment.now } : {}),
+      })
     },
     token: tokenOf,
     schemas: () => import("../generated/schemas.js").then((module) => module.schemas),

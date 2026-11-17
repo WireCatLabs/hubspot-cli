@@ -1,4 +1,4 @@
-import { CliError } from "@wirecat/cli-base"
+import { CliError, type KeyringStore } from "@wirecat/cli-base"
 import { annotate } from "@wirecat/cli-base/commands"
 import { readSecret } from "@wirecat/cli-core"
 import {
@@ -16,6 +16,7 @@ import {
   profilesHere,
   REMOTE_READ,
   refuseCommandName,
+  refuseOffline,
   refuseUnderReadOnly,
   rememberAccount,
   renderAnswer,
@@ -25,15 +26,20 @@ import {
 } from "@wirecat/cli-core/cli"
 import { Command } from "commander"
 import { configuration } from "../config.js"
-import { contextOf, refuseOffline, serviceFor, withService } from "../context.js"
+import {
+  contextOf,
+  decodeSignIn,
+  encodeSignIn,
+  type HubspotEnvironment,
+  hubFor,
+  storedSignIn,
+  withHub,
+} from "../context.js"
+import { SERVICE } from "../hubspot/transport.js"
 import { IDENTITY } from "../identity.js"
-import { SERVICE } from "../sample/transport.js"
+import { accountAnswer, checkedAccount } from "../whoami.js"
 
-// `session start | status | end | list` is every provider CLI's sign-in (WC-ACCT-12). Keep it; replace the token
-// prompt and the `me` check with your service's. A service with OAuth signs in through cli-core's oauth module
-// instead (WC-SECR-22); see gcal-cli's src/commands/session.ts.
-
-const CLI = IDENTITY.command
+const HUBSPOT = IDENTITY.command
 
 const answer = (command: Command, item: unknown) => renderAnswer(command, outputFor(command), itemOf(item))
 
@@ -42,56 +48,114 @@ const storageOf = (raw: string): TokenStorage => {
   throw new CliError("validation_error", `--credential-storage takes keyring or file; got ${raw}`)
 }
 
+const tokensHere = (env: NodeJS.ProcessEnv, keyring: KeyringStore | undefined) =>
+  new ProfileTokenStore({ app: IDENTITY, env, ...(keyring ? { keyring } : {}) })
+
+/** The account a profile's saved sign-in reaches; one from `WCHUBSPOT_TOKEN` is no profile's. */
+export const signedInTo = (env: NodeJS.ProcessEnv, keyring: KeyringStore | undefined, profile: string) => {
+  const saved = tokensHere(env, keyring).read(profile)
+  if (!saved || saved.source === "environment") return undefined
+  return decodeSignIn(saved.secret).portalId
+}
+
+/**
+ * A second profile on the same account would sync the same copy twice and split its permissions. A key names no user,
+ * so the account alone decides.
+ */
+const refuseDuplicate = (env: NodeJS.ProcessEnv, keyring: KeyringStore | undefined, profile: string, at: string) => {
+  // biome-ignore lint/plugin/no-own-settings: this check reads every profile, and baseContext names one
+  const { configuredProfiles } = configuration.resolveSettings({}, { env, needsProfile: false })
+  const other = profilesHere(IDENTITY, configuredProfiles, env).find((one) => {
+    if (one === profile) return false
+    try {
+      return signedInTo(env, keyring, one) === at
+    } catch {
+      return false
+    }
+  })
+  if (!other) return
+  throw new CliError(
+    "conflict",
+    `profile ${other} already signs in to HubSpot account ${at}. Use \`${HUBSPOT} ${other}\`, or end it with ` +
+      `\`${HUBSPOT} ${other} session end\` first`,
+    { reason: "session.duplicate", profile: other, account: at },
+  )
+}
+
+/**
+ * A token proven against its account, and what a profile keeps for it: the token with the account beside it.
+ * `setup apply` runs the same check.
+ */
+export const checkedToken = async (command: Command, token: string) => {
+  const { env, profile, keyring, run } = contextOf(command)
+  const { answer: who, utcOffsetMs } = await run((events) => checkedAccount(hubFor(command, { token }, events)))
+  refuseDuplicate(env, keyring, profile, who.account)
+  const signIn = { token, portalId: who.account, uiDomain: who.account_info.ui_domain }
+  return { who, signIn: encodeSignIn(utcOffsetMs === undefined ? signIn : { ...signIn, utcOffsetMs }) }
+}
+
 const startCommand = () =>
   logsInOrOut(
     annotate(new Command("start"), {
       effects: FETCH,
       lifetime: "interactive",
       mcp: false,
-      examples: [`${CLI} personal session start`, `${CLI} personal session start --credential-storage file`],
+      examples: [
+        `${HUBSPOT} work session start`,
+        `${HUBSPOT} work session start --json`,
+        `${HUBSPOT} work session start --credential-storage file`,
+      ],
     }),
   )
-    .summary(`sign in to ${SERVICE} with an API token`)
+    .summary(`sign in to ${SERVICE} with a service key or a private app token`)
     .description(
-      `sign this profile in: the ${SERVICE} API token is asked hidden or read from stdin, never taken as an ` +
-        "argument, checked against the service, and only then kept in the keyring, or in a private file",
+      "sign this profile in: a service key (Development → Keys → Service keys) or a legacy private app's access " +
+        "token is asked hidden or read from stdin, never taken as an argument, checked against the account, and " +
+        "only then kept in the keyring with the account's id, or in a private file. The key reads what its scopes " +
+        "allow; hubspot changes nothing in this release",
     )
     .option(
       "--credential-storage <storage>",
-      "where the token is kept: keyring, which falls back to a private file by itself, or file",
+      "where the key is kept: keyring, which falls back to a private file by itself, or file",
       storageOf,
       "keyring" as TokenStorage,
     )
     .action(async function (this: Command, args: { credentialStorage: TokenStorage }) {
-      const { env, flags, profile, tokens, run } = contextOf(this)
-      refuseCommandName(profile, commandWords(rootOf(this)), CLI)
-      refuseOffline(flags)
+      const { env, profile, tokens } = contextOf(this)
+      refuseCommandName(profile, commandWords(rootOf(this)), HUBSPOT)
+      refuseOffline(this, SERVICE)
       // A secret is never an argument: it would land in shell history and in the run record (WC-SECR-5).
-      const token = (await readSecret(`${SERVICE} API token: `, secretInputOf(this))).trim()
+      const token = (await readSecret(`${SERVICE} service key or private app token: `, secretInputOf(this))).trim()
       if (!token) throw new CliError("validation_error", "no token was given")
-      const user = await run((events) => serviceFor(this, token, events).me())
-      const storedIn = tokens.write(profile, token, args.credentialStorage)
-      rememberAccount(IDENTITY, profile, user.id, env)
-      answer(this, { profile, state: "saved", stored_in: storedIn, verified: true, user })
+      const { who, signIn } = await checkedToken(this, token)
+      const storedIn = tokens.write(profile, signIn, args.credentialStorage)
+      rememberAccount(IDENTITY, profile, who.account, env)
+      answer(this, { profile, state: "saved", stored_in: storedIn, verified: true, ...who })
     })
 
 const statusCommand = () =>
   annotate(new Command("status"), {
     effects: REMOTE_READ,
-    examples: [`${CLI} personal session status`, `${CLI} personal session status --check --json`],
+    examples: [`${HUBSPOT} work session status`, `${HUBSPOT} work session status --check --json`],
   })
-    .summary("show where this profile's token comes from; never the token")
+    .summary("show where this profile's key comes from, and with --check whose account it reads")
     .description(
-      `show where this profile's token comes from: ${IDENTITY.envPrefix}_TOKEN, the keyring or a file, never the token; ` +
-        `--check asks ${SERVICE} whose token it is`,
+      "show which account this profile signs in to and where its key comes from: " +
+        `${IDENTITY.envPrefix}_TOKEN, the keyring or a file; never the key`,
     )
-    .option("--check", `ask ${SERVICE} whether the token still works, and whose it is`)
+    .option("--check", `ask ${SERVICE} whether the key still works and which account it reads`)
     .action(async function (this: Command, args: { check?: boolean }) {
       const { profile, tokens } = contextOf(this)
       const saved = tokens.read(profile)
-      const status = { profile, state: saved ? "saved" : "missing", token_from: saved?.source ?? null }
-      if (!args.check || !saved) return answer(this, { ...status, verified: false })
-      answer(this, { ...status, verified: true, user: await withService(this, (service) => service.me()) })
+      const signIn = storedSignIn(this)
+      const status = {
+        profile,
+        state: signIn ? "saved" : "missing",
+        token_from: saved?.source ?? null,
+        account: signIn?.portalId ?? null,
+      }
+      if (!args.check || !signIn) return answer(this, { ...status, verified: false })
+      answer(this, { ...status, verified: true, ...(await withHub(this, accountAnswer)) })
     })
 
 const endCommand = () =>
@@ -99,11 +163,14 @@ const endCommand = () =>
     annotate(new Command("end"), {
       effects: LOCAL_WRITE,
       mcp: false,
-      examples: [`${CLI} personal session end`],
+      examples: [`${HUBSPOT} work session end`],
     }),
   )
-    .summary("forget this profile's token on this computer")
-    .description(`forget this profile's token on this computer; the token itself stays valid in ${SERVICE}`)
+    .summary("forget this profile's key on this computer")
+    .description(
+      `forget this profile's key and account id on this computer; the key itself stays valid in ${SERVICE}: delete ` +
+        "or rotate it where it was made",
+    )
     .action(function (this: Command) {
       refuseUnderReadOnly(this, "session end")
       const { profile, tokens } = contextOf(this)
@@ -114,25 +181,26 @@ const listCommand = () =>
   profileFree(
     annotate(new Command("list"), {
       effects: LOCAL_READ,
-      examples: [`${CLI} session list`, `${CLI} session list --json`],
+      examples: [`${HUBSPOT} session list`, `${HUBSPOT} session list --json`],
     }),
   )
     .summary("list the profiles here and whether each is signed in")
-    .description("list the profiles on this computer and whether each has a token; picks none")
+    .description("list the profiles on this computer, whether each has a key and for which account; picks none")
     .action(function (this: Command) {
-      const environment = environmentOf(this)
+      const environment = environmentOf<HubspotEnvironment>(this)
       const env = environment.env ?? process.env
       // biome-ignore lint/plugin/no-own-settings: baseContext needs a profile, and this local read names none
       const { configuredProfiles } = configuration.resolveSettings({}, { env, needsProfile: false })
-      const tokens = new ProfileTokenStore({
-        app: IDENTITY,
-        env,
-        ...(environment.keyring ? { keyring: environment.keyring } : {}),
-        warn: outputFor(this).renderer.warn,
-      })
+      const tokens = tokensHere(env, environment.keyring)
       const items = profilesHere(IDENTITY, configuredProfiles, env).map((profile) => {
-        const saved = tokens.read(profile)
-        return { profile, signed_in: saved !== undefined, token_from: saved?.source ?? null }
+        try {
+          const saved = tokens.read(profile)
+          const account = saved && saved.source !== "environment" ? decodeSignIn(saved.secret).portalId : null
+          return { profile, signed_in: saved !== undefined, token_from: saved?.source ?? null, account }
+        } catch (error) {
+          if (!(error instanceof CliError)) throw error
+          return { profile, signed_in: null, token_from: null, account: null, error: error.message }
+        }
       })
       renderAnswer(
         this,
@@ -143,7 +211,7 @@ const listCommand = () =>
 
 export const sessionCommand = (): Command =>
   annotate(new Command("session"), { effects: LOCAL_READ })
-    .description(`keep this profile's ${SERVICE} token in the OS keyring`)
+    .description(`keep this profile's ${SERVICE} key and account id in the OS keyring`)
     .addCommand(startCommand())
     .addCommand(statusCommand())
     .addCommand(endCommand())
