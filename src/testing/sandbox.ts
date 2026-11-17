@@ -8,11 +8,11 @@ const saved = { ...process.env }
 // cli-base's setup already gave this file a fresh TMPDIR and HOME, a keyring that throws and no network, and points
 // every folder and store variable at them (WC-TEST-1, WC-STORE-14). The config folder is set only because tests
 // write into it by name.
-process.env.HUBSPOT_CONFIG_DIR = join(tmpdir(), "config")
-process.env.HUBSPOT_NO_UPDATE_CHECK = "1"
-process.env.HUBSPOT_TEST_ARGV_LOG = ARGV_LOG
-delete process.env.HUBSPOT_PROFILE
-delete process.env.HUBSPOT_READ_ONLY
+process.env.WCHUBSPOT_CONFIG_DIR = join(tmpdir(), "config")
+process.env.WCHUBSPOT_NO_UPDATE_CHECK = "1"
+process.env.WCHUBSPOT_TEST_ARGV_LOG = ARGV_LOG
+delete process.env.WCHUBSPOT_PROFILE
+delete process.env.WCHUBSPOT_READ_ONLY
 delete process.env.AI_AGENT
 delete process.env.CLAUDECODE
 

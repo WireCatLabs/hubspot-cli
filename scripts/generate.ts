@@ -13,8 +13,50 @@ import { specModel } from "./spec-model.ts"
 
 // The service's API description → src/generated/ and docs/dev/API_COVERAGE.md. Each correction below is read from
 // the service's documentation, never guessed; cli-base docs/standards/kit-surface.md says what each one does.
+const P = "/crm/pipelines/2026-03/{objectType}"
+const R = "/crm/properties/2026-03/{objectType}"
+const R_OLD = "/crm/properties/2025-09/{objectType}"
+/** A list and a read of one both end in a path parameter here, so the path alone names them alike. */
+const COMMANDS: Record<string, string> = {
+  [`get-${P}_getAll`]: "pipelines-list",
+  [`get-${P}/{pipelineId}_getById`]: "pipelines-get",
+  [`post-${P}_create`]: "pipelines-create",
+  [`patch-${P}/{pipelineId}_update`]: "pipelines-update",
+  [`get-${R}_${R_OLD}`]: "properties-list",
+  [`get-${R}/{propertyName}_${R_OLD}/{propertyName}`]: "properties-get",
+  [`post-${R}_${R_OLD}`]: "properties-create",
+  [`patch-${R}/{propertyName}_${R_OLD}/{propertyName}`]: "properties-update",
+}
+
+/**
+ * POSTs that delete: `batch/archive` and `labels/archive` archive records or labels, `gdpr-delete` erases a contact
+ * for good, and `merge` keeps one of two records (HubSpot's "Using object APIs" and "Merge records" guides).
+ */
+const DELETING_POST = /\/(batch\/archive|batch\/labels\/archive|gdpr-delete|merge)$/
+
+/** The words of cli-core's CRM commands, so `people.delete` denied there also holds in `api`. */
+const GROUPS: Record<string, string> = {
+  contacts: "people",
+  companies: "organizations",
+  owners: "users",
+  properties: "fields",
+  "account-info": "account",
+}
+const groupOf = (command: string) => {
+  const first = command.startsWith("account-info") ? "account-info" : (command.split("-")[0] ?? command)
+  return GROUPS[first] ?? first
+}
+
 const root = resolve(import.meta.dirname, "..")
 const { model, notes } = await specModel(root)
+const overrides = Object.fromEntries(
+  model.operations
+    .filter(({ binding }) => binding.kind === "http" && binding.method === "POST" && DELETING_POST.test(binding.path))
+    .map(({ id }) => [
+      id,
+      { effect: "destructive" as const, reason: "a POST that archives, erases or merges away records" },
+    ]),
+)
 const artifacts = generate(
   model,
   [
@@ -30,17 +72,17 @@ const artifacts = generate(
   ],
   {
     banner: ["Source: spec/hubspot/, checked against provenance.json", "Run: pnpm generate"],
-    // SAMPLE: operation id → { effect, reason } where the HTTP method misleads, as a POST that deletes.
-    overrides: {},
-    // SAMPLE: true when the service's POST …/search and …/query only read.
-    readingPosts: false,
-    // SAMPLE: command names from the paths; map an operation whose name comes out wrong in `commands`.
-    names: { fromPath: true },
-    // SAMPLE: the permission group, and the body fields or query parameters that delete when true.
-    permissions: { group: "comments", deletingFlags: [] },
-    // SAMPLE: how each read pages, found from the spec; an override's `pagination` wins. `auth` replaces a wrong or
-    // missing sign-in in the spec: { securitySchemes, security, reason }.
+    overrides,
+    readingPosts: true,
+    names: { fromPath: true, segments: { crm: "", objects: "", "0-3": "deals" }, commands: COMMANDS },
+    permissions: { group: (operation) => groupOf(operation.command ?? operation.id), deletingFlags: [] },
     pagination: true,
+    auth: {
+      securitySchemes: { token: { type: "http", scheme: "bearer" } },
+      security: [{ token: [] }],
+      reason:
+        "a private app token or service key goes in Authorization: Bearer; the specs list only OAuth and the retired hapikey",
+    },
   },
 )
 const coverage = artifacts.find((artifact) => artifact.path === "docs/dev/API_COVERAGE.md")

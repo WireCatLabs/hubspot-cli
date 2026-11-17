@@ -12,10 +12,10 @@ root=$(cd -- "$(dirname -- "$0")/.." && pwd)
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-export HUBSPOT_CONFIG_DIR="$work/config" HUBSPOT_STATE_DIR="$work/state" HUBSPOT_CACHE_DIR="$work/cache"
+export WCHUBSPOT_CONFIG_DIR="$work/config" WCHUBSPOT_STATE_DIR="$work/state" WCHUBSPOT_CACHE_DIR="$work/cache"
 export MESSAGING_STORE="$work/wirecat.db"
 export DBUS_SESSION_BUS_ADDRESS="disabled:"
-unset HUBSPOT_TOKEN
+unset WCHUBSPOT_TOKEN
 cli=(node "$root/dist/bin/hubspot.js")
 
 pnpm --dir "$root" -s build >/dev/null

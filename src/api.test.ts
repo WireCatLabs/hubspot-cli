@@ -8,7 +8,7 @@ import { definitions } from "./generated/definitions.js"
 import { FAKE_TOKEN } from "./testing/fake-comments.js"
 import { runCli } from "./testing/harness.js"
 
-const configFile = join(process.env.HUBSPOT_CONFIG_DIR ?? "", "config.json")
+const configFile = join(process.env.WCHUBSPOT_CONFIG_DIR ?? "", "config.json")
 const withPermissions = (permissions: Record<string, string>) => {
   mkdirSync(join(configFile, ".."), { recursive: true })
   writeFileSync(configFile, JSON.stringify({ profiles: { personal: { permissions } } }))

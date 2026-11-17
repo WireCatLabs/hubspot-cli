@@ -1,11 +1,95 @@
 {
   "sources": [
     {
-      "name": "comments",
-      "url": "https://comments.example.invalid/openapi.json",
-      "file": "openapi.json",
-      "sha256": "ceebdace963dfeff04113bc3b4293ccac41b3d27249ffa4fba933e4852c36960"
+      "name": "contacts",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75232/version/2026-03",
+      "file": "contacts.json",
+      "sha256": "0bfc51ecbf87c0d90bd13663db9189b665c06272b717c677966b909e796bc05c"
+    },
+    {
+      "name": "companies",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75244/version/2026-03",
+      "file": "companies.json",
+      "sha256": "a950ce04d70c4b5cc7a3e0a1465956d2be6841a1d838670b49014e1bfc56632b"
+    },
+    {
+      "name": "deals",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75246/version/2026-03",
+      "file": "deals.json",
+      "sha256": "ad24485bf240618eeb7723d3827af945608c8afbccf0113a15414095855afbf7"
+    },
+    {
+      "name": "tickets",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75274/version/2026-03",
+      "file": "tickets.json",
+      "sha256": "25f8c3f76ebaeb9170d4f4aa3c66739e71cefdbaa6cc16c53ffaa1af97326bb3"
+    },
+    {
+      "name": "leads",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75224/version/2026-03",
+      "file": "leads.json",
+      "sha256": "a76bbd98ab2145c2875e8664365397ec6bf05e1801c8abefec453b87cfb28e83"
+    },
+    {
+      "name": "notes",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75313/version/2026-03",
+      "file": "notes.json",
+      "sha256": "678f9711e004d4164b7fe83b035ff4c698f94871f1e48cb9b682eb05ac957586"
+    },
+    {
+      "name": "calls",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75288/version/2026-03",
+      "file": "calls.json",
+      "sha256": "4f01312dcec9d43ba31633a5bf8e20174ea454662c2b038fbc918ef6e4b67350"
+    },
+    {
+      "name": "emails",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75305/version/2026-03",
+      "file": "emails.json",
+      "sha256": "d1cdd3f6863af52ff528476e3f93bf4fdc46e8c44d6cc4a08e1054a531726bbd"
+    },
+    {
+      "name": "meetings",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75236/version/2026-03",
+      "file": "meetings.json",
+      "sha256": "2dcac97ab96a874721c607c9e33f924e074285014e1ba9b62e4aa36c3827ccca"
+    },
+    {
+      "name": "tasks",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75262/version/2026-03",
+      "file": "tasks.json",
+      "sha256": "671fde0b9bff4298f152139fab74b13067515154e5a3229526b1fd3a6935c200"
+    },
+    {
+      "name": "crm-owners",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75347/version/2026-03",
+      "file": "crm-owners.json",
+      "sha256": "4acbb13514cdf35a9960c0fa41ecfa1e870003e9e2115c0b470f1237aa7bbcaf"
+    },
+    {
+      "name": "pipelines",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75321/version/2026-03",
+      "file": "pipelines.json",
+      "sha256": "646c9d395c8b4a5f118fe6803ba515c0494ff1e426911f9397c69a09329cca33"
+    },
+    {
+      "name": "properties",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75280/version/2026-03",
+      "file": "properties.json",
+      "sha256": "2aa81bbd7f581e5081be0128b79363cdf02ed4468d0b2ef39de746ff83d3188f"
+    },
+    {
+      "name": "associations",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75258/version/2026-03",
+      "file": "associations.json",
+      "sha256": "810d1a3d5731e025bdf8f7161e5c3dd2fba8bb1f51f2bd6499bf73d94a30f29f"
+    },
+    {
+      "name": "account-info",
+      "url": "https://api.hubspot.com/public/api/spec/v2/specs/release/75551/version/2026-03",
+      "file": "account-info.json",
+      "sha256": "f73cdbee0a56739f094b6893dd69e9c7b0307ce874c2c8918a17250a21fbd071"
     }
   ],
-  "retrieved_at": "2026-11-16T00:00:00.000Z"
+  "retrieved_at": "2026-11-17T02:06:56.256Z"
 }

@@ -11,7 +11,7 @@ import { run } from "./program.js"
 import { FAKE_TOKEN, fakeComments } from "./testing/fake-comments.js"
 import { runCli, signedIn } from "./testing/harness.js"
 
-const configFile = join(process.env.HUBSPOT_CONFIG_DIR ?? "", "config.json")
+const configFile = join(process.env.WCHUBSPOT_CONFIG_DIR ?? "", "config.json")
 const withPermissions = (permissions: Record<string, string>) => {
   mkdirSync(join(configFile, ".."), { recursive: true })
   writeFileSync(configFile, JSON.stringify({ profiles: { personal: { permissions } } }))
@@ -98,7 +98,7 @@ it("a deny on a write, or the read-only lock, stops it before any request", asyn
   rmSync(configFile)
   const locked = await runCli(["personal", "comments", "create", "--text", "Plan", "--json"], {
     service,
-    env: { HUBSPOT_READ_ONLY: "1" },
+    env: { WCHUBSPOT_READ_ONLY: "1" },
   })
   expect(locked.code).toBe(5)
   expect(service.calls).toEqual([])

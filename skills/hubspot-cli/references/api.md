@@ -10,4 +10,7 @@ Effects: `read` changes nothing; `write` changes the service; `destructive` dele
 
 | Group | Read with | Commands | read | write | destructive |
 |---|---|---|---|---|---|
-| Comments | `hubspot skill show api-comments` | 5 | 2 | 2 | 1 |
+| Advanced | `hubspot skill show api-advanced` | 4 | 0 | 0 | 4 |
+| Basic | `hubspot skill show api-basic` | 83 | 35 | 32 | 16 |
+| Batch | `hubspot skill show api-batch` | 59 | 0 | 46 | 13 |
+| Search | `hubspot skill show api-search` | 11 | 11 | 0 | 0 |

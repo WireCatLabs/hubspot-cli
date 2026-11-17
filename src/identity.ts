@@ -7,7 +7,7 @@ export const PACKAGE = "@wirecat/hubspot-cli"
 export const IDENTITY: AppIdentity = {
   command: "hubspot",
   appName: "hubspot-cli",
-  envPrefix: "HUBSPOT",
+  envPrefix: "WCHUBSPOT",
   description: "a new WireCat CLI, started from cli-template",
   version: VERSION,
   issues: "https://github.com/WireCatLabs/hubspot-cli/issues/new",
