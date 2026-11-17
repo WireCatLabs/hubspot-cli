@@ -6,7 +6,7 @@ import type { Pacer } from "@wirecat/cli-core/sends"
 import type { Command } from "commander"
 import { API, API_EXCLUDED, configuration } from "../config.js"
 import { contextOf, pacerFor, storedSignIn, tokenOf } from "../context.js"
-import { failureOf } from "../hubspot/transport.js"
+import { failureOf, isRecord, LONGEST_PACE_WAIT_MS } from "../hubspot/transport.js"
 import { DESKTOP, IDENTITY } from "../identity.js"
 
 /** What the error mapping needs of the command that sent the request; one command runs per process. */
@@ -14,9 +14,6 @@ interface Sent {
   now: () => number
   timeZone?: string | undefined
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value)
 
 /**
  * A 429 for the account's daily allowance ends the request at once: `retrying` would send it again within seconds,
@@ -60,8 +57,11 @@ export const apiCommand = (): Command => {
       sent.timeZone = signIn?.timeZone
       const pacer = pacerFor(command, signIn?.portalId)
       const send = hostFetch({ hosts: DESKTOP.hosts ?? [], ...(environment.fetch ? { fetch: environment.fetch } : {}) })
+      // A hold longer than this, such as the daily limit's until midnight, ends the command at once, as the CRM
+      // commands do, instead of sleeping in it.
       return retrying(stopAtDailyLimit(send, sent, pacer), {
         pacer,
+        budget: LONGEST_PACE_WAIT_MS,
         ...(environment.sleep ? { sleep: environment.sleep } : {}),
         ...(now ? { now: () => new Date(now()) } : {}),
       })

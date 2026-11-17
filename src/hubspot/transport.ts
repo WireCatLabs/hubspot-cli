@@ -18,10 +18,10 @@ export const SERVICE = "HubSpot"
 export const PACE = { perMinute: 240, burst: 1 }
 
 /** A third of a one-shot command's 30 s deadline, so a read that timed out can be tried again (amo-cli, bitrix24-cli). */
-const TIMEOUT_MS = 10_000
+export const TIMEOUT_MS = 10_000
 const LARGEST_ANSWER = 16 * 1024 * 1024
 /** A pace wait longer than this ends the run with `rate_limited` instead of sitting in it (amo-cli). */
-const LONGEST_PACE_WAIT_MS = 20_000
+export const LONGEST_PACE_WAIT_MS = 20_000
 /** The rolling window of the per-app limit, when HubSpot sends no header to say (usage-guidelines). */
 const WINDOW_MS = 10_000
 /** Search answers carry no rate-limit header (usage-guidelines); its limit is per second. */
@@ -69,7 +69,7 @@ const READING_POST = /\/(search|batch\/read)$/
 const SCOPE = /^[a-z][a-z0-9._-]{0,79}$/
 const CATEGORY = /^[A-Z][A-Z0-9_]{0,63}$/
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
 
 /** Where a refusal names scopes: the spec's `Error.context` and `ErrorDetail.context` examples, and HubSpot's own. */

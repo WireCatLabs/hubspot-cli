@@ -22,17 +22,18 @@ secretGroup = 1
 entropy = 3.5
 keywords = ["1//"]
 
-# A HubSpot private app token or service key: `pat-`, the account's data region, a UUID (HubSpot's private apps guide
-# shows `pat-na1-…`). The tests' fake is no UUID, and an all-zero first group is kept for made-up keys.
+# A HubSpot private app token or service key: `pat-`, the account's data region (any of them), a UUID (HubSpot's
+# private apps guide shows `pat-na1-…`). The tests' fake is no UUID, and an all-zero first group is kept for made-up
+# keys.
 [[rules]]
 id = "hubspot-key"
 description = "HubSpot private app token or service key"
-regex = '''\b(pat-(?:na|eu)\d+-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b'''
+regex = '''\b(pat-[a-z]{2}\d+-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b'''
 secretGroup = 1
-keywords = ["pat-na", "pat-eu"]
+keywords = ["pat-"]
 
 [[rules.allowlists]]
-regexes = ['''^pat-(?:na|eu)\d+-0{8}-''']
+regexes = ['''^pat-[a-z]{2}\d+-0{8}-''']
 
 # A CRM holds its clients' phone numbers and e-mail addresses; neither may reach a fixture, a doc or a capture.
 [[rules]]

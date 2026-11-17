@@ -23,6 +23,7 @@ needs no network.
 | `doctor` lists `files.problems` | Other users of the computer can read `config.json` or enter its folder. Run each `chmod` that `doctor` prints after "to make it private:". `doctor` never changes a file mode itself. |
 | "HubSpot refused the token" (`session.expired`) | The key was deleted, rotated or mistyped. Make a new one and run `hubspot work session start` again, as [install and connect](installation.md#make-a-key) shows. |
 | "the token lacks the … scope" (`hubspot.scope-missing`) | Add the scope the error names to the key in HubSpot. The key keeps working, no new sign-in needed. |
+| `WCHUBSPOT_TOKEN needs WCHUBSPOT_ACCOUNT` (`account.id-missing`) | Set `WCHUBSPOT_ACCOUNT` to the account's id beside the token. `session status --check` on a signed-in profile shows it as `account`. |
 | "already signs in to HubSpot account" (`session.duplicate`) | Another profile reads that account. Use that profile, or end its session first. |
 | "spent its daily API allowance" (`hubspot.daily-limit`) | Every app on the account shares one daily allowance. It comes back at midnight in the account's time zone, and the error says when. |
 | `owner:me` finds nothing | A key names no user. Filter by `owner:<owner id>` from `hubspot work users list`. |

@@ -1,8 +1,9 @@
-import { mkdtempSync } from "node:fs"
+import { mkdtempSync, readdirSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { memoryKeyring } from "@wirecat/cli-base"
+import { memoryKeyring, resolvePaths } from "@wirecat/cli-base"
 import { describe, expect, it } from "vitest"
+import { IDENTITY } from "../identity.js"
 import { openHubspotStore } from "../store.js"
 import { FAKE_TOKEN, seededHubspot } from "../testing/fake-hubspot.js"
 import { FAKE_ACCOUNT, hubspot } from "../testing/harness.js"
@@ -36,15 +37,28 @@ describe("the shared CRM commands over a HubSpot account", () => {
     }
   })
 
-  it("asks HubSpot which account WCHUBSPOT_TOKEN reads, and refuses --offline before it knows", async () => {
-    const env = { ...freshStore(), WCHUBSPOT_TOKEN: FAKE_TOKEN }
+  it("reads with WCHUBSPOT_TOKEN only beside WCHUBSPOT_ACCOUNT, paced with api by that account", async () => {
     const keyring = memoryKeyring()
-    const offline = await hubspot(["work", "deals", "list", "--offline", "--json"], { keyring, env })
-    expect(offline.json()).toMatchObject({ error: { reason: "offline.refused" } })
-    const synced = await hubspot(["work", "sync", "--json"], { keyring, env })
+    const alone = await hubspot(["work", "deals", "list", "--json"], {
+      keyring,
+      env: { ...freshStore(), WCHUBSPOT_TOKEN: FAKE_TOKEN },
+    })
+    expect(alone.json()).toMatchObject({ error: { code: "configuration_error", reason: "account.id-missing" } })
+    const env = { ...freshStore(), WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: FAKE_ACCOUNT }
+    const { hub: account } = seededHubspot()
+    const synced = await hubspot(["work", "sync", "--json"], { keyring, env, account })
     expect([synced.code, synced.err]).toEqual([0, ""])
-    const listed = await hubspot(["work", "deals", "list", "--offline", "--json"], { keyring, env })
+    const reading = seededHubspot().hub
+    const listed = await hubspot(["work", "deals", "list", "--json"], { keyring, env, account: reading })
     expect(titles(listed.json().items)).toHaveLength(3)
+    expect(reading.calls).toEqual([])
+    const api = await hubspot(["work", "api", "deals-list", "--json"], { keyring, env, account })
+    expect(api.code).toBe(0)
+    const paces = readdirSync(
+      join(resolvePaths({ appName: IDENTITY.appName, prefix: IDENTITY.envPrefix }).state, "pace"),
+    )
+    expect(paces).toContain(`account-${FAKE_ACCOUNT}.json`)
+    expect(paces).not.toContain("work.json")
   })
 
   it("a profile that ended its session names the command that signs it in", async () => {

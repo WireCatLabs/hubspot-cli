@@ -38,8 +38,9 @@ Decided 2026-11-17 with the plan in cli-private `plans/2026-11-16-cli-factory/hu
   second profile signing in to the same portal is refused (`session.duplicate`), so one copy is never synced twice.
 - **No user.** A key belongs to the account: the source has no `self`, the copy is the whole account, and every
   profile reads all of it offline (`user: null`). `owner:me` names nobody; the docs say to use `owner:<owner id>`.
-- **`WCHUBSPOT_TOKEN`** names no account: a CRM command asks `account-info` once per command, kept nowhere. Offline,
-  a command that needs the account refuses (`offline.refused`).
+- **`WCHUBSPOT_TOKEN`** needs `WCHUBSPOT_ACCOUNT`, the portal id, as amo's `AMO_TOKEN` needs `AMO_HOST`
+  (`account.id-missing` without it). No command asks HubSpot for the account, and `api` and the CRM commands share the
+  account's pace file. Its time zone is unknown, so the daily limit is counted to midnight UTC.
 - **No `hs` alias** in the store's provider registry: `hs` is HubSpot's own CLI.
 - **Leads** are mounted; an account without Sales Hub Professional answers 403 for them, which the source reports.
 - **Tickets** only through `api` (owner's decision 4 in the research).

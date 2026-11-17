@@ -29,6 +29,7 @@ describe("session start", () => {
       verified: true,
       account: FAKE_ACCOUNT,
       account_info: ACCOUNT_INFO,
+      user: null,
     })
     expect(ran.out + ran.err).not.toContain(FAKE_TOKEN)
     expect(account.calls.map((one) => one.url.pathname)).toEqual(["/account-info/2026-03/details"])
@@ -101,16 +102,28 @@ describe("session status, end and list", () => {
       verified: false,
     })
     const checked = await hubspot(["work", "session", "status", "--check", "--json"])
-    expect(checked.json().item).toMatchObject({ verified: true, account: FAKE_ACCOUNT, account_info: ACCOUNT_INFO })
+    expect(checked.json().item).toMatchObject({
+      verified: true,
+      account: FAKE_ACCOUNT,
+      account_info: ACCOUNT_INFO,
+      user: null,
+    })
     expect(checked.out).not.toContain(FAKE_TOKEN)
   })
 
-  it("takes WCHUBSPOT_TOKEN, which names no account until HubSpot is asked", async () => {
-    const env = { WCHUBSPOT_TOKEN: FAKE_TOKEN }
+  it("takes WCHUBSPOT_TOKEN with WCHUBSPOT_ACCOUNT, and refuses WCHUBSPOT_TOKEN alone", async () => {
+    const env = { WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: FAKE_ACCOUNT }
     const plain = await hubspot(["work", "session", "status", "--json"], { keyring: memoryKeyring(), env })
-    expect(plain.json().item).toMatchObject({ token_from: "environment", account: null, verified: false })
+    expect(plain.json().item).toMatchObject({ token_from: "environment", account: FAKE_ACCOUNT, verified: false })
     const checked = await hubspot(["work", "session", "status", "--check", "--json"], { keyring: memoryKeyring(), env })
     expect(checked.json().item).toMatchObject({ token_from: "environment", verified: true, account: FAKE_ACCOUNT })
+    const alone = await hubspot(["work", "session", "status", "--json"], {
+      keyring: memoryKeyring(),
+      env: { WCHUBSPOT_TOKEN: FAKE_TOKEN },
+    })
+    expect(alone.json()).toMatchObject({ error: { code: "configuration_error", reason: "account.id-missing" } })
+    expect(alone.err).toContain("WCHUBSPOT_ACCOUNT")
+    expect(alone.err).not.toContain(FAKE_TOKEN)
   })
 
   it("says missing for a profile that never signed in", async () => {
@@ -132,7 +145,7 @@ describe("session status, end and list", () => {
     const ran = await hubspot(["work", "session", "status", "--json"], {
       keyring: memoryKeyring({ "hubspot-cli:token:work": "pat-na1-bare" }),
     })
-    expect(ran.json()).toMatchObject({ error: { code: "configuration_error", reason: "session.malformed" } })
+    expect(ran.json()).toMatchObject({ error: { code: "configuration_error", reason: "session.unreadable" } })
     expect(ran.err).not.toContain("pat-na1-bare")
   })
 

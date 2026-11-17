@@ -9,8 +9,14 @@ import { hubspotTransport } from "../hubspot/transport.js"
 import { FAKE_TOKEN, type FakeHubspot, fakeHubspot, seededHubspot } from "../testing/fake-hubspot.js"
 import { fitted, hubspotCrmSource, MAX_PROPERTIES_CHARS, OVERLAP_MS } from "./source.js"
 
-const over = (hub: FakeHubspot, now: () => number = Date.now, page?: number, searchPage?: number) => {
-  const transport = hubspotTransport({ token: FAKE_TOKEN, fetch: hub.fetch, sleep: async () => {}, now })
+const over = (
+  hub: FakeHubspot,
+  now: () => number = Date.now,
+  page?: number,
+  searchPage?: number,
+  fetch: typeof globalThis.fetch = hub.fetch,
+) => {
+  const transport = hubspotTransport({ token: FAKE_TOKEN, fetch, sleep: async () => {}, now })
   return hubspotCrmSource(() => transport, {
     now,
     ...(page ? { page } : {}),
@@ -198,7 +204,8 @@ it("lists the pipelines' stages with their outcome from isClosed and probability
     ["closedlost", "lost"],
   ])
   const [leads] = await over(hub).pipelines("lead")
-  expect(leads?.stages.map((stage) => stage.outcome)).toEqual(["open", "lost", "lost"])
+  // HubSpot documents no won or lost for a lead stage: only its Disqualified one is lost.
+  expect(leads?.stages.map((stage) => stage.outcome)).toEqual(["open", "won", "lost"])
 })
 
 it("lists the owners, the deactivated ones as inactive, and the account's own fields with their options", async () => {
@@ -401,3 +408,93 @@ it("more activities than the search reaches at one moment are listed in full, no
   expect(hub.calls.some((call) => call.url.pathname === "/crm/objects/2026-03/tasks")).toBe(true)
   expect(hub.refusals).toEqual([])
 }, 60_000)
+
+it("a refused round of deal or contact changes fails, never reads as a finished empty round", async () => {
+  const { hub } = seededHubspot({ refuse: ["deals", "contacts"] })
+  const source = over(hub)
+  for (const kind of ["deal", "person"] as const) {
+    for (const cursor of [null, new Date().toISOString()])
+      await expect(source.changes(kind, cursor)).rejects.toMatchObject({ code: "permission_error" })
+    await expect(source.ids?.(kind)).rejects.toMatchObject({ code: "permission_error" })
+  }
+})
+
+it("an id pass answered without its results fails the sync, and the copy keeps its rows", async () => {
+  let now = Date.now()
+  const { hub } = seededHubspot()
+  const store = await openStore({ path: join(mkdtempSync(join(tmpdir(), "hubspot-empty-")), "store.db") })
+  stores.push(store)
+  const account = { provider: "hubspot", account: "4000001" }
+  const deals = async () => (await store.deals.list({ account, kind: "deal" })).items.length
+  await syncCrm(
+    over(hub, () => now),
+    store,
+    account,
+    { now },
+  )
+  expect(await deals()).toBe(3)
+  const bare: typeof fetch = async (input, init) => {
+    const url = new URL(String(input instanceof Request ? input.url : input))
+    if (url.pathname.endsWith("/0-3") && url.searchParams.get("properties") === "hs_object_id")
+      return new Response("{}", { status: 200, headers: { "content-type": "application/json" } })
+    return hub.fetch(input, init)
+  }
+  now += DAY
+  const report = await syncCrm(
+    over(hub, () => now, undefined, undefined, bare),
+    store,
+    account,
+    { now },
+  )
+  expect(report.synced.find((one) => one.kind === "deal")?.error).toBeDefined()
+  expect(report.state).toBe("partial")
+  expect(await deals()).toBe(3)
+})
+
+it("a round ends at its start: a row changed while a long round ran comes in the next round", async () => {
+  let clock = Date.parse("2026-11-17T10:00:00Z")
+  const { hub, ids } = seededHubspot({ now: () => clock })
+  const source = over(hub, () => clock, 1)
+  let page: string | undefined
+  let cursor: string | null = null
+  for (let read = 0; read < 10; read += 1) {
+    const answer = await source.changes("deal", null, page)
+    if ("reset" in answer) throw new Error("reset")
+    // Each page an eleven minutes' wait: the round outlasts the ten-minute overlap.
+    clock += 11 * 60_000
+    if (read === 0) hub.touch("deals", ids.kitchen, { dealname: "Example kitchen, changed mid-round" })
+    if (!answer.hasMore) {
+      cursor = answer.cursor ?? null
+      break
+    }
+    page = answer.nextCursor
+  }
+  expect(clock - Date.parse(String(cursor))).toBeGreaterThan(OVERLAP_MS * 2)
+  const next = await full<CrmItem>((at) => source.changes("deal", cursor, at))
+  expect(next.items.find((one) => one.externalId === ids.kitchen)?.title).toBe("Example kitchen, changed mid-round")
+})
+
+it("a full round with more of the account's own properties than fit one address names the ones left out", async () => {
+  const { hub } = seededHubspot()
+  for (let at = 0; at < 400; at += 1) hub.defineProperty(`example_custom_property_${at}`)
+  await full<CrmItem>((page) => over(hub).changes("deal", null, page, context))
+  expect(gaps).toContainEqual(expect.objectContaining({ kind: "deal" }))
+  const listed = hub.calls.filter((call) => call.url.pathname === "/crm/objects/2026-03/0-3")
+  expect(listed.every((call) => String(call.query.properties).length <= MAX_PROPERTIES_CHARS)).toBe(true)
+})
+
+it("a call still connecting or ringing the owner's phone is not done; a completed one is", async () => {
+  const hub = fakeHubspot()
+  for (const status of ["CONNECTING", "CALLING_CRM_USER", "QUEUED", "RINGING", "IN_PROGRESS", "COMPLETED", "NO_ANSWER"])
+    hub.put("calls", { hs_call_title: status, hs_call_status: status })
+  const read = await full<CrmActivity>((page) => over(hub).activities?.(0, page, context) ?? Promise.reject())
+  expect(Object.fromEntries(read.items.map((one) => [one.subject, one.done]))).toEqual({
+    CONNECTING: false,
+    CALLING_CRM_USER: false,
+    QUEUED: false,
+    RINGING: false,
+    IN_PROGRESS: false,
+    COMPLETED: true,
+    NO_ANSWER: true,
+  })
+})

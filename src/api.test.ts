@@ -1,4 +1,5 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs"
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { fakeApi, sampleOf } from "@wirecat/cli-base/codegen"
 import { apiFlagOf, manifestBaseUrl } from "@wirecat/cli-core/cli"
@@ -60,15 +61,26 @@ it("offers no write: api show names why one is missing, and the command does not
   expect(service.calls).toEqual([])
 })
 
-it("a daily limit ends the request at once with the account's reason, a scope refusal names the scope", async () => {
+/** Its own state folder, so the account's pace file and any hold in it start empty. */
+const ownState = () => ({ WCHUBSPOT_STATE_DIR: mkdtempSync(join(tmpdir(), "api-state-")) })
+
+it("a daily limit ends the request at once, and the next command on the account refuses before it sends", async () => {
+  const env = ownState()
   const { hub } = seededHubspot()
   hub.throttle("DAILY")
-  const daily = await hubspot(["work", "api", "deals-list", "--json"], { account: hub })
+  const daily = await hubspot(["work", "api", "deals-list", "--json"], { account: hub, env })
   expect(daily.json()).toMatchObject({ error: { code: "rate_limited", reason: "hubspot.daily-limit" } })
   expect(hub.calls).toHaveLength(1)
   expect(daily.err).not.toContain(FAKE_TOKEN)
+  const next = await hubspot(["work", "api", "deals-list", "--json"], { account: hub, env })
+  expect(next.json()).toMatchObject({ error: { code: "rate_limited" } })
+  expect(hub.calls).toHaveLength(1)
+})
+
+it("a scope refusal names the scope", async () => {
+  const { hub } = seededHubspot()
   hub.refuse("deals")
-  const scope = await hubspot(["work", "api", "deals-list", "--json"], { account: hub })
+  const scope = await hubspot(["work", "api", "deals-list", "--json"], { account: hub, env: ownState() })
   expect(scope.json()).toMatchObject({
     error: { code: "permission_error", reason: "hubspot.scope-missing", details: { scope: "crm.objects.deals.read" } },
   })
@@ -77,7 +89,7 @@ it("a daily limit ends the request at once with the account's reason, a scope re
 it("a ten-second limit is waited out and sent again", async () => {
   const { hub } = seededHubspot()
   hub.throttle("TEN_SECONDLY_ROLLING")
-  const ran = await hubspot(["work", "api", "deals-list", "--json"], { account: hub })
+  const ran = await hubspot(["work", "api", "deals-list", "--json"], { account: hub, env: ownState() })
   expect([ran.code, ran.err]).toEqual([0, ""])
   expect(hub.calls).toHaveLength(2)
 })

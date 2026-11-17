@@ -68,7 +68,7 @@ export const decodeSignIn = (secret: string): SignIn => {
   const found = typeof parsed === "object" && parsed !== null ? (parsed as Record<string, unknown>) : {}
   if (typeof found.token !== "string" || !found.token || typeof found.portalId !== "string" || !found.portalId)
     throw new CliError("configuration_error", "the saved sign-in is not one hubspot wrote; run session start again", {
-      reason: "session.malformed",
+      reason: "session.unreadable",
     })
   return {
     token: found.token,
@@ -79,15 +79,26 @@ export const decodeSignIn = (secret: string): SignIn => {
   }
 }
 
-/** `WCHUBSPOT_TOKEN` first, which names no account, then the saved sign-in; read with no network. */
-export const storedSignIn = (
-  command: Command,
-): (Omit<SignIn, "portalId"> & { portalId: string | null }) | undefined => {
-  const { profile, tokens } = contextOf(command)
+export const ACCOUNT_VARIABLE = `${IDENTITY.envPrefix}_ACCOUNT`
+
+/**
+ * `WCHUBSPOT_TOKEN` first, as for every token CLI, with `WCHUBSPOT_ACCOUNT` naming its account (the portal id), as
+ * amo's token needs `AMO_HOST`; then the saved sign-in. Read with no network. A token from the environment has no
+ * time zone, so its daily limit is counted to midnight UTC.
+ */
+export const storedSignIn = (command: Command): SignIn | undefined => {
+  const { env, profile, tokens } = contextOf(command)
   const stored = tokens.read(profile)
   if (!stored) return undefined
-  if (stored.source === "environment") return { token: stored.secret, portalId: null, uiDomain: null }
-  return decodeSignIn(stored.secret)
+  if (stored.source !== "environment") return decodeSignIn(stored.secret)
+  const portalId = env[ACCOUNT_VARIABLE]?.trim()
+  if (!portalId || !/^\d+$/.test(portalId))
+    throw new CliError(
+      "configuration_error",
+      `${tokens.variable} needs ${ACCOUNT_VARIABLE}, the HubSpot account's id (session status --check shows it)`,
+      { reason: "account.id-missing" },
+    )
+  return { token: stored.secret, portalId, uiDomain: null }
 }
 
 /** The sign-in a request uses, or cli-core's `session.missing` refusal that names the command to sign in. */
@@ -105,10 +116,9 @@ export const tokenOf = (command: Command): string => signInOf(command).token
 
 /**
  * HubSpot counts its limits per account, so every process on one account waits in one queue, whichever profile or
- * `WCHUBSPOT_TOKEN` it reads with. An account not known yet (a first sign-in, a token from the environment) paces by
- * the profile.
+ * `WCHUBSPOT_TOKEN` it reads with. Only a first sign-in, whose account is not known yet, paces by the profile.
  */
-export const pacerFor = (command: Command, portalId: string | null | undefined) => {
+export const pacerFor = (command: Command, portalId: string | undefined) => {
   const { environment, env, profile } = contextOf(command)
   return new Pacer(pacePathFor(IDENTITY, portalId ? `account-${portalId}` : profile, env), PACE, environment.now)
 }
@@ -116,7 +126,7 @@ export const pacerFor = (command: Command, portalId: string | null | undefined) 
 /** The transport for one run, paced with the api group by the account. */
 export const hubFor = (
   command: Command,
-  { token, portalId, timeZone }: { token: string; portalId?: string | null; timeZone?: string | undefined },
+  { token, portalId, timeZone }: { token: string; portalId?: string; timeZone?: string | undefined },
   events?: EventSink,
 ): HubSpotTransport => {
   const { environment } = contextOf(command)

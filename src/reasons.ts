@@ -7,7 +7,7 @@ const CORE = new Set(CORE_REASONS.map((one) => one.reason))
 /** hubspot's own reasons; the shared ones (`offline.refused`, `session.missing`) are cli-core's. */
 const OWN: [reason: string, code: string, message: string][] = [
   ["session.duplicate", "conflict", "another profile here already signs in to this HubSpot account"],
-  ["session.malformed", "configuration_error", "the profile's saved sign-in is not one hubspot wrote; sign in again"],
+  ["account.id-missing", "configuration_error", "WCHUBSPOT_TOKEN needs WCHUBSPOT_ACCOUNT, the HubSpot account's id"],
   ["account-remove.account-shared", "conflict", "another profile reads the same account, whose copy the store shares"],
   ["session.expired", "authentication_error", "HubSpot refused the key: it was revoked, expired or mistyped"],
   ["hubspot.scope-missing", "permission_error", "the HubSpot key lacks a scope this command needs"],

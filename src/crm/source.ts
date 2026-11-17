@@ -245,7 +245,10 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
   }
   const everyLink = (type: ObjectType) => [...type.associations, ...type.linked]
 
-  /** The GET query's properties, the ones that do not fit named as a gap. */
+  /**
+   * The GET query's properties, the ones that do not fit named as a gap. Only a GET is capped: a change round's search
+   * sends them in a POST body and asks every one, so a property a full round left out still arrives with a change.
+   */
   const getProperties = (kind: CrmKind, defined: readonly CrmField[], context?: CrmCallContext) => {
     const { properties, dropped } = fitted(
       OBJECTS[kind].properties,
@@ -315,7 +318,7 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
       try {
         const body = await metered(context).get(`/crm/pipelines/2026-03/${PIPELINES[kind]}`)
         return resultsOf(body).flatMap((raw): CrmPipeline[] => {
-          const pipeline = toPipeline(raw)
+          const pipeline = toPipeline(raw, kind)
           return pipeline ? [pipeline] : []
         })
       } catch (error) {

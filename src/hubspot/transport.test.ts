@@ -1,8 +1,20 @@
 import type { Pacer } from "@wirecat/cli-core/sends"
-import { expect, it } from "vitest"
+import { afterEach, expect, it, vi } from "vitest"
+import { DESKTOP } from "../identity.js"
 import { FAKE_PORTAL, FAKE_TOKEN, fakeHubspot, seededHubspot } from "../testing/fake-hubspot.js"
 import { accountDetails } from "./account.js"
-import { failureOf, hubspotTransport, untilNextDay } from "./transport.js"
+import {
+  failureOf,
+  HUBSPOT_API,
+  hubspotTransport,
+  LONGEST_PACE_WAIT_MS,
+  TIMEOUT_MS,
+  untilNextDay,
+} from "./transport.js"
+
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 const silent = async (_url: unknown, init?: RequestInit) =>
   new Promise<Response>((_, reject) => init?.signal?.addEventListener("abort", () => reject(init.signal?.reason)))
@@ -187,4 +199,48 @@ it("counts the next midnight in the account's own zone, across a change of summe
   expect(untilNextDay(Date.parse("2026-03-28T22:00:00Z"), "Europe/Madrid")).toBe(3_600_000)
   // 2026-10-25 has 25 hours in Madrid: from 00:30 that day, the next midnight is 24.5 hours away.
   expect(untilNextDay(Date.parse("2026-10-24T22:30:00Z"), "Europe/Madrid")).toBe(24.5 * 3_600_000)
+})
+
+it("a pace wait longer than 20 s ends rate_limited without sending anything", async () => {
+  const hub = fakeHubspot()
+  const now = Date.parse("2026-11-17T10:00:00Z")
+  const pacer = { reserve: async () => now + LONGEST_PACE_WAIT_MS + 1 } as unknown as Pacer
+  await expect(transportOver(hub, { now: () => now, pacer }).get(COMPANIES)).rejects.toMatchObject({
+    code: "rate_limited",
+  })
+  expect(LONGEST_PACE_WAIT_MS).toBe(20_000)
+  expect(hub.calls).toEqual([])
+})
+
+it("a request that never answers ends as a timeout after 10 s, each try of it", async () => {
+  vi.useFakeTimers()
+  let sent = 0
+  const counted = (url: unknown, init?: RequestInit) => {
+    sent += 1
+    return silent(url, init)
+  }
+  const ended = hubspotTransport({ token: FAKE_TOKEN, fetch: counted, sleep: async () => {} })
+    .get(COMPANIES)
+    .catch((error: unknown) => error)
+  await vi.advanceTimersByTimeAsync(TIMEOUT_MS - 1)
+  expect(sent).toBe(1)
+  await vi.advanceTimersByTimeAsync(1)
+  for (let tries = 1; tries < 4; tries += 1) await vi.advanceTimersByTimeAsync(TIMEOUT_MS)
+  expect(await ended).toMatchObject({ code: "timeout" })
+  expect(sent).toBe(4)
+  expect(TIMEOUT_MS).toBe(10_000)
+})
+
+it("reaches only HubSpot's API host: the list wcat shows is that one host", async () => {
+  expect(DESKTOP.hosts).toEqual([new URL(HUBSPOT_API).hostname])
+  const hosts: string[] = []
+  const hub = fakeHubspot()
+  await hubspotTransport({
+    token: FAKE_TOKEN,
+    fetch: (input, init) => {
+      hosts.push(new URL(String(input instanceof Request ? input.url : input)).hostname)
+      return hub.fetch(input, init)
+    },
+  }).get(COMPANIES)
+  expect(hosts).toEqual(["api.hubapi.com"])
 })

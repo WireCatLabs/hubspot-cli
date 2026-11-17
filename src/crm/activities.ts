@@ -26,8 +26,16 @@ interface Engagement {
   done: (properties: Raw) => boolean
 }
 
-/** A call not over yet (calls guide, `hs_call_status`). */
-const CALL_OPEN = ["SCHEDULED", "QUEUED", "RINGING", "IN_PROGRESS", "CONNECTING", "CALLING_CRM_USER"]
+/**
+ * A call not over yet, of the `hs_call_status` values BUSY, CALLING_CRM_USER, CANCELED, COMPLETED, CONNECTING, FAILED,
+ * IN_PROGRESS, NO_ANSWER, QUEUED and RINGING (https://developers.hubspot.com/docs/api-reference/latest/crm/activities/calls/guide).
+ */
+export const CALL_OPEN = ["CALLING_CRM_USER", "CONNECTING", "IN_PROGRESS", "QUEUED", "RINGING"]
+/**
+ * An e-mail not sent yet, of BOUNCED, FAILED, SCHEDULED, SENDING and SENT
+ * (https://developers.hubspot.com/docs/api-reference/latest/crm/activities/emails/guide).
+ */
+const EMAIL_OPEN = ["SCHEDULED", "SENDING"]
 
 const COMMON = ["hubspot_owner_id", "hs_timestamp", "hs_createdate", "hs_lastmodifieddate"]
 
@@ -79,7 +87,7 @@ const ENGAGEMENTS: readonly Engagement[] = [
     subject: (properties) => text(properties.hs_email_subject),
     body: (properties) => text(properties.hs_email_text),
     dueAt: () => null,
-    done: (properties) => !["SCHEDULED", "SENDING"].includes(text(properties.hs_email_status) ?? ""),
+    done: (properties) => !EMAIL_OPEN.includes(text(properties.hs_email_status) ?? ""),
   },
   {
     type: "meetings",
@@ -89,7 +97,9 @@ const ENGAGEMENTS: readonly Engagement[] = [
     subject: (properties) => text(properties.hs_meeting_title),
     body: (properties) => plain(properties.hs_meeting_body),
     dueAt: (properties) => msOf(properties.hs_meeting_start_time),
-    done: (properties) => text(properties.hs_meeting_outcome) === "COMPLETED",
+    // "scheduled, completed, rescheduled, no show, and canceled", in prose and lower case
+    // (https://developers.hubspot.com/docs/api-reference/latest/crm/activities/meetings/guide).
+    done: (properties) => text(properties.hs_meeting_outcome)?.toUpperCase() === "COMPLETED",
   },
   {
     type: "tasks",
@@ -99,6 +109,7 @@ const ENGAGEMENTS: readonly Engagement[] = [
     subject: (properties) => text(properties.hs_task_subject),
     body: (properties) => plain(properties.hs_task_body),
     dueAt: (properties) => msOf(properties.hs_timestamp),
+    // COMPLETED or NOT_STARTED (https://developers.hubspot.com/docs/api-reference/latest/crm/activities/tasks/guide).
     done: (properties) => text(properties.hs_task_status) === "COMPLETED",
   },
 ]
