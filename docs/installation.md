@@ -14,12 +14,21 @@ and whether other users of the computer can read the settings.
 
 ## Make a key
 
-`hubspot` signs in with a key that belongs to one HubSpot account. A super admin makes it once:
+`hubspot` signs in with a key that belongs to one HubSpot account. A super admin, or a user with HubSpot's
+**Developer tools access** permission, makes it once
+([HubSpot's guide](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/authentication/account-service-keys)):
 
-- **A service key**, which HubSpot recommends for one account: Development → Keys → Service keys → create a key
-  ([HubSpot's guide](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/authentication/account-service-keys)).
-- **Or a legacy private app's access token**, which still works
-  ([HubSpot's guide](https://developers.hubspot.com/docs/apps/legacy-apps/private-apps/overview)).
+1. Open **Development**, then **Keys → Service keys** in the left menu. Some accounts show it under **Settings →
+   Integrations → Service keys** instead.
+2. Click **Create service key** and name it *WireCat*.
+3. Click **Add new scope**, tick each scope in the table below, and click **Update**. A key gets only the scopes its
+   maker has.
+4. Click **Create** and confirm.
+5. Click the key's name, then **Show** and **Copy**. The key starts with `pat-`.
+
+HubSpot stopped new private apps on 26 October 2026
+([HubSpot's notice](https://developers.hubspot.com/changelog/legacy-private-app-creation-sunset)). An existing private
+app's access token still works: give the app the same scopes and copy the token from its **Auth** tab.
 
 Give it read scopes only ([HubSpot's list of scopes](https://developers.hubspot.com/docs/apps/legacy-apps/authentication/scopes)):
 
@@ -46,7 +55,8 @@ The key is read hidden, or from stdin (`hubspot work session start < key.txt`), 
 HubSpot which account the key belongs to, and keeps the key with the account's id in the system keyring, or in a file
 only you can read with `--credential-storage file`. A second profile on the same account is refused.
 
-`hubspot work setup` asks the same questions step by step, and WireCat Desktop shows the same steps.
+`hubspot work setup` asks the same questions step by step. WireCat Desktop shows the same steps: it draws them from
+one JSON document the CLI prints, `hubspot work setup show --json`, in English, Spanish or Russian.
 
 `WCHUBSPOT_TOKEN` in the environment takes the place of the saved key for every profile, as in CI. Set
 `WCHUBSPOT_ACCOUNT` beside it to the account's id: `hubspot work session status --check` with the token alone prints it
