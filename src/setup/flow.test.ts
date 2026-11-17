@@ -73,4 +73,19 @@ describe("the setup flow", () => {
     expect(none.code).not.toBe(0)
     expect(none.error()).toMatchObject({ code: "validation_error" })
   })
+  it("apply --dry-run saves nothing; apply saves as run apply does, and show then reports the key as set", async () => {
+    const env = { WCHUBSPOT_CONFIG_DIR: mkdtempSync(join(tmpdir(), "hubspot-setup-")) }
+    const keyring = memoryKeyring()
+    const stdin = JSON.stringify({ token: FAKE_TOKEN })
+    const dry = await hubspot(["work", "setup", "apply", "--dry-run", "--json"], { keyring, env, stdin })
+    expect(dry.json()).toMatchObject({ item: { valid: true, at: "check", errors: [] } })
+    expect(new ProfileTokenStore({ app: IDENTITY, env: {}, keyring }).signedIn("work")).toBe(false)
+    const saved = await hubspot(["work", "setup", "apply", "--json"], { keyring, env, stdin })
+    expect(saved.json()).toMatchObject({ item: { outcome: "ok", secrets: ["token"], account: FAKE_ACCOUNT } })
+    const shown = await hubspot(["work", "setup", "show", "--json"], { keyring, env })
+    expect(shown.json()).toMatchObject({
+      item: { format: "wirecat.setup", start: "key", values: { token: { set: true } } },
+    })
+    expect(shown.out).not.toContain(FAKE_TOKEN)
+  })
 })

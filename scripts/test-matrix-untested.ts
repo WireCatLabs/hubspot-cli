@@ -2,9 +2,60 @@ const SHARED_MCP =
   "cli-core's appMcpCommand; its app-mcp-command and mcp-server-command tests drive it, and src/mcp.test.ts runs " +
   "this CLI's own server, config, revoke and refusals"
 const SHARED_REPORTS = "cli-core's appDoctorCommand; its app-mcp-command test creates and shows a report"
+const SHARED_STORE =
+  "cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests " +
+  "drive them on a CRM program"
+const SHARED_SCHEDULE =
+  "cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, " +
+  "lists, runs and removes hubspot's sync timer"
 const LONG_RUNNING = `starts an HTTP server or a background process that runs until stopped; ${SHARED_MCP}`
 
 export const UNTESTED: { command: string; option?: string; reason: string }[] = [
+  ...[
+    ...["--at-time", "--notify-on", "--deliver-to"].map((option) => ({ command: "schedule command", option })),
+    { command: "schedule agent" },
+    ...[
+      "--model",
+      "--max-cost",
+      "--allow-dangerous",
+      "--max-cost-per-day",
+      "--every",
+      "--at",
+      "--at-time",
+      "--notify-on",
+      "--deliver-to",
+    ].map((option) => ({ command: "schedule agent", option })),
+    ...["--no-notify", "--deliver-to"].map((option) => ({ command: "schedule run", option })),
+    { command: "schedule pause" },
+    { command: "schedule resume" },
+    { command: "schedule agents list" },
+  ].map((one) => ({ ...one, reason: SHARED_SCHEDULE })),
+  {
+    command: "setup",
+    reason:
+      "cli-core's setupCommand asks the flow's questions in a terminal; its setup-command tests drive that, and " +
+      "src/setup/flow.test.ts runs this flow through setup apply and setup run apply",
+  },
+  ...[
+    ["store info"],
+    ["store check"],
+    ["store migrate"],
+    ["store rebuild"],
+    ["store backup"],
+    ["store backup", "--encrypt"],
+    ["store restore"],
+    ["store decrypt"],
+    ["store decrypt", "--output"],
+    ["store repair"],
+    ["store repair", "--dry-run"],
+    ["store reset"],
+    ["store reset", "--no-backup"],
+    ["store reset", "--dry-run"],
+    ["store copies delete"],
+    ["store tables list"],
+    ["store recover"],
+    ["store recover run"],
+  ].map(([command, option]) => ({ command: command ?? "", ...(option ? { option } : {}), reason: SHARED_STORE })),
   {
     command: "",
     option: "--help-all",

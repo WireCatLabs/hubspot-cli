@@ -7,7 +7,7 @@ ran it · ⛔ not tested offline, with the reason and where it is checked instea
 Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 [TESTING.md](TESTING.md) for how, and for the states and failures that cut across commands.
 
-**71 ✅ · 24 ⛔ · 0 ❌** — 34 commands, 61 options.
+**436 ✅ · 61 ⛔ · 0 ❌** — 137 commands, 360 options.
 
 | Command | Option | | Note |
 |---|---|---|---|
@@ -19,15 +19,411 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `session status` | `--check` | ✅ |  |
 | `session end` |  | ✅ |  |
 | `session list` |  | ✅ |  |
-| `comments list` |  | ✅ |  |
-| `comments list` | `--limit` | ✅ |  |
-| `comments list` | `--page` | ✅ |  |
-| `comments list` | `--all` | ✅ |  |
-| `comments show` |  | ✅ |  |
-| `comments create` |  | ✅ |  |
-| `comments create` | `--text` | ✅ |  |
-| `comments update` |  | ✅ |  |
-| `comments update` | `--text` | ✅ |  |
+| `account remove` |  | ✅ |  |
+| `account remove` | `--keep-data` | ✅ |  |
+| `account remove` | `--delete-data` | ✅ |  |
+| `account remove` | `--dry-run` | ✅ |  |
+| `sync` |  | ✅ |  |
+| `sync` | `--rescan` | ✅ |  |
+| `sync` | `--max-pages` | ✅ |  |
+| `store status` |  | ✅ |  |
+| `store apply` |  | ✅ |  |
+| `store apply` | `--yes` | ✅ |  |
+| `store info` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store check` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store migrate` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store rebuild` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store backup` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store backup` | `--encrypt` | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store restore` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store decrypt` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store decrypt` | `--output` | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store repair` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store repair` | `--dry-run` | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store reset` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store reset` | `--no-backup` | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store reset` | `--dry-run` | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store copies delete` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store tables list` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store recover` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `store recover run` |  | ⛔ | cli-core's addStoreMaintenanceCommands, mounted by addCrmCommands; its store and src/crm/cli/store-file tests drive them on a CRM program |
+| `deals list` |  | ✅ |  |
+| `deals list` | `--limit` | ✅ |  |
+| `deals list` | `--page` | ✅ |  |
+| `deals list` | `--format` | ✅ |  |
+| `deals show` |  | ✅ |  |
+| `leads list` |  | ✅ |  |
+| `leads list` | `--limit` | ✅ |  |
+| `leads list` | `--page` | ✅ |  |
+| `leads list` | `--format` | ✅ |  |
+| `leads show` |  | ✅ |  |
+| `pipelines list` |  | ✅ |  |
+| `pipelines show` |  | ✅ |  |
+| `pipelines show` | `--since-time` | ✅ |  |
+| `pipelines show` | `--until-time` | ✅ |  |
+| `stages list` |  | ✅ |  |
+| `people list` |  | ✅ |  |
+| `people list` | `--limit` | ✅ |  |
+| `people list` | `--page` | ✅ |  |
+| `people list` | `--format` | ✅ |  |
+| `people show` |  | ✅ |  |
+| `organizations list` |  | ✅ |  |
+| `organizations list` | `--limit` | ✅ |  |
+| `organizations list` | `--page` | ✅ |  |
+| `organizations list` | `--format` | ✅ |  |
+| `organizations show` |  | ✅ |  |
+| `users list` |  | ✅ |  |
+| `users list` | `--limit` | ✅ |  |
+| `users list` | `--page` | ✅ |  |
+| `users show` |  | ✅ |  |
+| `activities list` |  | ✅ |  |
+| `activities list` | `--limit` | ✅ |  |
+| `activities list` | `--page` | ✅ |  |
+| `changes list` |  | ✅ |  |
+| `changes list` | `--limit` | ✅ |  |
+| `changes list` | `--cursor` | ✅ |  |
+| `changes list` | `--format` | ✅ |  |
+| `fields list` |  | ✅ |  |
+| `fields list` | `--limit` | ✅ |  |
+| `fields list` | `--page` | ✅ |  |
+| `fields list` | `--all` | ✅ |  |
+| `search all` |  | ✅ |  |
+| `search all` | `--only` | ✅ |  |
+| `search all` | `--source` | ✅ |  |
+| `search all` | `--limit` | ✅ |  |
+| `search all` | `--page` | ✅ |  |
+| `search all` | `--exact` | ✅ |  |
+| `search all` | `--timezone` | ✅ |  |
+| `api list` |  | ✅ |  |
+| `api show` |  | ✅ |  |
+| `api contacts-list` |  | ✅ |  |
+| `api contacts-list` | `--after` | ✅ |  |
+| `api contacts-list` | `--archived` | ✅ |  |
+| `api contacts-list` | `--associations` | ✅ |  |
+| `api contacts-list` | `--limit` | ✅ |  |
+| `api contacts-list` | `--properties` | ✅ |  |
+| `api contacts-list` | `--properties-with-history` | ✅ |  |
+| `api contacts-list` | `--all` | ✅ |  |
+| `api contacts-batch-read` |  | ✅ |  |
+| `api contacts-batch-read` | `--archived` | ✅ |  |
+| `api contacts-batch-read` | `--body` | ✅ |  |
+| `api contacts-batch-read` | `--body-file` | ✅ |  |
+| `api contacts-search` |  | ✅ |  |
+| `api contacts-search` | `--body` | ✅ |  |
+| `api contacts-search` | `--body-file` | ✅ |  |
+| `api contacts-search` | `--all` | ✅ |  |
+| `api contacts-get` |  | ✅ |  |
+| `api contacts-get` | `--contact-id` | ✅ |  |
+| `api contacts-get` | `--archived` | ✅ |  |
+| `api contacts-get` | `--associations` | ✅ |  |
+| `api contacts-get` | `--id-property` | ✅ |  |
+| `api contacts-get` | `--properties` | ✅ |  |
+| `api contacts-get` | `--properties-with-history` | ✅ |  |
+| `api companies-list` |  | ✅ |  |
+| `api companies-list` | `--after` | ✅ |  |
+| `api companies-list` | `--archived` | ✅ |  |
+| `api companies-list` | `--associations` | ✅ |  |
+| `api companies-list` | `--limit` | ✅ |  |
+| `api companies-list` | `--properties` | ✅ |  |
+| `api companies-list` | `--properties-with-history` | ✅ |  |
+| `api companies-list` | `--all` | ✅ |  |
+| `api companies-batch-read` |  | ✅ |  |
+| `api companies-batch-read` | `--archived` | ✅ |  |
+| `api companies-batch-read` | `--body` | ✅ |  |
+| `api companies-batch-read` | `--body-file` | ✅ |  |
+| `api companies-search` |  | ✅ |  |
+| `api companies-search` | `--body` | ✅ |  |
+| `api companies-search` | `--body-file` | ✅ |  |
+| `api companies-search` | `--all` | ✅ |  |
+| `api companies-get` |  | ✅ |  |
+| `api companies-get` | `--company-id` | ✅ |  |
+| `api companies-get` | `--archived` | ✅ |  |
+| `api companies-get` | `--associations` | ✅ |  |
+| `api companies-get` | `--id-property` | ✅ |  |
+| `api companies-get` | `--properties` | ✅ |  |
+| `api companies-get` | `--properties-with-history` | ✅ |  |
+| `api deals-list` |  | ✅ |  |
+| `api deals-list` | `--after` | ✅ |  |
+| `api deals-list` | `--archived` | ✅ |  |
+| `api deals-list` | `--associations` | ✅ |  |
+| `api deals-list` | `--limit` | ✅ |  |
+| `api deals-list` | `--properties` | ✅ |  |
+| `api deals-list` | `--properties-with-history` | ✅ |  |
+| `api deals-list` | `--all` | ✅ |  |
+| `api deals-batch-read` |  | ✅ |  |
+| `api deals-batch-read` | `--archived` | ✅ |  |
+| `api deals-batch-read` | `--body` | ✅ |  |
+| `api deals-batch-read` | `--body-file` | ✅ |  |
+| `api deals-search` |  | ✅ |  |
+| `api deals-search` | `--body` | ✅ |  |
+| `api deals-search` | `--body-file` | ✅ |  |
+| `api deals-search` | `--all` | ✅ |  |
+| `api deals-get` |  | ✅ |  |
+| `api deals-get` | `--deal-id` | ✅ |  |
+| `api deals-get` | `--archived` | ✅ |  |
+| `api deals-get` | `--associations` | ✅ |  |
+| `api deals-get` | `--id-property` | ✅ |  |
+| `api deals-get` | `--properties` | ✅ |  |
+| `api deals-get` | `--properties-with-history` | ✅ |  |
+| `api tickets-list` |  | ✅ |  |
+| `api tickets-list` | `--after` | ✅ |  |
+| `api tickets-list` | `--archived` | ✅ |  |
+| `api tickets-list` | `--associations` | ✅ |  |
+| `api tickets-list` | `--limit` | ✅ |  |
+| `api tickets-list` | `--properties` | ✅ |  |
+| `api tickets-list` | `--properties-with-history` | ✅ |  |
+| `api tickets-list` | `--all` | ✅ |  |
+| `api tickets-batch-read` |  | ✅ |  |
+| `api tickets-batch-read` | `--archived` | ✅ |  |
+| `api tickets-batch-read` | `--body` | ✅ |  |
+| `api tickets-batch-read` | `--body-file` | ✅ |  |
+| `api tickets-search` |  | ✅ |  |
+| `api tickets-search` | `--body` | ✅ |  |
+| `api tickets-search` | `--body-file` | ✅ |  |
+| `api tickets-search` | `--all` | ✅ |  |
+| `api tickets-get` |  | ✅ |  |
+| `api tickets-get` | `--ticket-id` | ✅ |  |
+| `api tickets-get` | `--archived` | ✅ |  |
+| `api tickets-get` | `--associations` | ✅ |  |
+| `api tickets-get` | `--id-property` | ✅ |  |
+| `api tickets-get` | `--properties` | ✅ |  |
+| `api tickets-get` | `--properties-with-history` | ✅ |  |
+| `api leads-list` |  | ✅ |  |
+| `api leads-list` | `--after` | ✅ |  |
+| `api leads-list` | `--archived` | ✅ |  |
+| `api leads-list` | `--associations` | ✅ |  |
+| `api leads-list` | `--limit` | ✅ |  |
+| `api leads-list` | `--properties` | ✅ |  |
+| `api leads-list` | `--properties-with-history` | ✅ |  |
+| `api leads-list` | `--all` | ✅ |  |
+| `api leads-batch-read` |  | ✅ |  |
+| `api leads-batch-read` | `--archived` | ✅ |  |
+| `api leads-batch-read` | `--body` | ✅ |  |
+| `api leads-batch-read` | `--body-file` | ✅ |  |
+| `api leads-search` |  | ✅ |  |
+| `api leads-search` | `--body` | ✅ |  |
+| `api leads-search` | `--body-file` | ✅ |  |
+| `api leads-search` | `--all` | ✅ |  |
+| `api leads-get` |  | ✅ |  |
+| `api leads-get` | `--leads-id` | ✅ |  |
+| `api leads-get` | `--archived` | ✅ |  |
+| `api leads-get` | `--associations` | ✅ |  |
+| `api leads-get` | `--id-property` | ✅ |  |
+| `api leads-get` | `--properties` | ✅ |  |
+| `api leads-get` | `--properties-with-history` | ✅ |  |
+| `api notes-list` |  | ✅ |  |
+| `api notes-list` | `--after` | ✅ |  |
+| `api notes-list` | `--archived` | ✅ |  |
+| `api notes-list` | `--associations` | ✅ |  |
+| `api notes-list` | `--limit` | ✅ |  |
+| `api notes-list` | `--properties` | ✅ |  |
+| `api notes-list` | `--properties-with-history` | ✅ |  |
+| `api notes-list` | `--all` | ✅ |  |
+| `api notes-batch-read` |  | ✅ |  |
+| `api notes-batch-read` | `--archived` | ✅ |  |
+| `api notes-batch-read` | `--body` | ✅ |  |
+| `api notes-batch-read` | `--body-file` | ✅ |  |
+| `api notes-search` |  | ✅ |  |
+| `api notes-search` | `--body` | ✅ |  |
+| `api notes-search` | `--body-file` | ✅ |  |
+| `api notes-search` | `--all` | ✅ |  |
+| `api notes-get` |  | ✅ |  |
+| `api notes-get` | `--note-id` | ✅ |  |
+| `api notes-get` | `--archived` | ✅ |  |
+| `api notes-get` | `--associations` | ✅ |  |
+| `api notes-get` | `--id-property` | ✅ |  |
+| `api notes-get` | `--properties` | ✅ |  |
+| `api notes-get` | `--properties-with-history` | ✅ |  |
+| `api calls-list` |  | ✅ |  |
+| `api calls-list` | `--after` | ✅ |  |
+| `api calls-list` | `--archived` | ✅ |  |
+| `api calls-list` | `--associations` | ✅ |  |
+| `api calls-list` | `--limit` | ✅ |  |
+| `api calls-list` | `--properties` | ✅ |  |
+| `api calls-list` | `--properties-with-history` | ✅ |  |
+| `api calls-list` | `--all` | ✅ |  |
+| `api calls-batch-read` |  | ✅ |  |
+| `api calls-batch-read` | `--archived` | ✅ |  |
+| `api calls-batch-read` | `--body` | ✅ |  |
+| `api calls-batch-read` | `--body-file` | ✅ |  |
+| `api calls-search` |  | ✅ |  |
+| `api calls-search` | `--body` | ✅ |  |
+| `api calls-search` | `--body-file` | ✅ |  |
+| `api calls-search` | `--all` | ✅ |  |
+| `api calls-get` |  | ✅ |  |
+| `api calls-get` | `--call-id` | ✅ |  |
+| `api calls-get` | `--archived` | ✅ |  |
+| `api calls-get` | `--associations` | ✅ |  |
+| `api calls-get` | `--id-property` | ✅ |  |
+| `api calls-get` | `--properties` | ✅ |  |
+| `api calls-get` | `--properties-with-history` | ✅ |  |
+| `api emails-list` |  | ✅ |  |
+| `api emails-list` | `--after` | ✅ |  |
+| `api emails-list` | `--archived` | ✅ |  |
+| `api emails-list` | `--associations` | ✅ |  |
+| `api emails-list` | `--limit` | ✅ |  |
+| `api emails-list` | `--properties` | ✅ |  |
+| `api emails-list` | `--properties-with-history` | ✅ |  |
+| `api emails-list` | `--all` | ✅ |  |
+| `api emails-batch-read` |  | ✅ |  |
+| `api emails-batch-read` | `--archived` | ✅ |  |
+| `api emails-batch-read` | `--body` | ✅ |  |
+| `api emails-batch-read` | `--body-file` | ✅ |  |
+| `api emails-search` |  | ✅ |  |
+| `api emails-search` | `--body` | ✅ |  |
+| `api emails-search` | `--body-file` | ✅ |  |
+| `api emails-search` | `--all` | ✅ |  |
+| `api emails-get` |  | ✅ |  |
+| `api emails-get` | `--email-id` | ✅ |  |
+| `api emails-get` | `--archived` | ✅ |  |
+| `api emails-get` | `--associations` | ✅ |  |
+| `api emails-get` | `--id-property` | ✅ |  |
+| `api emails-get` | `--properties` | ✅ |  |
+| `api emails-get` | `--properties-with-history` | ✅ |  |
+| `api meetings-list` |  | ✅ |  |
+| `api meetings-list` | `--after` | ✅ |  |
+| `api meetings-list` | `--archived` | ✅ |  |
+| `api meetings-list` | `--associations` | ✅ |  |
+| `api meetings-list` | `--limit` | ✅ |  |
+| `api meetings-list` | `--properties` | ✅ |  |
+| `api meetings-list` | `--properties-with-history` | ✅ |  |
+| `api meetings-list` | `--all` | ✅ |  |
+| `api meetings-batch-read` |  | ✅ |  |
+| `api meetings-batch-read` | `--archived` | ✅ |  |
+| `api meetings-batch-read` | `--body` | ✅ |  |
+| `api meetings-batch-read` | `--body-file` | ✅ |  |
+| `api meetings-search` |  | ✅ |  |
+| `api meetings-search` | `--body` | ✅ |  |
+| `api meetings-search` | `--body-file` | ✅ |  |
+| `api meetings-search` | `--all` | ✅ |  |
+| `api meetings-get` |  | ✅ |  |
+| `api meetings-get` | `--meeting-id` | ✅ |  |
+| `api meetings-get` | `--archived` | ✅ |  |
+| `api meetings-get` | `--associations` | ✅ |  |
+| `api meetings-get` | `--id-property` | ✅ |  |
+| `api meetings-get` | `--properties` | ✅ |  |
+| `api meetings-get` | `--properties-with-history` | ✅ |  |
+| `api tasks-list` |  | ✅ |  |
+| `api tasks-list` | `--after` | ✅ |  |
+| `api tasks-list` | `--archived` | ✅ |  |
+| `api tasks-list` | `--associations` | ✅ |  |
+| `api tasks-list` | `--limit` | ✅ |  |
+| `api tasks-list` | `--properties` | ✅ |  |
+| `api tasks-list` | `--properties-with-history` | ✅ |  |
+| `api tasks-list` | `--all` | ✅ |  |
+| `api tasks-batch-read` |  | ✅ |  |
+| `api tasks-batch-read` | `--archived` | ✅ |  |
+| `api tasks-batch-read` | `--body` | ✅ |  |
+| `api tasks-batch-read` | `--body-file` | ✅ |  |
+| `api tasks-search` |  | ✅ |  |
+| `api tasks-search` | `--body` | ✅ |  |
+| `api tasks-search` | `--body-file` | ✅ |  |
+| `api tasks-search` | `--all` | ✅ |  |
+| `api tasks-get` |  | ✅ |  |
+| `api tasks-get` | `--task-id` | ✅ |  |
+| `api tasks-get` | `--archived` | ✅ |  |
+| `api tasks-get` | `--associations` | ✅ |  |
+| `api tasks-get` | `--id-property` | ✅ |  |
+| `api tasks-get` | `--properties` | ✅ |  |
+| `api tasks-get` | `--properties-with-history` | ✅ |  |
+| `api owners-list` |  | ✅ |  |
+| `api owners-list` | `--after` | ✅ |  |
+| `api owners-list` | `--archived` | ✅ |  |
+| `api owners-list` | `--email` | ✅ |  |
+| `api owners-list` | `--limit` | ✅ |  |
+| `api owners-list` | `--all` | ✅ |  |
+| `api owners-get` |  | ✅ |  |
+| `api owners-get` | `--owner-id` | ✅ |  |
+| `api owners-get` | `--archived` | ✅ |  |
+| `api owners-get` | `--id-property` | ✅ |  |
+| `api pipelines-list` |  | ✅ |  |
+| `api pipelines-list` | `--object-type` | ✅ |  |
+| `api pipelines-get` |  | ✅ |  |
+| `api pipelines-get` | `--object-type` | ✅ |  |
+| `api pipelines-get` | `--pipeline-id` | ✅ |  |
+| `api pipelines-audit-list` |  | ✅ |  |
+| `api pipelines-audit-list` | `--object-type` | ✅ |  |
+| `api pipelines-audit-list` | `--pipeline-id` | ✅ |  |
+| `api pipelines-stages-list` |  | ✅ |  |
+| `api pipelines-stages-list` | `--object-type` | ✅ |  |
+| `api pipelines-stages-list` | `--pipeline-id` | ✅ |  |
+| `api pipelines-stages-get` |  | ✅ |  |
+| `api pipelines-stages-get` | `--object-type` | ✅ |  |
+| `api pipelines-stages-get` | `--pipeline-id` | ✅ |  |
+| `api pipelines-stages-get` | `--stage-id` | ✅ |  |
+| `api pipelines-stages-audit-list` |  | ✅ |  |
+| `api pipelines-stages-audit-list` | `--object-type` | ✅ |  |
+| `api pipelines-stages-audit-list` | `--pipeline-id` | ✅ |  |
+| `api pipelines-stages-audit-list` | `--stage-id` | ✅ |  |
+| `api properties-list` |  | ✅ |  |
+| `api properties-list` | `--object-type` | ✅ |  |
+| `api properties-list` | `--archived` | ✅ |  |
+| `api properties-list` | `--data-sensitivity` | ✅ |  |
+| `api properties-list` | `--locale` | ✅ |  |
+| `api properties-list` | `--properties` | ✅ |  |
+| `api properties-batch-read` |  | ✅ |  |
+| `api properties-batch-read` | `--object-type` | ✅ |  |
+| `api properties-batch-read` | `--locale` | ✅ |  |
+| `api properties-batch-read` | `--body` | ✅ |  |
+| `api properties-batch-read` | `--body-file` | ✅ |  |
+| `api properties-groups-list` |  | ✅ |  |
+| `api properties-groups-list` | `--object-type` | ✅ |  |
+| `api properties-groups-list` | `--locale` | ✅ |  |
+| `api properties-groups-get` |  | ✅ |  |
+| `api properties-groups-get` | `--group-name` | ✅ |  |
+| `api properties-groups-get` | `--object-type` | ✅ |  |
+| `api properties-groups-get` | `--locale` | ✅ |  |
+| `api properties-get` |  | ✅ |  |
+| `api properties-get` | `--object-type` | ✅ |  |
+| `api properties-get` | `--property-name` | ✅ |  |
+| `api properties-get` | `--archived` | ✅ |  |
+| `api properties-get` | `--data-sensitivity` | ✅ |  |
+| `api properties-get` | `--locale` | ✅ |  |
+| `api properties-get` | `--properties` | ✅ |  |
+| `api associations-batch-read` |  | ✅ |  |
+| `api associations-batch-read` | `--from-object-type` | ✅ |  |
+| `api associations-batch-read` | `--to-object-type` | ✅ |  |
+| `api associations-batch-read` | `--body` | ✅ |  |
+| `api associations-batch-read` | `--body-file` | ✅ |  |
+| `api search` |  | ✅ |  |
+| `api search` | `--object-type` | ✅ |  |
+| `api search` | `--body` | ✅ |  |
+| `api search` | `--body-file` | ✅ |  |
+| `api search` | `--all` | ✅ |  |
+| `api associations-get` |  | ✅ |  |
+| `api associations-get` | `--object-id` | ✅ |  |
+| `api associations-get` | `--object-type` | ✅ |  |
+| `api associations-get` | `--to-object-type` | ✅ |  |
+| `api associations-get` | `--after` | ✅ |  |
+| `api associations-get` | `--limit` | ✅ |  |
+| `api associations-get` | `--all` | ✅ |  |
+| `api account-info-api-usage-daily-private-apps-list` |  | ✅ |  |
+| `api account-info-details-list` |  | ✅ |  |
+| `schedule command` |  | ✅ |  |
+| `schedule command` | `--every` | ✅ |  |
+| `schedule command` | `--at` | ✅ |  |
+| `schedule command` | `--at-time` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule command` | `--notify-on` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule command` | `--deliver-to` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule agent` |  | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule agent` | `--model` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule agent` | `--max-cost` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule agent` | `--allow-dangerous` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule agent` | `--max-cost-per-day` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule agent` | `--every` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule agent` | `--at` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule agent` | `--at-time` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule agent` | `--notify-on` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule agent` | `--deliver-to` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule list` |  | ✅ |  |
+| `schedule agents list` |  | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule run` |  | ✅ |  |
+| `schedule run` | `--no-notify` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule run` | `--deliver-to` | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule remove` |  | ✅ |  |
+| `schedule pause` |  | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule resume` |  | ⛔ | cli-core's scheduleCommandFor; its schedule tests drive every timer and option, and src/schedule.test.ts installs, lists, runs and removes hubspot's sync timer |
+| `schedule exec` |  | ✅ |  |
 | `doctor` |  | ✅ |  |
 | `doctor` | `--online` | ✅ |  |
 | `doctor reports show` |  | ⛔ | cli-core's appDoctorCommand; its app-mcp-command test creates and shows a report |
@@ -79,6 +475,12 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `config migrate` |  | ✅ |  |
 | `config repair` |  | ✅ |  |
 | `config repair` | `--dry-run` | ✅ |  |
+| `setup` |  | ⛔ | cli-core's setupCommand asks the flow's questions in a terminal; its setup-command tests drive that, and src/setup/flow.test.ts runs this flow through setup apply and setup run apply |
+| `setup show` |  | ✅ |  |
+| `setup apply` |  | ✅ |  |
+| `setup apply` | `--dry-run` | ✅ |  |
+| `setup run` |  | ✅ |  |
+| `setup run` | `--answer-stdin` | ✅ |  |
 | `runs list` |  | ✅ |  |
 | `runs list` | `--limit` | ✅ |  |
 | `runs list` | `--page` | ✅ |  |
