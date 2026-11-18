@@ -59,8 +59,8 @@ hubspot work pipelines list
 ```
 
 `deals list` takes field:value terms, such as `status:open` or `stage:"Contract sent"`, and `--format csv` for a
-spreadsheet. The key names no user, so `owner:me` names nobody: take the owner's id from `hubspot work users list` and
-filter by `owner:<owner id>`. `deals show` gives one deal with its stage, amount and the people on it.
+spreadsheet. The key names no user, so `owner:me` names nobody. Take the owner's id from `hubspot work users list`
+and filter by it, such as `owner:51234567`. `deals show` gives one deal with its stage, amount and the people on it.
 
 Leads are read the same way with `leads list` on Sales Hub Professional or Enterprise.
 
@@ -89,17 +89,17 @@ hubspot work organizations update 9 --name "Example LLC"
 
 Each change goes to HubSpot first, and the copy keeps HubSpot's answer. `close` moves the deal to its pipeline's closed
 won or lost stage. `delete` archives the deal in HubSpot, where it can be restored for 90 days, and asks first at a
-terminal. Over MCP nobody is there to answer, so only `deny` stops an agent
-([permissions](configuration.md#permissions)).
+terminal. Over MCP nobody is there to answer, so only `readonly` or `deny` stops an agent
+([permissions](permissions.md)).
 `--dry-run` shows the permission keys a change checks and sends nothing.
 
-A contact keeps one e-mail and two numbers, phone and mobile; a company keeps one number and no e-mail. `--phone` and
+A contact keeps one e-mail and two numbers, phone and mobile. A company keeps one number and no e-mail. `--phone` and
 `--email` replace the whole list, so one `--phone` on a contact clears its mobile number, and `--name` sets the first
 and the last name both. Notes, tasks,
 leads and a deal's contacts and company are written through [the API](#call-the-api).
 
 The key belongs to the account, not to you, so setting an owner with `--owner` checks `crm.assign-others`, which is
-`deny` until you allow it ([permissions](configuration.md#permissions)). HubSpot takes no idempotency key: a change
+`deny` until you allow it ([permissions](permissions.md)). HubSpot takes no idempotency key: a change
 that ended in `outcome_unknown` may have been made, so look at the record before you send it again.
 
 ## Activities and what changed
@@ -134,8 +134,8 @@ hubspot work api deals-list --all
 ```
 
 Each operation checks its own key, `api.<command>`, so `permissions.api deny` keeps an agent out of the raw API. A
-write also checks its group's `.write` key and a delete its `.delete` key, and both ask first at a terminal; over MCP
-only `deny` stops an agent.
+write also checks its group's `.write` key and a delete its `.delete` key, and both ask first at a terminal. Over MCP
+only `readonly` or `deny` stops an agent.
 `--dry-run` shows the keys without sending anything:
 
 ```sh
@@ -153,24 +153,6 @@ JSON on stderr, with a code to branch on. The [command reference](commands.md) l
 
 ## Agents
 
-`hubspot skill install` puts the tool's skill where Claude Code, Codex, Gemini CLI and OpenClaw look for it.
-`hubspot skill install --for hermes` also adds that folder to Hermes Agent's own settings, so a bare `skill install`
-leaves Hermes out. `hubspot work mcp serve` serves the profile's commands over MCP, on stdin and stdout:
-
-```sh
-claude mcp add hubspot -- hubspot work mcp serve
-```
-
-The server offers every command. The profile's permissions decide what runs, as
-[settings](configuration.md#permissions) shows.
-
-For ChatGPT and Claude in the browser, the command below serves on `127.0.0.1` (port 8765, or `--port`) behind your
-own tunnel. Put your tunnel's address in place of the example `https://laptop.example.ts.net`:
-
-```sh
-hubspot work mcp serve --http --public-url https://laptop.example.ts.net
-```
-
-A browser app logs in with a one-time code that the command prints, and `hubspot work mcp revoke` ends every login.
-`hubspot work mcp server start` runs the same server in the background, `mcp server status` shows its port, the login
-code and the apps logged in, and `mcp server stop` ends it.
+`hubspot skill install` teaches Claude Code, Codex, Gemini CLI and OpenClaw the commands.
+`hubspot work mcp add claude-code --allow-writes` connects the profile to an app that uses MCP. [MCP](mcp.md) shows
+the rest, and ChatGPT and Claude in the browser.
