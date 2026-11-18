@@ -145,12 +145,8 @@ const bodyPermissions = Object.fromEntries(
 export const API = {
   manifest: {
     ...manifest,
-    operations: manifest.operations.filter(offered).map(({ security, ...operation }) => ({
+    operations: manifest.operations.filter(offered).map((operation) => ({
       ...operation,
-      // The object specs mark 115 operations `security: []`, which reads as "no sign-in", and the generator's `auth`
-      // keeps it: such an operation went out without the token and HubSpot answered 401. Left out, the manifest's
-      // bearer token applies, as on every other operation.
-      ...(security?.length ? { security } : {}),
       permissions: [
         ...(operation.permissions ?? []),
         ...keysOf(operation),
