@@ -41,7 +41,7 @@ Give it these read scopes ([HubSpot's list of scopes](https://developers.hubspot
 | `crm.objects.leads.read` | leads, on Sales Hub Professional or Enterprise only |
 | `tickets` | tickets, through `api` only |
 
-Writes are optional. Add these scopes only if `hubspot` may change records; without them the key only reads:
+Writes are optional. Add these scopes only if `hubspot` may change records. Without them the key only reads:
 
 | Scope | What it changes |
 | --- | --- |

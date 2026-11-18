@@ -17,7 +17,7 @@ needs no network.
 | Symptom | What to do |
 | --- | --- |
 | Not sure what is set up | Run `hubspot doctor`. It reads no keyring and uses no network. |
-| `hubspot` is not found | Open a new terminal, and check that npm's global folder is on `PATH`. Another tool may own the word `hubspot`: run `wcat-hubspot` instead. |
+| `hubspot` is not found | Open a new terminal, and check that npm's global folder is on `PATH`. Another tool may own the word `hubspot`, such as HubSpot's own Agent CLI: run `wcat-hubspot` instead. |
 | "name a profile" | Put the profile first, as in `hubspot work config show`, or set `WCHUBSPOT_PROFILE`. |
 | The settings file does not read | `doctor` lists every problem in the file under `config.issues`. Run the `config unset` each one gives, or fix the file by hand. |
 | `doctor` lists `files.problems` | Other users of the computer can read `config.json` or enter its folder. Run each `chmod` that `doctor` prints after "to make it private:". `doctor` never changes a file mode itself. |
@@ -28,8 +28,8 @@ needs no network.
 | `run hubspot <profile> sync once with WCHUBSPOT_TOKEN first` (`account.unchecked`) | A command that reads only the local copy with `WCHUBSPOT_TOKEN` needs a checked one first. Run `hubspot work sync`. |
 | "already signs in to HubSpot account" (`session.duplicate`) | Another profile reads that account. Use that profile, or end its session first. |
 | "spent its daily API allowance" (`hubspot.daily-limit`) | Every app on the account shares one daily allowance. It comes back at midnight in the account's time zone, and the error says in how many hours. `api` with `WCHUBSPOT_TOKEN` does not know the time zone: its error says to try again after a time in UTC, the earliest the allowance can be back. |
-| `owner:me` finds nothing | A key names no user. Filter by `owner:<owner id>` from `hubspot work users list`. |
-| A write is refused | The profile's permissions or `WCHUBSPOT_READ_ONLY` stop it, as [settings](configuration.md#permissions) shows. |
+| `owner:me` finds nothing | A key names no user. Take the owner's id from `hubspot work users list` and filter by it, such as `owner:51234567`. |
+| A write is refused | The profile's permissions or `WCHUBSPOT_READ_ONLY` stop it, as [permissions](permissions.md) shows. |
 
 ## Asking for help
 

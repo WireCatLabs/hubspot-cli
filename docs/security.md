@@ -1,7 +1,19 @@
 # Security
 
+Give an AI agent your HubSpot CRM and know where your key and your clients' data go. The key stays in your system
+keyring and reaches only HubSpot, the copy of your CRM stays on your computer, and you can delete it with one command.
+
+Here you find what `hubspot` keeps on disk, what it sends over the network, and how to clean up after a leaked key.
 What WireCat CLIs share, such as the keyring, permissions, MCP and what never reaches a log, is on the
-[shared security page](https://wirecat.dev/en/docs/security). This page keeps only what is particular to `hubspot`.
+[shared security page](https://wirecat.dev/en/docs/security).
+
+**On this page:**
+
+1. [The key](#the-key)
+2. [The copy](#the-copy)
+3. [Text from the account](#text-from-the-account)
+4. [MCP over HTTP](#mcp-over-http)
+5. [Run records and files](#run-records-and-files)
 
 <!-- cspell:words hubapi -->
 
