@@ -82,7 +82,7 @@ it("the daily limit is not retried: it waits till midnight in the account's zone
     transportOver(hub, { now: () => now, timeZone: "Europe/Madrid", pacer }).get(COMPANIES),
   ).rejects.toMatchObject({
     code: "rate_limited",
-    details: { reason: "hubspot.daily-limit", retry_after_ms: 3 * 3_600_000, retryable: true },
+    details: { reason: "hubspot.daily-limit", retry_after_ms: 3 * 3_600_000, retryable: false },
   })
   expect(held).toEqual([3 * 3_600_000])
   expect(hub.calls).toHaveLength(1)
