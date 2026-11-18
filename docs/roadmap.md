@@ -14,8 +14,9 @@ HubSpot's CRM API is a command of its own. See [start here](index.md).
 
 ## Next
 
+- Connect HubSpot in WireCat Desktop by pasting the same key, with no terminal. It comes with the next Desktop
+  release. Today `hubspot work setup` asks the same questions.
 - Sign in as yourself in the browser, so `hubspot` acts with your own HubSpot user's rights and `owner:me` finds your
   deals. Today the key belongs to the account.
-- Connect HubSpot in WireCat Desktop. Today `hubspot work setup` asks the same questions.
 
 What changed in each released version is in the [changelog](../CHANGELOG.md).
