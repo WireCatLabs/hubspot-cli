@@ -2,6 +2,23 @@
 
 Notable changes to `@wirecat/hubspot-cli`. One section per version, newest first.
 
+## 0.3.0 — 18.11.2026
+
+### Changed — may break callers
+
+- **The MCP Registry entry asks which profiles to serve.** It started `mcp serve --profiles all`, so a client that
+  installed the server from the registry reached every account on the computer without the owner choosing. Now
+  `--profiles` is a required argument with the example `personal`: the client asks for one profile, a
+  comma-separated list or `all`. Why: a CLI never picks an account for the owner
+  ([WC-MCP-9](https://github.com/WireCatLabs/cli-base/blob/main/docs/standards/mcp.md#wc-mcp-9--a-server-serves-the-profiles-it-is-told-with-one-connection-for-each)). Watch for: a client set up from the old entry keeps `--profiles all` until it is set up again; a
+  server added by hand or with `mcp config` does not change.
+
+### Fixed
+
+- **`mcp serve` starts on a computer with no profile yet.** It lists its tools, and each call answers with the command
+  that sets up a profile. Before, the server stopped at start, so a directory that checks servers could not list
+  them. From cli-core 0.699.0.
+
 ## 0.2.0 — 17.11.2026
 
 ### Added
