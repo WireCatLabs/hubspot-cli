@@ -91,7 +91,8 @@ it("takes every option the spec offers, a body from a file, and --all on a paged
 })
 
 it("signs every operation with the profile's token, the ones whose spec says no sign-in included", async () => {
-  expect(operations.some((operation) => operation.security?.length === 0)).toBe(true)
+  // The object specs mark 115 operations `security: []`; the generator must not read that as "no sign-in".
+  expect(operations.some((operation) => operation.security?.length === 0)).toBe(false)
   withPermissions(EVERY_KEY)
   const unsigned: string[] = []
   const recording = {

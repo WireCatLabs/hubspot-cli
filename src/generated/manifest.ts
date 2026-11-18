@@ -17,7 +17,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Retrieve contacts",
     description: "Retrieve all contacts, using query parameters to specify the information that gets returned.",
     tags: ["Basic"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -121,7 +120,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a single contact. Include a `properties` object to define [property values](https://developers.hubspot.com/docs/guides/api/crm/properties) for the contact, along with an `associations` array to define [associations](https://developers.hubspot.com/docs/guides/api/crm/associations/associations-v4) with other CRM records.",
     tags: ["Basic"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -146,7 +144,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Archive a batch of contacts by ID. Archived contacts can be restored within 90 days of deletion. Learn more about the [data impacted by contact deletions](https://knowledge.hubspot.com/privacy-and-consent/understand-restorable-and-permanent-contact-deletions) and how to [restore archived records](https://knowledge.hubspot.com/records/restore-deleted-records).",
     tags: ["Batch"],
-    security: [],
     permissions: [
       {
         key: "people.delete",
@@ -172,7 +169,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a batch of contacts. The `inputs` array can contain a `properties` object to define property values for each record, along with an `associations` array to define [associations](https://developers.hubspot.com/docs/guides/api/crm/associations/associations-v4) with other CRM records.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -196,7 +192,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Retrieve a batch of contacts",
     description: "Retrieve a batch of contacts by ID (`contactId`) or unique property value (`idProperty`). ",
     tags: ["Batch"],
-    security: [],
     parameters: [
       {
         name: "archived",
@@ -232,7 +227,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Update a batch of contacts by ID (`contactId`) or unique property value (`idProperty`). Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -257,7 +251,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Upsert a batch of contacts. The `inputs` array can contain a `properties` object to define property values for each record.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -282,7 +275,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Permanently delete a contact and all associated content to follow GDPR. Use optional property `idProperty` set to `email` to identify contact by email address. If email address is not found, the email address will be added to a blocklist and prevent it from being used in the future. Learn more about [permanently deleting contacts](https://knowledge.hubspot.com/privacy-and-consent/how-do-i-perform-a-gdpr-delete-in-hubspot).",
     tags: ["Advanced"],
-    security: [],
     permissions: [
       {
         key: "people.delete",
@@ -308,7 +300,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Merge two contact records. Learn more about [merging records](https://knowledge.hubspot.com/records/merge-records). ",
     tags: ["Advanced"],
-    security: [],
     permissions: [
       {
         key: "people.delete",
@@ -338,7 +329,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Search for contacts by filtering on properties, searching through associations, and sorting results. Learn more about [CRM search](https://developers.hubspot.com/docs/guides/api/crm/search#make-a-search-request).",
     tags: ["Search"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -376,7 +366,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Retrieve a contact by its ID (`contactId`) or by a unique property (`idProperty`). You can specify what is returned using the `properties` query parameter.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "contactId",
@@ -464,7 +453,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Update an existing contact, identified by ID or email/unique property value. To identify a contact by ID, include the ID in the request URL path. To identify a contact by their email or other unique property, include the email/property value in the request URL path, and add the `idProperty` query parameter (`/crm/v3/objects/contacts/jon@website.com?idProperty=email`). Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "contactId",
@@ -508,7 +496,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Delete a contact by ID. Deleted contacts can be restored within 90 days of deletion. Learn more about the [data impacted by contact deletions](https://knowledge.hubspot.com/privacy-and-consent/understand-restorable-and-permanent-contact-deletions) and how to [restore archived records](https://knowledge.hubspot.com/records/restore-deleted-records).",
     tags: ["Basic"],
-    security: [],
     permissions: [
       {
         key: "people.delete",
@@ -698,7 +685,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Retrieve companies",
     description: "Retrieve all companies, using query parameters to control the information that gets returned.",
     tags: ["Basic"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -802,7 +788,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a single company. Include a `properties` object to define [property values](https://developers.hubspot.com/docs/guides/api/crm/properties) for the company, along with an `associations` array to define [associations](https://developers.hubspot.com/docs/guides/api/crm/associations/associations-v4) with other CRM records.",
     tags: ["Basic"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -827,7 +812,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Delete a batch of companies by ID. Deleted companies can be restored within 90 days of deletion. Learn more about [restoring records](https://knowledge.hubspot.com/records/restore-deleted-records).",
     tags: ["Batch"],
-    security: [],
     permissions: [
       {
         key: "organizations.delete",
@@ -853,7 +837,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a batch of companies. The `inputs` array can contain a `properties` object to define property values for each company, along with an `associations` array to define [associations](https://developers.hubspot.com/docs/guides/api/crm/associations/associations-v4) with other CRM records.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -878,7 +861,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Retrieve a batch of companies by ID (`companyId`) or by a unique property (`idProperty`). You can specify what is returned using the `properties` query parameter.",
     tags: ["Batch"],
-    security: [],
     parameters: [
       {
         name: "archived",
@@ -913,7 +895,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Update a batch of companies",
     description: "Update a batch of companies by ID.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -938,7 +919,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create or update companies identified by a unique property value as specified by the `idProperty` query parameter. `idProperty` query param refers to a property whose values are unique for the object.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -963,7 +943,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Merge two company records. Learn more about [merging records](https://knowledge.hubspot.com/records/merge-records).",
     tags: ["Advanced"],
-    security: [],
     permissions: [
       {
         key: "organizations.delete",
@@ -993,7 +972,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Search for companies by filtering on properties, searching through associations, and sorting results. Learn more about [CRM search](https://developers.hubspot.com/docs/guides/api/crm/search#make-a-search-request).",
     tags: ["Search"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -1031,7 +1009,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Retrieve a company by its ID (`companyId`) or by a unique property (`idProperty`). You can specify what is returned using the `properties` query parameter.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "companyId",
@@ -1119,7 +1096,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Update a company by ID (`companyId`) or unique property value (`idProperty`). Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "companyId",
@@ -1163,7 +1139,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Delete a company by ID. Deleted companies can be restored within 90 days of deletion. Learn more about [restoring records](https://knowledge.hubspot.com/records/restore-deleted-records).",
     tags: ["Basic"],
-    security: [],
     permissions: [
       {
         key: "organizations.delete",
@@ -1193,7 +1168,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "List",
     description: "Read a page of deals. Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -1297,7 +1271,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a deal with the given properties and return a copy of the object, including the ID. Documentation and examples for creating standard deals is provided.",
     tags: ["Basic"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -1321,7 +1294,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive a batch of deals by ID",
     description: "Archive multiple deals using their IDs.",
     tags: ["Batch"],
-    security: [],
     permissions: [
       {
         key: "deals.delete",
@@ -1346,7 +1318,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Create a batch of deals",
     description: "Create multiple deals in a single request.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -1371,7 +1342,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Retrieve records by record ID or include the `idProperty` parameter to retrieve records by a custom unique value property. ",
     tags: ["Batch"],
-    security: [],
     parameters: [
       {
         name: "archived",
@@ -1406,7 +1376,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Update a batch of deals by internal ID, or unique property values",
     description: "Update multiple deals using their internal IDs or unique property values.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -1431,7 +1400,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create or update records identified by a unique property value as specified by the `idProperty` query param. `idProperty` query param refers to a property whose values are unique for the object.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -1455,7 +1423,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Merge two deals with same type",
     description: "Combine two deals of the same type into a single deal.",
     tags: ["Basic"],
-    security: [],
     permissions: [
       {
         key: "deals.delete",
@@ -1484,7 +1451,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Search for deals using various filters and criteria to retrieve specific records.",
     description: "Search for deals using specified criteria and filters.",
     tags: ["Search"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -1522,7 +1488,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Read an Object identified by `{dealId}`. `{dealId}` refers to the internal object ID by default, or optionally any unique property value as specified by the `idProperty` query param.  Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "dealId",
@@ -1610,7 +1575,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Perform a partial update of an Object identified by `{dealId}`or optionally a unique property value as specified by the `idProperty` query param. `{dealId}` refers to the internal object ID by default, and the `idProperty` query param refers to a property whose values are unique for the object. Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "dealId",
@@ -1653,7 +1617,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive",
     description: "Move an Object identified by `{dealId}` to the recycling bin.",
     tags: ["Basic"],
-    security: [],
     permissions: [
       {
         key: "deals.delete",
@@ -1683,7 +1646,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "List",
     description: "Read a page of tickets. Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -1787,7 +1749,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a ticket with the given properties and return a copy of the object, including the ID. Documentation and examples for creating standard tickets is provided.",
     tags: ["Basic"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -1812,7 +1773,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Delete a batch of tickets by ID. Deleted tickets can be restored within 90 days of deletion. Learn more about [restoring records](https://knowledge.hubspot.com/records/restore-deleted-records).",
     tags: ["Batch"],
-    security: [],
     permissions: [
       {
         key: "tickets.delete",
@@ -1838,7 +1798,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a batch of tickets. The `inputs` array can contain a `properties` object to define property values for the ticket, along with an `associations` array to define [associations](https://developers.hubspot.com/docs/guides/api/crm/associations/associations-v4) with other CRM records.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -1862,7 +1821,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Read a batch of tickets by internal ID, or unique property values",
     description: "Retrieve a batch of tickets by ID (`ticketId`) or unique property value (`idProperty`). ",
     tags: ["Batch"],
-    security: [],
     parameters: [
       {
         name: "archived",
@@ -1898,7 +1856,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Update a batch of tickets by ID (`ticketId`) or unique property value (`idProperty`). Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -1923,7 +1880,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create or update records identified by a unique property value as specified by the `idProperty` query param. `idProperty` query param refers to a property whose values are unique for the object.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -1947,7 +1903,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Merge two tickets",
     description: "Merge two tickets, combining them into one ticket record.",
     tags: ["Advanced"],
-    security: [],
     permissions: [
       {
         key: "tickets.delete",
@@ -1977,7 +1932,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Search for tickets by filtering on properties, searching through associations, and sorting results. Learn more about [CRM search](https://developers.hubspot.com/docs/guides/api/crm/search#make-a-search-request).",
     tags: ["Search"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -2015,7 +1969,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Read an Object identified by `{ticketId}`. `{ticketId}` refers to the internal object ID by default, or optionally any unique property value as specified by the `idProperty` query param.  Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "ticketId",
@@ -2103,7 +2056,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Perform a partial update of an Object identified by `{ticketId}`or optionally a unique property value as specified by the `idProperty` query param. `{ticketId}` refers to the internal object ID by default, and the `idProperty` query param refers to a property whose values are unique for the object. Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "ticketId",
@@ -2146,7 +2098,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive",
     description: "Move an Object identified by `{ticketId}` to the recycling bin.",
     tags: ["Basic"],
-    security: [],
     permissions: [
       {
         key: "tickets.delete",
@@ -2176,7 +2127,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "List",
     description: "Read a page of leads. Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -2280,7 +2230,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a lead with the given properties and return a copy of the object, including the ID. Documentation and examples for creating standard leads is provided.",
     tags: ["Basic"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -2304,7 +2253,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive a batch of leads by ID",
     description: "Archive multiple leads by their IDs in a single request, moving them to the recycling bin.",
     tags: ["Batch"],
-    security: [],
     permissions: [
       {
         key: "leads.delete",
@@ -2330,7 +2278,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create multiple lead records in a single request by providing a batch of lead data. This endpoint allows for efficient creation of leads by processing them together, which can be useful for syncing data from other systems or importing large datasets.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -2355,7 +2302,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Retrieve records by record ID or include the `idProperty` parameter to retrieve records by a custom unique value property. ",
     tags: ["Batch"],
-    security: [],
     parameters: [
       {
         name: "archived",
@@ -2391,7 +2337,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Update multiple lead records using their internal IDs or unique property values. This endpoint allows batch processing of updates, where each lead's properties can be modified based on the provided input. Ensure that the properties being updated exist on the lead objects to avoid errors.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -2416,7 +2361,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create or update records identified by a unique property value as specified by the `idProperty` query param. `idProperty` query param refers to a property whose values are unique for the object.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -2441,7 +2385,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Perform a search for leads based on the provided filter groups, properties, and sorting options. The request allows for pagination and can return up to 200 results per page.",
     tags: ["Search"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -2479,7 +2422,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Read an Object identified by `{leadsId}`. `{leadsId}` refers to the internal object ID by default, or optionally any unique property value as specified by the `idProperty` query param.  Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "leadsId",
@@ -2567,7 +2509,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Perform a partial update of an Object identified by `{leadsId}`or optionally a unique property value as specified by the `idProperty` query param. `{leadsId}` refers to the internal object ID by default, and the `idProperty` query param refers to a property whose values are unique for the object. Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "leadsId",
@@ -2610,7 +2551,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive",
     description: "Move an Object identified by `{leadsId}` to the recycling bin.",
     tags: ["Basic"],
-    security: [],
     permissions: [
       {
         key: "leads.delete",
@@ -2640,7 +2580,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "List",
     description: "Read a page of notes. Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -2744,7 +2683,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a note with the given properties and return a copy of the object, including the ID. Documentation and examples for creating standard notes is provided.",
     tags: ["Basic"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -2769,7 +2707,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Archive multiple notes by their IDs in a single request. This operation moves the specified notes to the recycling bin, making them inaccessible from regular queries.",
     tags: ["Batch"],
-    security: [],
     permissions: [
       {
         key: "notes.delete",
@@ -2795,7 +2732,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create multiple notes in a single request by providing the necessary properties for each note. This operation returns the created notes with their unique identifiers.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -2820,7 +2756,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Retrieve records by record ID or include the `idProperty` parameter to retrieve records by a custom unique value property. ",
     tags: ["Batch"],
-    security: [],
     parameters: [
       {
         name: "archived",
@@ -2856,7 +2791,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Update multiple notes using their internal IDs or unique property values. This operation allows you to modify the properties of several notes in a single request, streamlining the process of managing note data in bulk.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -2881,7 +2815,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create or update records identified by a unique property value as specified by the `idProperty` query param. `idProperty` query param refers to a property whose values are unique for the object.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -2906,7 +2839,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Execute a search for notes using filters, sorting options, and other query parameters to refine the results. This endpoint allows for complex queries to locate specific notes within the CRM system.",
     tags: ["Search"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -2944,7 +2876,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Read an Object identified by `{noteId}`. `{noteId}` refers to the internal object ID by default, or optionally any unique property value as specified by the `idProperty` query param.  Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "noteId",
@@ -3032,7 +2963,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Perform a partial update of an Object identified by `{noteId}`or optionally a unique property value as specified by the `idProperty` query param. `{noteId}` refers to the internal object ID by default, and the `idProperty` query param refers to a property whose values are unique for the object. Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "noteId",
@@ -3075,7 +3005,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive",
     description: "Move an Object identified by `{noteId}` to the recycling bin.",
     tags: ["Basic"],
-    security: [],
     permissions: [
       {
         key: "notes.delete",
@@ -3105,7 +3034,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "List",
     description: "Read a page of calls. Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -3209,7 +3137,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a call with the given properties and return a copy of the object, including the ID. Documentation and examples for creating standard calls is provided.",
     tags: ["Basic"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -3234,7 +3161,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Archive a batch of calls by ID. Deleted calls can be restored within 90 days of being deleted, but call recordings recording will be permanently deleted. Learn more about [restoring activity records](https://knowledge.hubspot.com/records/restore-deleted-activity-in-a-record).",
     tags: ["Batch"],
-    security: [],
     permissions: [
       {
         key: "calls.delete",
@@ -3260,7 +3186,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a batch of calls. The `inputs` array can contain a `properties` object to define property values for each record, along with an `associations` array to define [associations](https://developers.hubspot.com/docs/guides/api/crm/associations/associations-v4) with other CRM records.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -3284,7 +3209,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Read a batch of calls by internal ID, or unique property values",
     description: "Retrieve a batch of calls by ID.",
     tags: ["Batch"],
-    security: [],
     parameters: [
       {
         name: "archived",
@@ -3319,7 +3243,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Update a batch of calls by internal ID, or unique property values",
     description: "Update a batch of calls by ID.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -3344,7 +3267,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create or update records identified by a unique property value as specified by the `idProperty` query param. `idProperty` query param refers to a property whose values are unique for the object.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -3369,7 +3291,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Search for calls by filtering on properties, searching through associations, and sorting results. Learn more about [CRM search](https://developers.hubspot.com/docs/guides/api/crm/search#make-a-search-request).",
     tags: ["Search"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -3407,7 +3328,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Read an Object identified by `{callId}`. `{callId}` refers to the internal object ID by default, or optionally any unique property value as specified by the `idProperty` query param.  Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "callId",
@@ -3495,7 +3415,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Perform a partial update of an Object identified by `{callId}`or optionally a unique property value as specified by the `idProperty` query param. `{callId}` refers to the internal object ID by default, and the `idProperty` query param refers to a property whose values are unique for the object. Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "callId",
@@ -3538,7 +3457,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive",
     description: "Move an Object identified by `{callId}` to the recycling bin.",
     tags: ["Basic"],
-    security: [],
     permissions: [
       {
         key: "calls.delete",
@@ -3568,7 +3486,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "List",
     description: "Read a page of emails. Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -3672,7 +3589,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a email with the given properties and return a copy of the object, including the ID. Documentation and examples for creating standard emails is provided.",
     tags: ["Basic"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -3696,7 +3612,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive a batch of emails by ID",
     description: "Archive a batch of emails identified by their IDs.",
     tags: ["Batch"],
-    security: [],
     permissions: [
       {
         key: "emails.delete",
@@ -3721,7 +3636,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Create a batch of emails",
     description: "Create a batch of emails with specified properties and return the created objects.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -3746,7 +3660,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Retrieve records by record ID or include the `idProperty` parameter to retrieve records by a custom unique value property. ",
     tags: ["Batch"],
-    security: [],
     parameters: [
       {
         name: "archived",
@@ -3781,7 +3694,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Update a batch of emails by internal ID, or unique property values",
     description: "Update a batch of emails using their internal IDs or unique property values.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -3806,7 +3718,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create or update records identified by a unique property value as specified by the `idProperty` query param. `idProperty` query param refers to a property whose values are unique for the object.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -3830,7 +3741,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Search for emails using specified criteria and filters.",
     description: "Perform a search for emails based on the provided query parameters and return matching results.",
     tags: ["Search"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -3868,7 +3778,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Read an Object identified by `{emailId}`. `{emailId}` refers to the internal object ID by default, or optionally any unique property value as specified by the `idProperty` query param.  Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "emailId",
@@ -3956,7 +3865,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Perform a partial update of an Object identified by `{emailId}`or optionally a unique property value as specified by the `idProperty` query param. `{emailId}` refers to the internal object ID by default, and the `idProperty` query param refers to a property whose values are unique for the object. Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "emailId",
@@ -3999,7 +3907,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive",
     description: "Move an Object identified by `{emailId}` to the recycling bin.",
     tags: ["Basic"],
-    security: [],
     permissions: [
       {
         key: "emails.delete",
@@ -4029,7 +3936,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "List",
     description: "Read a page of meetings. Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -4133,7 +4039,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a meeting with the given properties and return a copy of the object, including the ID. Documentation and examples for creating standard meetings is provided.",
     tags: ["Basic"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -4157,7 +4062,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive a batch of meetings by ID",
     description: "Delete a batch of meetings by ID.",
     tags: ["Batch"],
-    security: [],
     permissions: [
       {
         key: "meetings.delete",
@@ -4183,7 +4087,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a batch of meetings. The `inputs` array can contain a `properties` object to define property values for the record, along with an `associations` array to define relationships with other object records.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -4208,7 +4111,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Retrieve records by record ID or include the `idProperty` parameter to retrieve records by a custom unique value property. ",
     tags: ["Batch"],
-    security: [],
     parameters: [
       {
         name: "archived",
@@ -4244,7 +4146,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Update a batch of meetings by ID (`objectId`) or unique property value (`idProperty`). Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -4269,7 +4170,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create or update records identified by a unique property value as specified by the `idProperty` query param. `idProperty` query param refers to a property whose values are unique for the object.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -4293,7 +4193,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Search for meetings",
     description: "Search for meetings by filtering on properties, searching through associations, and sorting results.",
     tags: ["Search"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -4331,7 +4230,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Read an Object identified by `{meetingId}`. `{meetingId}` refers to the internal object ID by default, or optionally any unique property value as specified by the `idProperty` query param.  Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "meetingId",
@@ -4419,7 +4317,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Perform a partial update of an Object identified by `{meetingId}`or optionally a unique property value as specified by the `idProperty` query param. `{meetingId}` refers to the internal object ID by default, and the `idProperty` query param refers to a property whose values are unique for the object. Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "meetingId",
@@ -4462,7 +4359,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive",
     description: "Move an Object identified by `{meetingId}` to the recycling bin.",
     tags: ["Basic"],
-    security: [],
     permissions: [
       {
         key: "meetings.delete",
@@ -4492,7 +4388,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "List",
     description: "Read a page of tasks. Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -4596,7 +4491,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create a task with the given properties and return a copy of the object, including the ID. Documentation and examples for creating standard tasks is provided.",
     tags: ["Basic"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -4621,7 +4515,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Archive a batch of tasks by their IDs, moving them to the recycling bin. This operation requires a list of task IDs to be provided in the request body.",
     tags: ["Batch"],
-    security: [],
     permissions: [
       {
         key: "tasks.delete",
@@ -4647,7 +4540,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create multiple tasks in a single request by providing a batch of task properties and associations. This endpoint allows for efficient task creation by processing multiple tasks together.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -4672,7 +4564,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Retrieve records by record ID or include the `idProperty` parameter to retrieve records by a custom unique value property. ",
     tags: ["Batch"],
-    security: [],
     parameters: [
       {
         name: "archived",
@@ -4708,7 +4599,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Update multiple tasks in a single request using their internal IDs or unique property values. This operation allows you to modify the properties of each task in the batch, ensuring efficient management of task data.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -4733,7 +4623,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Create or update records identified by a unique property value as specified by the `idProperty` query param. `idProperty` query param refers to a property whose values are unique for the object.",
     tags: ["Batch"],
-    security: [],
     parameters: [],
     request: {
       required: true,
@@ -4758,7 +4647,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Execute a search for tasks based on the provided criteria, including filters, properties, and sorting options. This allows for retrieving tasks that match specific conditions or property values.",
     tags: ["Search"],
-    security: [],
     pagination: {
       style: "cursor",
       cursor: {
@@ -4796,7 +4684,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Read an Object identified by `{taskId}`. `{taskId}` refers to the internal object ID by default, or optionally any unique property value as specified by the `idProperty` query param.  Control what is returned via the `properties` query param.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "taskId",
@@ -4884,7 +4771,6 @@ export const operations: readonly ManifestOperation[] = [
     description:
       "Perform a partial update of an Object identified by `{taskId}`or optionally a unique property value as specified by the `idProperty` query param. `{taskId}` refers to the internal object ID by default, and the `idProperty` query param refers to a property whose values are unique for the object. Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string.",
     tags: ["Basic"],
-    security: [],
     parameters: [
       {
         name: "taskId",
@@ -4927,7 +4813,6 @@ export const operations: readonly ManifestOperation[] = [
     summary: "Archive",
     description: "Move an Object identified by `{taskId}` to the recycling bin.",
     tags: ["Basic"],
-    security: [],
     permissions: [
       {
         key: "tasks.delete",
