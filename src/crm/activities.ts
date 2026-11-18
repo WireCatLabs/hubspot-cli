@@ -1,14 +1,13 @@
 import { isCliError } from "@wirecat/cli-base"
 import type { CrmActivity, CrmActivityKind, CrmKind } from "@wirecat/cli-core"
 import { type CrmCallContext, type CrmPage, crmValues } from "@wirecat/cli-core/crm"
+import { htmlToText } from "@wirecat/cli-core/mail"
 import type { HubSpotTransport } from "../hubspot/transport.js"
 import { associationsOf } from "./associations.js"
-import { msOf, nextOf, propertiesOf, type Raw, resultsOf } from "./records.js"
+import { msOf, nextOf, OVERLAP_MS, propertiesOf, type Raw, resultsOf } from "./records.js"
 import { modifiedSince, nextSpot, SEARCH_PAGE, search } from "./search.js"
 
 const { id, text } = crmValues
-
-const OVERLAP_MS = 10 * 60_000
 
 interface Engagement {
   /** The object API's path and the associations API's name (engagements guides). */
@@ -42,18 +41,7 @@ const COMMON = ["hubspot_owner_id", "hs_timestamp", "hs_createdate", "hs_lastmod
 /** HTML as plain text: notes, meetings and tasks keep rich text. */
 const plain = (value: unknown): string | null => {
   const html = text(value)
-  if (html === null) return null
-  return text(
-    html
-      .replace(/<br\s*\/?>|<\/p>|<\/div>|<\/li>/gi, "\n")
-      .replace(/<[^>]*>/g, "")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&amp;/g, "&"),
-  )
+  return html === null ? null : text(htmlToText(html))
 }
 
 // HubSpot has no notes, calls, meetings or tasks scope; a key with the contacts scope reads them (account 149800303,

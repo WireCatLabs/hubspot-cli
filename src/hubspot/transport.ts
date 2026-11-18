@@ -244,7 +244,7 @@ export const failureOf = ({
       return new CliError("rate_limited", `${spent}; ${back}`, {
         ...details,
         reason: "hubspot.daily-limit",
-        retryable: true,
+        retryable: false,
         retry_after_ms: wait,
       })
     }

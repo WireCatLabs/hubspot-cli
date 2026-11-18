@@ -7,7 +7,8 @@ import { type MessageStore, openStore } from "@wirecat/cli-core/store"
 import { afterEach, expect, it } from "vitest"
 import { hubspotTransport } from "../hubspot/transport.js"
 import { FAKE_TOKEN, type FakeHubspot, fakeHubspot, seededHubspot } from "../testing/fake-hubspot.js"
-import { fitted, hubspotCrmSource, MAX_PROPERTIES_CHARS, OVERLAP_MS } from "./source.js"
+import { OVERLAP_MS } from "./records.js"
+import { fitted, hubspotCrmSource, MAX_PROPERTIES_CHARS } from "./source.js"
 
 const over = (
   hub: FakeHubspot,

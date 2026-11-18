@@ -390,3 +390,10 @@ export const toField = (raw: Raw): CrmField | null => {
     ...(fieldType === "phonenumber" ? { holds: "phone" as const } : {}),
   }
 }
+
+/**
+ * Re-read before the last cursor: rows HubSpot saved while the round ran, rows its search index had not shown yet
+ * ("a few moments", search guide), and this computer's clock running ahead of HubSpot's. A row read twice is only
+ * saved twice.
+ */
+export const OVERLAP_MS = 10 * 60_000

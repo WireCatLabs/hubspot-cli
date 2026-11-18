@@ -19,6 +19,7 @@ import {
   nextOf,
   OBJECTS,
   type ObjectType,
+  OVERLAP_MS,
   propertiesOf,
   type Raw,
   resultsOf,
@@ -34,12 +35,6 @@ import { type Filter, modifiedSince, nextSpot, SEARCH_PAGE, type Spot, search } 
 
 const { id, text } = crmValues
 
-/**
- * Re-read before the last cursor: rows HubSpot saved while the round ran, rows its search index had not shown yet
- * ("a few moments", search guide), and this computer's clock running ahead of HubSpot's. A row read twice is only
- * saved twice.
- */
-export const OVERLAP_MS = 10 * 60_000
 /** The largest page of a list (contacts guide) and of owners (owners guide). */
 const LIST_PAGE = 100
 
