@@ -96,8 +96,8 @@ const offered = (operation: Operation) => !operation.response?.sensitive
 
 /**
  * Erases a contact and everything on it for good, and blocks its e-mail address from coming back: a key of its own,
- * so the owner can deny it and still allow ordinary deletes. `ask`, not `deny`: cli-core's `--dry-run` refuses a
- * command whose key is denied, and the deny contract needs each write's preview.
+ * so the owner can deny it and still allow ordinary deletes. `deny` by default: it cannot be undone, and over MCP
+ * `ask` goes ahead without asking (NEED-2757).
  */
 const ERASE_KEY = "people.erase"
 const ERASES = "contacts-gdpr-delete"
@@ -244,6 +244,7 @@ export const permissions = commandPermissions({
   defaults: {
     ...api.defaults,
     ...COMMAND_DEFAULTS,
+    [ERASE_KEY]: "deny",
     ...CRM_WRITE_DEFAULTS,
   },
 })

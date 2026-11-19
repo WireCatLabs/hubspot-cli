@@ -53,7 +53,7 @@ run it yourself in a terminal.
 | An `api` read, such as `api contacts-list` | `api.contacts-list` and the key of the command that reads the same records (`people.list`), so `people: deny` stops it too | `allow` |
 | An `api` delete, archive or merge | its own `api.` key and its group's `.delete` key | `ask` |
 | An owner set on a record, on any path | `crm.assign-others` | `deny` |
-| `api contacts-gdpr-delete`, which erases a contact for good | also `people.erase`, so you can deny it alone | `ask` |
+| `api contacts-gdpr-delete`, which erases a contact for good | also `people.erase`, so it stays off until you allow it | `deny` |
 | Every other command | its own | `allow` |
 
 A HubSpot key belongs to the account, not to a person. `hubspot` cannot tell your own records from a colleague's, so
