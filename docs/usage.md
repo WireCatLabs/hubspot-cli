@@ -134,7 +134,8 @@ hubspot work api deals-list --all
 ```
 
 Each operation checks its own key, `api.<command>`, so `permissions.api deny` keeps an agent out of the raw API. A
-write also checks its group's `.write` key and a delete its `.delete` key, and both ask first at a terminal. Over MCP
+write on deals, contacts or companies also checks its command's key (`deals.update`), another write its group's
+`.write` key (`notes.write`), and a delete its `.delete` key. They ask first at a terminal. Over MCP
 only `readonly` or `deny` stops an agent.
 `--dry-run` shows the keys without sending anything:
 

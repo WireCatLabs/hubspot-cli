@@ -112,6 +112,7 @@
 
 - What: Read a batch of calls by internal ID, or unique property values
 - Call: `POST /crm/objects/2026-03/calls/batch/read`, effect: read
+- Permission keys: `activities.list`
 - Body: `BatchReadInputSimplePublicObjectId`, required
 
 | Flag | Required | What |
@@ -160,7 +161,7 @@
 
 - What: Create a batch of companies
 - Call: `POST /crm/objects/2026-03/companies/batch/create`, effect: write
-- Permission keys: `organizations.write`, `organizations.create`, `crm.assign-others`
+- Permission keys: `organizations.create`, `crm.assign-others`
 - Body: `BatchInputSimplePublicObjectBatchInputForCreate`, required
 
 | Flag | Required | What |
@@ -172,6 +173,7 @@
 
 - What: Retrieve a batch of companies
 - Call: `POST /crm/objects/2026-03/companies/batch/read`, effect: read
+- Permission keys: `organizations.list`
 - Body: `BatchReadInputSimplePublicObjectId`, required
 
 | Flag | Required | What |
@@ -184,7 +186,7 @@
 
 - What: Update a batch of companies
 - Call: `POST /crm/objects/2026-03/companies/batch/update`, effect: write
-- Permission keys: `organizations.write`, `organizations.update`, `crm.assign-others`
+- Permission keys: `organizations.update`, `crm.assign-others`
 - Body: `BatchInputSimplePublicObjectBatchInput`, required
 
 | Flag | Required | What |
@@ -196,7 +198,7 @@
 
 - What: Create or update a batch of companies by unique property values
 - Call: `POST /crm/objects/2026-03/companies/batch/upsert`, effect: write
-- Permission keys: `organizations.write`, `organizations.create`, `organizations.update`, `crm.assign-others`
+- Permission keys: `organizations.create`, `organizations.update`, `crm.assign-others`
 - Body: `BatchInputSimplePublicObjectBatchInputUpsert`, required
 
 | Flag | Required | What |
@@ -220,7 +222,7 @@
 
 - What: Create a batch of contacts
 - Call: `POST /crm/objects/2026-03/contacts/batch/create`, effect: write
-- Permission keys: `people.write`, `people.create`, `crm.assign-others`
+- Permission keys: `people.create`, `crm.assign-others`
 - Body: `BatchInputSimplePublicObjectBatchInputForCreate`, required
 
 | Flag | Required | What |
@@ -232,6 +234,7 @@
 
 - What: Retrieve a batch of contacts
 - Call: `POST /crm/objects/2026-03/contacts/batch/read`, effect: read
+- Permission keys: `people.list`
 - Body: `BatchReadInputSimplePublicObjectId`, required
 
 | Flag | Required | What |
@@ -244,7 +247,7 @@
 
 - What: Update a batch of contacts
 - Call: `POST /crm/objects/2026-03/contacts/batch/update`, effect: write
-- Permission keys: `people.write`, `people.update`, `crm.assign-others`
+- Permission keys: `people.update`, `crm.assign-others`
 - Body: `BatchInputSimplePublicObjectBatchInput`, required
 
 | Flag | Required | What |
@@ -256,7 +259,7 @@
 
 - What: Create or update a batch of contacts
 - Call: `POST /crm/objects/2026-03/contacts/batch/upsert`, effect: write
-- Permission keys: `people.write`, `people.create`, `people.update`, `crm.assign-others`
+- Permission keys: `people.create`, `people.update`, `crm.assign-others`
 - Body: `BatchInputSimplePublicObjectBatchInputUpsert`, required
 
 | Flag | Required | What |
@@ -280,7 +283,7 @@
 
 - What: Create a batch of deals
 - Call: `POST /crm/objects/2026-03/0-3/batch/create`, effect: write
-- Permission keys: `deals.write`, `deals.create`, `crm.assign-others`, `deals.move`, `deals.close`
+- Permission keys: `deals.create`, `crm.assign-others`, `deals.move`, `deals.close`
 - Body: `BatchInputSimplePublicObjectBatchInputForCreate`, required
 
 | Flag | Required | What |
@@ -292,6 +295,7 @@
 
 - What: Read a batch of deals by internal ID, or unique property values
 - Call: `POST /crm/objects/2026-03/0-3/batch/read`, effect: read
+- Permission keys: `deals.list`
 - Body: `BatchReadInputSimplePublicObjectId`, required
 
 | Flag | Required | What |
@@ -304,7 +308,7 @@
 
 - What: Update a batch of deals by internal ID, or unique property values
 - Call: `POST /crm/objects/2026-03/0-3/batch/update`, effect: write
-- Permission keys: `deals.write`, `deals.update`, `crm.assign-others`, `deals.move`, `deals.close`
+- Permission keys: `deals.update`, `crm.assign-others`, `deals.move`, `deals.close`
 - Body: `BatchInputSimplePublicObjectBatchInput`, required
 
 | Flag | Required | What |
@@ -316,7 +320,7 @@
 
 - What: Create or update a batch of deals by unique property values
 - Call: `POST /crm/objects/2026-03/0-3/batch/upsert`, effect: write
-- Permission keys: `deals.write`, `deals.create`, `deals.update`, `crm.assign-others`, `deals.move`, `deals.close`
+- Permission keys: `deals.create`, `deals.update`, `crm.assign-others`, `deals.move`, `deals.close`
 - Body: `BatchInputSimplePublicObjectBatchInputUpsert`, required
 
 | Flag | Required | What |
@@ -352,6 +356,7 @@
 
 - What: Read a batch of emails by internal ID, or unique property values
 - Call: `POST /crm/objects/2026-03/emails/batch/read`, effect: read
+- Permission keys: `activities.list`
 - Body: `BatchReadInputSimplePublicObjectId`, required
 
 | Flag | Required | What |
@@ -412,6 +417,7 @@
 
 - What: Read a batch of leads by internal ID, or unique property values
 - Call: `POST /crm/objects/2026-03/leads/batch/read`, effect: read
+- Permission keys: `leads.list`
 - Body: `BatchReadInputSimplePublicObjectId`, required
 
 | Flag | Required | What |
@@ -472,6 +478,7 @@
 
 - What: Read a batch of meetings by internal ID, or unique property values
 - Call: `POST /crm/objects/2026-03/meetings/batch/read`, effect: read
+- Permission keys: `activities.list`
 - Body: `BatchReadInputSimplePublicObjectId`, required
 
 | Flag | Required | What |
@@ -532,6 +539,7 @@
 
 - What: Read a batch of notes by internal ID, or unique property values
 - Call: `POST /crm/objects/2026-03/notes/batch/read`, effect: read
+- Permission keys: `activities.list`
 - Body: `BatchReadInputSimplePublicObjectId`, required
 
 | Flag | Required | What |
@@ -594,6 +602,7 @@
 
 - What: Read a batch of properties
 - Call: `POST /crm/properties/2026-03/{objectType}/batch/read`, effect: read
+- Permission keys: `fields.list`
 - Body: `BatchReadInputPropertyName`, required
 
 | Flag | Required | What |
@@ -631,6 +640,7 @@
 
 - What: Read a batch of tasks by internal ID, or unique property values
 - Call: `POST /crm/objects/2026-03/tasks/batch/read`, effect: read
+- Permission keys: `activities.list`
 - Body: `BatchReadInputSimplePublicObjectId`, required
 
 | Flag | Required | What |

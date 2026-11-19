@@ -48,7 +48,9 @@ run it yourself in a terminal.
 | --- | --- | --- |
 | `deals create`, `update`, `move` and `close`, `people` and `organizations` `create` and `update` | its own, such as `deals.update`. A stage change also checks `deals.move`, and a won or lost stage `deals.close` | `allow` |
 | `deals delete` | `deals.delete` | `ask` |
-| An `api` write, such as `api deals-update` | `api.deals-update`, its group's `.write` key (`deals.write`, `notes.write`) and the key of the command that does the same. A deal stage also checks `deals.move` and `deals.close` | `ask` |
+| An `api` write on deals, contacts or companies, such as `api deals-update` | `api.deals-update` and the key of the command that does the same (`deals.update`), as in amoCRM and b24. A write with no command, such as a merge, checks `<group>.update`. A deal stage also checks `deals.move` and `deals.close` | `ask` |
+| Another `api` write, such as `api notes-create` | `api.notes-create` and its group's `.write` key (`notes.write`) | `ask` |
+| An `api` read, such as `api contacts-list` | `api.contacts-list` and the key of the command that reads the same records (`people.list`), so `people: deny` stops it too | `allow` |
 | An `api` delete, archive or merge | its own `api.` key and its group's `.delete` key | `ask` |
 | An owner set on a record, on any path | `crm.assign-others` | `deny` |
 | `api contacts-gdpr-delete`, which erases a contact for good | also `people.erase`, so you can deny it alone | `ask` |

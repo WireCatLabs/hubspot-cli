@@ -118,10 +118,12 @@ it("offers every write and delete, and api show names the keys each checks", asy
   expect(listed.out).toContain('"deals-delete"')
   const shown = await hubspot(["work", "api", "show", "deals-update", "--json"])
   expect(shown.code, shown.err).toBe(0)
-  expect(shown.out).toContain("deals.write")
+  expect(shown.out).toContain("deals.update")
+  expect(shown.out).not.toContain("deals.write")
 })
 
 it("--dry-run of every write and delete names its keys and sends nothing", async () => {
+  withPermissions({ "people.erase": "allow" })
   const service = fake()
   for (const operation of API.manifest.operations.filter((one) => one.effect !== "read")) {
     const ran = await hubspot(["work", "api", operation.command, ...argsOf(operation), "--dry-run", "--json"], {
@@ -130,7 +132,7 @@ it("--dry-run of every write and delete names its keys and sends nothing", async
     expect(ran.code, `${operation.command}: ${ran.err}`).toBe(0)
     const { permission } = ran.json().item as { permission: { key: string; also: { key: string }[] } }
     expect(permission.key).toBe(`api.${operation.command}`)
-    const group = operation.effect === "write" ? /\.write$/ : /\.delete$/
+    const group = operation.effect === "write" ? /\.(write|create|update)$/ : /\.delete$/
     expect(
       permission.also.some(({ key }) => group.test(key)),
       operation.command,
@@ -150,18 +152,18 @@ const deal = (properties: Record<string, string>) => [
   "--json",
 ]
 
-it("a write asks by default: without a terminal it is refused before any request", async () => {
+it("a deal write goes ahead as deals update does; a delete asks, and without a terminal sends nothing", async () => {
   const service = fake()
   const ran = await hubspot(deal({ dealname: "Example" }), { account: service })
-  expect(ran.json()).toMatchObject({ error: { code: "confirmation_required", details: { permission: "deals.write" } } })
-  expect(service.calls).toEqual([])
-  const yes = await hubspot(deal({ dealname: "Example" }).slice(0, -1), { account: service, answer: () => "y" })
-  expect(yes.code, yes.err).toBe(0)
+  expect(ran.code, ran.err).toBe(0)
+  expect(service.calls).toHaveLength(1)
+  const removed = await hubspot(["work", "api", "deals-delete", "--deal-id", "1", "--json"], { account: service })
+  expect(removed.json()).toMatchObject({ error: { code: "confirmation_required" } })
   expect(service.calls).toHaveLength(1)
 })
 
-it("a write allowed by its group goes ahead; an owner in the body checks crm.assign-others, denied by default", async () => {
-  withPermissions({ "deals.write": "allow" })
+it("a write allowed by its api key goes ahead; an owner in the body checks crm.assign-others, denied by default", async () => {
+  withPermissions({ "api.deals-update": "allow" })
   const service = fake()
   const ran = await hubspot(deal({ dealname: "Example" }), { account: service })
   expect(ran.code, ran.err).toBe(0)
@@ -185,14 +187,14 @@ it("a write allowed by its group goes ahead; an owner in the body checks crm.ass
 })
 
 it("the CRM command's key holds on the api path, and the api key on the command", async () => {
-  withPermissions({ "deals.write": "allow", "deals.move": "deny" })
+  withPermissions({ "api.deals-update": "allow", "deals.move": "deny" })
   const service = fake()
   const moved = await hubspot(deal({ dealstage: "closedwon" }), { account: service })
   expect(moved.json()).toMatchObject({ error: { details: { permission: "deals.move" } } })
-  withPermissions({ "deals.write": "allow", "deals.close": "deny" })
+  withPermissions({ "api.deals-update": "allow", "deals.close": "deny" })
   const closed = await hubspot(deal({ dealstage: "closedwon" }), { account: service })
   expect(closed.json()).toMatchObject({ error: { details: { permission: "deals.close" } } })
-  withPermissions({ "deals.write": "allow", "deals.update": "deny" })
+  withPermissions({ "api.deals-update": "allow", "deals.update": "deny" })
   const updated = await hubspot(deal({ dealname: "Example" }), { account: service })
   expect(updated.json()).toMatchObject({ error: { details: { permission: "deals.update" } } })
   expect(service.calls).toEqual([])
@@ -225,7 +227,7 @@ it("a GDPR delete checks a key of its own, so the owner can deny it and still al
 })
 
 it("a write whose answer is lost is outcome_unknown after one request, and a 5xx on a write too", async () => {
-  withPermissions({ "deals.write": "allow" })
+  withPermissions({ "api.deals-update": "allow" })
   const { hub } = seededHubspot()
   hub.loseNextAnswer()
   const lost = await hubspot(deal({ dealname: "Example" }), { account: hub, env: ownState() })
@@ -269,4 +271,25 @@ it("a ten-second limit is waited out and sent again", async () => {
   const ran = await hubspot(["work", "api", "deals-list", "--json"], { account: hub, env: ownState() })
   expect([ran.code, ran.err]).toEqual([0, ""])
   expect(hub.calls).toHaveLength(2)
+})
+
+it("a read denied on its CRM command is denied on the api path too, and nothing is sent", async () => {
+  const groups = ["people", "organizations", "deals", "leads", "activities", "users", "pipelines", "stages", "fields"]
+  const open = /^(search|associations-|account-info-|tickets-|pipelines-audit|pipelines-stages-audit)/
+  const reads = API.manifest.operations.filter(
+    (operation) => operation.effect === "read" && !open.test(operation.command),
+  )
+  expect(reads.map((operation) => operation.command)).toEqual(
+    expect.arrayContaining(["contacts-list", "companies-get", "deals-search", "owners-list", "notes-batch-read"]),
+  )
+  const allowed = Object.fromEntries(
+    Object.entries(EVERY_KEY).filter(([key]) => !groups.includes(key.split(".")[0] ?? "")),
+  )
+  withPermissions({ ...allowed, ...Object.fromEntries(groups.map((group) => [group, "deny"])) })
+  const service = fake()
+  for (const operation of reads) {
+    const ran = await hubspot(["work", "api", operation.command, ...argsOf(operation), "--json"], { account: service })
+    expect(ran.json(), operation.command).toMatchObject({ error: { code: "permission_error" } })
+  }
+  expect(service.calls).toEqual([])
 })
