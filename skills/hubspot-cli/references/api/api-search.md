@@ -6,6 +6,7 @@
 
 - What: Search for calls
 - Call: `POST /crm/objects/2026-03/calls/search`, effect: read
+- Permission keys: `activities.list`
 - Pages: cursor: send `after` (body), read the next one from `paging.next.after`; items in `results`; page size in `limit` (body)
 - Body: `PublicObjectSearchRequest`, required
 
@@ -19,6 +20,7 @@
 
 - What: Search for companies
 - Call: `POST /crm/objects/2026-03/companies/search`, effect: read
+- Permission keys: `organizations.list`
 - Pages: cursor: send `after` (body), read the next one from `paging.next.after`; items in `results`; page size in `limit` (body)
 - Body: `PublicObjectSearchRequest`, required
 
@@ -32,6 +34,7 @@
 
 - What: Search for contacts
 - Call: `POST /crm/objects/2026-03/contacts/search`, effect: read
+- Permission keys: `people.list`
 - Pages: cursor: send `after` (body), read the next one from `paging.next.after`; items in `results`; page size in `limit` (body)
 - Body: `PublicObjectSearchRequest`, required
 
@@ -45,6 +48,7 @@
 
 - What: Search for deals using various filters and criteria to retrieve specific records.
 - Call: `POST /crm/objects/2026-03/0-3/search`, effect: read
+- Permission keys: `deals.list`
 - Pages: cursor: send `after` (body), read the next one from `paging.next.after`; items in `results`; page size in `limit` (body)
 - Body: `PublicObjectSearchRequest`, required
 
@@ -58,6 +62,7 @@
 
 - What: Search for emails using specified criteria and filters.
 - Call: `POST /crm/objects/2026-03/emails/search`, effect: read
+- Permission keys: `activities.list`
 - Pages: cursor: send `after` (body), read the next one from `paging.next.after`; items in `results`; page size in `limit` (body)
 - Body: `PublicObjectSearchRequest`, required
 
@@ -71,6 +76,7 @@
 
 - What: Search for leads using specified criteria.
 - Call: `POST /crm/objects/2026-03/leads/search`, effect: read
+- Permission keys: `leads.list`
 - Pages: cursor: send `after` (body), read the next one from `paging.next.after`; items in `results`; page size in `limit` (body)
 - Body: `PublicObjectSearchRequest`, required
 
@@ -84,6 +90,7 @@
 
 - What: Search for meetings
 - Call: `POST /crm/objects/2026-03/meetings/search`, effect: read
+- Permission keys: `activities.list`
 - Pages: cursor: send `after` (body), read the next one from `paging.next.after`; items in `results`; page size in `limit` (body)
 - Body: `PublicObjectSearchRequest`, required
 
@@ -97,6 +104,7 @@
 
 - What: Search for notes based on specified criteria.
 - Call: `POST /crm/objects/2026-03/notes/search`, effect: read
+- Permission keys: `activities.list`
 - Pages: cursor: send `after` (body), read the next one from `paging.next.after`; items in `results`; page size in `limit` (body)
 - Body: `PublicObjectSearchRequest`, required
 
@@ -124,6 +132,7 @@
 
 - What: Search for tasks using specified criteria.
 - Call: `POST /crm/objects/2026-03/tasks/search`, effect: read
+- Permission keys: `activities.list`
 - Pages: cursor: send `after` (body), read the next one from `paging.next.after`; items in `results`; page size in `limit` (body)
 - Body: `PublicObjectSearchRequest`, required
 

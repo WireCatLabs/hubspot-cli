@@ -25,7 +25,7 @@ const firstWord = (command: string) => command.split("-")[0] ?? command
 
 /**
  * The group of an operation's keys, as the generator named its delete key (`contacts-delete` → `people.delete`), so
- * `people.write` sits beside `people.delete` and both under `people`.
+ * `notes.write` sits beside `notes.delete` and both under `notes`.
  */
 const GROUPS: ReadonlyMap<string, string> = new Map(
   manifest.operations.flatMap((operation) =>
@@ -55,6 +55,42 @@ const COMMAND_KEYS: Readonly<Record<string, readonly string[]>> = Object.fromEnt
   ]),
 )
 
+/**
+ * The read key of the command that reads the same records, so `people: deny` also stops `api contacts-list`
+ * (WC-PERM-22). cli-core 0.705 sends such a read as a read, `--all` included.
+ */
+const READ_KEYS: Readonly<Record<string, string>> = Object.fromEntries([
+  ...(
+    [
+      ["deals", "deals"],
+      ["contacts", "people"],
+      ["companies", "organizations"],
+      ["leads", "leads"],
+    ] as const
+  ).flatMap(([type, noun]) => [
+    [`${type}-list`, `${noun}.list`],
+    [`${type}-search`, `${noun}.list`],
+    [`${type}-batch-read`, `${noun}.list`],
+    [`${type}-get`, `${noun}.show`],
+  ]),
+  ...["notes", "calls", "emails", "meetings", "tasks"].flatMap((type) =>
+    ["list", "get", "search", "batch-read"].map((verb) => [`${type}-${verb}`, "activities.list"]),
+  ),
+  ["owners-list", "users.list"],
+  ["owners-get", "users.show"],
+  ["pipelines-list", "pipelines.list"],
+  ["pipelines-get", "pipelines.show"],
+  ["pipelines-stages-list", "stages.list"],
+  ["pipelines-stages-get", "stages.list"],
+  ...[
+    "properties-list",
+    "properties-get",
+    "properties-batch-read",
+    "properties-groups-list",
+    "properties-groups-get",
+  ].map((command) => [command, "fields.list"]),
+])
+
 /** Every operation the spec has but one that answers with a credential: the CLI signs in through `session`. */
 const offered = (operation: Operation) => !operation.response?.sensitive
 
@@ -66,12 +102,31 @@ const offered = (operation: Operation) => !operation.response?.sensitive
 const ERASE_KEY = "people.erase"
 const ERASES = "contacts-gdpr-delete"
 
-/** A write's own `<group>.write`, `ask` by default like each key of the api group, and its command's keys. */
+/** Deals, contacts and companies have CRM commands: their raw writes check those commands' keys, as amo's and b24's. */
+const COMMAND_GROUPS = new Set(["deals", "people", "organizations"])
+
+/**
+ * A write's own `<group>.write`, `ask` by default like each key of the api group, and its command's keys. A record
+ * write with no command of its own, such as a merge, checks `<group>.update` (NEED-2756).
+ */
 const keysOf = (operation: Operation) => {
   const group = GROUPS.get(firstWord(operation.command))
-  const own = operation.effect === "write" && group ? [{ key: `${group}.write` }] : []
+  const writes = operation.effect === "write" && group !== undefined
+  const own = !writes
+    ? []
+    : !COMMAND_GROUPS.has(group)
+      ? [{ key: `${group}.write` }]
+      : COMMAND_KEYS[operation.command]
+        ? []
+        : [{ key: `${group}.update` }]
   const erases = operation.command === ERASES ? [{ key: ERASE_KEY }] : []
-  return [...own, ...erases, ...(COMMAND_KEYS[operation.command] ?? []).map((key) => ({ key }))]
+  const read = READ_KEYS[operation.command]
+  return [
+    ...own,
+    ...erases,
+    ...(COMMAND_KEYS[operation.command] ?? []).map((key) => ({ key })),
+    ...(read ? [{ key: read }] : []),
+  ]
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -177,10 +232,9 @@ const keyOf = (path: readonly string[]) =>
 
 /** The CRM commands' keys keep the commands' levels on the api path too: an ordinary change goes ahead. */
 const COMMAND_DEFAULTS: Record<string, Level> = Object.fromEntries(
-  [...new Set([...Object.values(COMMAND_KEYS).flat(), MOVES.named.key, CLOSES.named.key])].map((key) => [
-    key,
-    "allow" as Level,
-  ]),
+  [
+    ...new Set([...Object.values(COMMAND_KEYS).flat(), ...Object.values(READ_KEYS), MOVES.named.key, CLOSES.named.key]),
+  ].map((key) => [key, "allow" as Level]),
 )
 
 export const permissions = commandPermissions({

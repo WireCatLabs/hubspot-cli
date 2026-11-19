@@ -2,6 +2,24 @@
 
 Notable changes to `@wirecat/hubspot-cli`. One section per version, newest first.
 
+## 0.4.0 — 19.11.2026
+
+### Changed — may break callers
+
+- **`deals.write`, `people.write` and `organizations.write` are gone.** They stopped only the `api` path, so
+  `deals.write: deny` still let `deals update` through. An `api` write on deals, contacts or companies now checks the
+  key of the command that does the same (`deals.update`, `people.create`), as amoCRM and b24 do, and a merge
+  checks `<group>.update`. So a raw deal, contact or company write goes ahead as its command does, and deletes still
+  ask. Watch for: a setting that names one of the three old keys no longer matches anything: set
+  `deals.update`, `deals.create` or the group key `deals` instead.
+
+### Fixed
+
+- **A read denied on a CRM command is denied through `api` too.** `config set permissions.people deny` stopped
+  `people list` but not `api contacts-list`, which read the same contacts. Each raw read now checks the key of the
+  command that reads the same records: `people`, `organizations`, `deals`, `leads`, `activities`, `users`, `pipelines`,
+  `stages` and `fields`. See [permissions](docs/permissions.md).
+
 ## 0.3.2 — 19.11.2026
 
 ## 0.3.1 — 19.11.2026

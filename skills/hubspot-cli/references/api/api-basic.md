@@ -92,6 +92,7 @@
 
 - What: Read
 - Call: `GET /crm/objects/2026-03/calls/{callId}`, effect: read
+- Permission keys: `activities.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -106,6 +107,7 @@
 
 - What: List
 - Call: `GET /crm/objects/2026-03/calls`, effect: read
+- Permission keys: `activities.list`
 - Pages: cursor: send `after` (query), read the next one from `paging.next.after`; items in `results`; page size in `limit` (query)
 
 | Flag | Required | What |
@@ -136,7 +138,7 @@
 
 - What: Create a company
 - Call: `POST /crm/objects/2026-03/companies`, effect: write
-- Permission keys: `organizations.write`, `organizations.create`, `crm.assign-others`
+- Permission keys: `organizations.create`, `crm.assign-others`
 - Body: `SimplePublicObjectInputForCreate`, required
 
 | Flag | Required | What |
@@ -158,6 +160,7 @@
 
 - What: Retrieve a company
 - Call: `GET /crm/objects/2026-03/companies/{companyId}`, effect: read
+- Permission keys: `organizations.show`
 
 | Flag | Required | What |
 |---|---|---|
@@ -172,6 +175,7 @@
 
 - What: Retrieve companies
 - Call: `GET /crm/objects/2026-03/companies`, effect: read
+- Permission keys: `organizations.list`
 - Pages: cursor: send `after` (query), read the next one from `paging.next.after`; items in `results`; page size in `limit` (query)
 
 | Flag | Required | What |
@@ -188,7 +192,7 @@
 
 - What: Update a company
 - Call: `PATCH /crm/objects/2026-03/companies/{companyId}`, effect: write
-- Permission keys: `organizations.write`, `organizations.update`, `crm.assign-others`
+- Permission keys: `organizations.update`, `crm.assign-others`
 - Body: `SimplePublicObjectInput`, required
 
 | Flag | Required | What |
@@ -202,7 +206,7 @@
 
 - What: Create a contact
 - Call: `POST /crm/objects/2026-03/contacts`, effect: write
-- Permission keys: `people.write`, `people.create`, `crm.assign-others`
+- Permission keys: `people.create`, `crm.assign-others`
 - Body: `SimplePublicObjectInputForCreate`, required
 
 | Flag | Required | What |
@@ -224,6 +228,7 @@
 
 - What: Retrieve a contact
 - Call: `GET /crm/objects/2026-03/contacts/{contactId}`, effect: read
+- Permission keys: `people.show`
 
 | Flag | Required | What |
 |---|---|---|
@@ -238,6 +243,7 @@
 
 - What: Retrieve contacts
 - Call: `GET /crm/objects/2026-03/contacts`, effect: read
+- Permission keys: `people.list`
 - Pages: cursor: send `after` (query), read the next one from `paging.next.after`; items in `results`; page size in `limit` (query)
 
 | Flag | Required | What |
@@ -254,7 +260,7 @@
 
 - What: Update a contact
 - Call: `PATCH /crm/objects/2026-03/contacts/{contactId}`, effect: write
-- Permission keys: `people.write`, `people.update`, `crm.assign-others`
+- Permission keys: `people.update`, `crm.assign-others`
 - Body: `SimplePublicObjectInput`, required
 
 | Flag | Required | What |
@@ -268,7 +274,7 @@
 
 - What: Create
 - Call: `POST /crm/objects/2026-03/0-3`, effect: write
-- Permission keys: `deals.write`, `deals.create`, `crm.assign-others`, `deals.move`, `deals.close`
+- Permission keys: `deals.create`, `crm.assign-others`, `deals.move`, `deals.close`
 - Body: `SimplePublicObjectInputForCreate`, required
 
 | Flag | Required | What |
@@ -290,6 +296,7 @@
 
 - What: Read
 - Call: `GET /crm/objects/2026-03/0-3/{dealId}`, effect: read
+- Permission keys: `deals.show`
 
 | Flag | Required | What |
 |---|---|---|
@@ -304,6 +311,7 @@
 
 - What: List
 - Call: `GET /crm/objects/2026-03/0-3`, effect: read
+- Permission keys: `deals.list`
 - Pages: cursor: send `after` (query), read the next one from `paging.next.after`; items in `results`; page size in `limit` (query)
 
 | Flag | Required | What |
@@ -332,7 +340,7 @@
 
 - What: Update
 - Call: `PATCH /crm/objects/2026-03/0-3/{dealId}`, effect: write
-- Permission keys: `deals.write`, `deals.update`, `crm.assign-others`, `deals.move`, `deals.close`
+- Permission keys: `deals.update`, `crm.assign-others`, `deals.move`, `deals.close`
 - Body: `SimplePublicObjectInput`, required
 
 | Flag | Required | What |
@@ -368,6 +376,7 @@
 
 - What: Read
 - Call: `GET /crm/objects/2026-03/emails/{emailId}`, effect: read
+- Permission keys: `activities.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -382,6 +391,7 @@
 
 - What: List
 - Call: `GET /crm/objects/2026-03/emails`, effect: read
+- Permission keys: `activities.list`
 - Pages: cursor: send `after` (query), read the next one from `paging.next.after`; items in `results`; page size in `limit` (query)
 
 | Flag | Required | What |
@@ -434,6 +444,7 @@
 
 - What: Read
 - Call: `GET /crm/objects/2026-03/leads/{leadsId}`, effect: read
+- Permission keys: `leads.show`
 
 | Flag | Required | What |
 |---|---|---|
@@ -448,6 +459,7 @@
 
 - What: List
 - Call: `GET /crm/objects/2026-03/leads`, effect: read
+- Permission keys: `leads.list`
 - Pages: cursor: send `after` (query), read the next one from `paging.next.after`; items in `results`; page size in `limit` (query)
 
 | Flag | Required | What |
@@ -500,6 +512,7 @@
 
 - What: Read
 - Call: `GET /crm/objects/2026-03/meetings/{meetingId}`, effect: read
+- Permission keys: `activities.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -514,6 +527,7 @@
 
 - What: List
 - Call: `GET /crm/objects/2026-03/meetings`, effect: read
+- Permission keys: `activities.list`
 - Pages: cursor: send `after` (query), read the next one from `paging.next.after`; items in `results`; page size in `limit` (query)
 
 | Flag | Required | What |
@@ -566,6 +580,7 @@
 
 - What: Read
 - Call: `GET /crm/objects/2026-03/notes/{noteId}`, effect: read
+- Permission keys: `activities.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -580,6 +595,7 @@
 
 - What: List
 - Call: `GET /crm/objects/2026-03/notes`, effect: read
+- Permission keys: `activities.list`
 - Pages: cursor: send `after` (query), read the next one from `paging.next.after`; items in `results`; page size in `limit` (query)
 
 | Flag | Required | What |
@@ -610,6 +626,7 @@
 
 - What: Retrieve a specific owner by ID
 - Call: `GET /crm/owners/2026-03/{ownerId}`, effect: read
+- Permission keys: `users.show`
 
 | Flag | Required | What |
 |---|---|---|
@@ -621,6 +638,7 @@
 
 - What: List owners
 - Call: `GET /crm/owners/2026-03`, effect: read
+- Permission keys: `users.list`
 - Pages: cursor: send `after` (query), read the next one from `paging.next.after`; items in `results`; page size in `limit` (query)
 
 | Flag | Required | What |
@@ -671,6 +689,7 @@
 
 - What: Return a pipeline by ID
 - Call: `GET /crm/pipelines/2026-03/{objectType}/{pipelineId}`, effect: read
+- Permission keys: `pipelines.show`
 
 | Flag | Required | What |
 |---|---|---|
@@ -681,6 +700,7 @@
 
 - What: Retrieve all pipelines
 - Call: `GET /crm/pipelines/2026-03/{objectType}`, effect: read
+- Permission keys: `pipelines.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -744,6 +764,7 @@
 
 - What: Return a pipeline stage by ID
 - Call: `GET /crm/pipelines/2026-03/{objectType}/{pipelineId}/stages/{stageId}`, effect: read
+- Permission keys: `stages.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -755,6 +776,7 @@
 
 - What: Return all stages of a pipeline
 - Call: `GET /crm/pipelines/2026-03/{objectType}/{pipelineId}/stages`, effect: read
+- Permission keys: `stages.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -835,6 +857,7 @@
 
 - What: Read a property
 - Call: `GET /crm/properties/2026-03/{objectType}/{propertyName}`, effect: read
+- Permission keys: `fields.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -873,6 +896,7 @@
 
 - What: Read a property group
 - Call: `GET /crm/properties/2026-03/{objectType}/groups/{groupName}`, effect: read
+- Permission keys: `fields.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -884,6 +908,7 @@
 
 - What: Read all property groups
 - Call: `GET /crm/properties/2026-03/{objectType}/groups`, effect: read
+- Permission keys: `fields.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -908,6 +933,7 @@
 
 - What: Read all properties
 - Call: `GET /crm/properties/2026-03/{objectType}`, effect: read
+- Permission keys: `fields.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -957,6 +983,7 @@
 
 - What: Read
 - Call: `GET /crm/objects/2026-03/tasks/{taskId}`, effect: read
+- Permission keys: `activities.list`
 
 | Flag | Required | What |
 |---|---|---|
@@ -971,6 +998,7 @@
 
 - What: List
 - Call: `GET /crm/objects/2026-03/tasks`, effect: read
+- Permission keys: `activities.list`
 - Pages: cursor: send `after` (query), read the next one from `paging.next.after`; items in `results`; page size in `limit` (query)
 
 | Flag | Required | What |
