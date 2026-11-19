@@ -22,8 +22,6 @@ Notable changes to `@wirecat/hubspot-cli`. One section per version, newest first
 
 ## 0.3.2 — 19.11.2026
 
-The same code as 0.3.1, published by mistake under the next number.
-
 ## 0.3.1 — 19.11.2026
 
 ### Fixed
