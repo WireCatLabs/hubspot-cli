@@ -1,6 +1,6 @@
 {
   "name": "@wirecat/hubspot-cli",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "HubSpot CRM CLI for AI agents: a local copy of deals, contacts and companies, an MCP server, deal and contact writes, and every operation of HubSpot's CRM API",
   "keywords": [
     "hubspot",
@@ -72,8 +72,8 @@
     "spec:sync": "node --experimental-strip-types scripts/sync-spec.ts"
   },
   "dependencies": {
-    "@wirecat/cli-base": "0.124.0",
-    "@wirecat/cli-core": "0.705.0",
+    "@wirecat/cli-base": "0.125.0",
+    "@wirecat/cli-core": "0.715.0",
     "commander": "15.0.0",
     "valibot": "1.5.0"
   },
@@ -84,7 +84,7 @@
     "@cspell/dict-ru_ru": "2.3.4",
     "@types/node": "22.20.5",
     "@vitest/coverage-v8": "5.0.5",
-    "@wirecat/cli-testing": "0.7.3",
+    "@wirecat/cli-testing": "0.7.4",
     "cspell": "10.4.0",
     "esbuild": "0.28.2",
     "lefthook": "2.2.2",
