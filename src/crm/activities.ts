@@ -2,7 +2,7 @@ import { isCliError } from "@wirecat/cli-base"
 import type { CrmActivity, CrmActivityKind, CrmKind } from "@wirecat/cli-core"
 import { type CrmCallContext, type CrmPage, crmValues } from "@wirecat/cli-core/crm"
 import { htmlToText } from "@wirecat/cli-core/mail"
-import type { HubSpotTransport } from "../hubspot/transport.js"
+import { type HubSpotTransport, segment } from "../hubspot/transport.js"
 import { associationsOf } from "./associations.js"
 import { msOf, nextOf, OVERLAP_MS, propertiesOf, type Raw, resultsOf } from "./records.js"
 import { modifiedSince, nextSpot, SEARCH_PAGE, search } from "./search.js"
@@ -236,4 +236,35 @@ export const readActivities = async (
   if (after !== undefined) return following(items, `${spot.from}.L${listedNext}`)
   const next = nextSpot(spot, rows, "hs_lastmodifieddate", sizes.search)
   return following(items, next ? `${next.from}.${next.offset}` : `${spot.from}.L`)
+}
+
+/**
+ * One engagement by the id `readActivities` gives it (`notes:12`), with what it is on: none when HubSpot has no such
+ * record.
+ */
+export const readActivity = async (caller: HubSpotTransport, externalId: string): Promise<CrmActivity | null> => {
+  const [type, own] = externalId.split(":")
+  const engagement = ENGAGEMENTS.find((one) => one.type === type)
+  if (!engagement || !own) return null
+  let raw: Raw
+  try {
+    raw = await caller.get(`/crm/objects/2026-03/${engagement.type}/${segment(own)}`, {
+      properties: engagement.properties.join(","),
+    })
+  } catch (error) {
+    if (isCliError(error) && error.code === "not_found") return null
+    throw error
+  }
+  let on: CrmActivity["on"] = []
+  for (const [to, kind] of ON) {
+    let found: Awaited<ReturnType<typeof associationsOf>>
+    try {
+      found = await associationsOf(caller.post, engagement.type, to, [own])
+    } catch (error) {
+      if (isCliError(error) && error.code === "permission_error") continue
+      throw error
+    }
+    on = on.concat((found.get(own) ?? []).map((one) => ({ kind, externalId: one.id })))
+  }
+  return toActivity(engagement, raw, on)
 }

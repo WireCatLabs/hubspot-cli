@@ -558,7 +558,7 @@
 
 - What: Create
 - Call: `POST /crm/objects/2026-03/notes`, effect: write
-- Permission keys: `notes.write`, `crm.assign-others`
+- Permission keys: `notes.write`, `activities.create`, `crm.assign-others`
 - Body: `SimplePublicObjectInputForCreate`, required
 
 | Flag | Required | What |
@@ -961,7 +961,7 @@
 
 - What: Create
 - Call: `POST /crm/objects/2026-03/tasks`, effect: write
-- Permission keys: `tasks.write`, `crm.assign-others`
+- Permission keys: `tasks.write`, `activities.create`, `crm.assign-others`
 - Body: `SimplePublicObjectInputForCreate`, required
 
 | Flag | Required | What |

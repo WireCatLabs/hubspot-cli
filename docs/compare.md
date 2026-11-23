@@ -51,7 +51,7 @@ whole account and not for one person
 | Create and update contacts and companies | ✅ | [✅](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server#write-access) | [✅](https://developers.hubspot.com/docs/developer-tooling/local-development/agent-cli/guide#core-commands) | [✅](https://github.com/baryhuang/mcp-hubspot/blob/4a8345f2507b4159fc84eb500c74669329076f53/src/mcp_server_hubspot/server.py#L191-L238) | [✅](https://composio.dev/toolkits/hubspot) |
 | Move a deal to a stage by the stage's name | ✅ | [🟡](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server#write-access) | [🟡](https://developers.hubspot.com/docs/developer-tooling/local-development/agent-cli/guide#properties) | [❌](https://github.com/baryhuang/mcp-hubspot/blob/4a8345f2507b4159fc84eb500c74669329076f53/src/mcp_server_hubspot/server.py#L186-L281) | [🟡](https://composio.dev/toolkits/hubspot) |
 | Close a deal as lost, with its reason, in one step | ✅ | [🟡](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server#write-access) | [🟡](https://developers.hubspot.com/docs/developer-tooling/local-development/agent-cli/guide#properties) | [❌](https://github.com/baryhuang/mcp-hubspot/blob/4a8345f2507b4159fc84eb500c74669329076f53/src/mcp_server_hubspot/server.py#L186-L281) | [🟡](https://composio.dev/toolkits/hubspot) |
-| Set a task or add a note on a deal | 🟡 | [✅](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server#write-access) | [✅](https://developers.hubspot.com/docs/build-with-ai/agent-cli#when-to-use-the-agent-cli) | [❌](https://github.com/baryhuang/mcp-hubspot/blob/4a8345f2507b4159fc84eb500c74669329076f53/src/mcp_server_hubspot/server.py#L186-L281) | [✅](https://composio.dev/toolkits/hubspot) |
+| Set a task or add a note on a deal | ✅ | [✅](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server#write-access) | [✅](https://developers.hubspot.com/docs/build-with-ai/agent-cli#when-to-use-the-agent-cli) | [❌](https://github.com/baryhuang/mcp-hubspot/blob/4a8345f2507b4159fc84eb500c74669329076f53/src/mcp_server_hubspot/server.py#L186-L281) | [✅](https://composio.dev/toolkits/hubspot) |
 | Call any other operation of HubSpot's CRM API | ✅ | [🟡](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server#available-tools) | [🟡](https://developers.hubspot.com/docs/developer-tooling/local-development/agent-cli/guide#core-commands) | [❌](https://github.com/baryhuang/mcp-hubspot/blob/4a8345f2507b4159fc84eb500c74669329076f53/src/mcp_server_hubspot/server.py#L186-L281) | [🟡](https://composio.dev/toolkits/hubspot) |
 | **Summaries and changes** | | | | | |
 | Funnel: how many deals reached each stage | ✅ | ➖ | ➖ | [❌](https://github.com/baryhuang/mcp-hubspot/blob/4a8345f2507b4159fc84eb500c74669329076f53/src/mcp_server_hubspot/server.py#L186-L281) | ➖ |
@@ -95,10 +95,11 @@ Notes on the `hubspot` column:
   and this row is partly. To stop an agent from writing, set the key to `deny` or `readonly`.
 - **Another owner.** The key names no person, so `hubspot` cannot tell your records from a colleague's. Setting an
   owner on any record, by a command or through `api`, is refused until you set `crm.assign-others` to `allow`.
-- **Tasks, notes and tickets.** There is no command of their own for them. They are written through `api`, such as
-  `api notes-create` or `api tasks-create`, with a JSON body, so these rows are partly. An API write asks first at a
-  terminal, and over MCP `ask` lets it run. The notes, calls, e-mails, meetings and tasks on your deals are read with
-  `activities list`, once you turn on the activities setting.
+- **Tasks, notes and tickets.** `activities create` adds a note or a task to a deal, a contact or a company, and
+  `activities close` marks a task done. Tickets have no command of their own: they are written through `api`, such
+  as `api tickets-create`, with a JSON body, so that row is partly. An API write asks first at a terminal, and over
+  MCP `ask` lets it run. The notes, calls, e-mails, meetings and tasks on your deals are read with `activities list`,
+  once you turn on the activities setting.
 - **The whole API.** `api list` shows every operation of HubSpot's CRM API, 157 in all, each a
   command with its own permission key. They reach an agent over MCP too.
 - **Without the internet.** `sync` copies the pipelines, the deals with their contacts and companies, and the leads,

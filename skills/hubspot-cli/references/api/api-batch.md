@@ -527,7 +527,7 @@
 
 - What: Create a batch of notes
 - Call: `POST /crm/objects/2026-03/notes/batch/create`, effect: write
-- Permission keys: `notes.write`, `crm.assign-others`
+- Permission keys: `notes.write`, `activities.create`, `crm.assign-others`
 - Body: `BatchInputSimplePublicObjectBatchInputForCreate`, required
 
 | Flag | Required | What |
@@ -628,7 +628,7 @@
 
 - What: Create a batch of tasks
 - Call: `POST /crm/objects/2026-03/tasks/batch/create`, effect: write
-- Permission keys: `tasks.write`, `crm.assign-others`
+- Permission keys: `tasks.write`, `activities.create`, `crm.assign-others`
 - Body: `BatchInputSimplePublicObjectBatchInputForCreate`, required
 
 | Flag | Required | What |

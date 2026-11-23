@@ -580,6 +580,32 @@
     },
     {
       "path": [
+        "activities",
+        "create"
+      ],
+      "summary": "add a comment or task to records of the CRM, then store the CRM's copy of it…",
+      "effects": {
+        "remote": "write",
+        "local": "write"
+      },
+      "permission": "activities.create",
+      "entity": "crm_activity_write"
+    },
+    {
+      "path": [
+        "activities",
+        "close"
+      ],
+      "summary": "mark a task done in the CRM, then store the CRM's copy of it when the…",
+      "effects": {
+        "remote": "write",
+        "local": "write"
+      },
+      "permission": "activities.close",
+      "entity": "crm_activity_write"
+    },
+    {
+      "path": [
         "changes",
         "list"
       ],

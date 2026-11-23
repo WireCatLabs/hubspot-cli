@@ -168,21 +168,25 @@ hubspot work organizations update 4021 --phone "+34 600 000 000"
 
 ```sh
 hubspot work activities list                           # notes, calls, e-mails, meetings and tasks
+hubspot work activities create comment --subject deal:12 --text "Agreed on the price"
+hubspot work activities create task --subject deal:12 --title "Send the contract" --due 2026-12-01
+hubspot work activities close tasks:4021               # the task is done
 hubspot work changes list "at>=1d"                     # what changed in the last day
 ```
 
-Activities are copied once you turn on the activities setting. `activities list` names the setting.
+Activities are copied once you turn on the activities setting. `activities list` names the setting. A note or a
+task is written either way.
 
 ### Any operation of the API
 
 ```sh
 hubspot work api list                                  # every operation, without calling HubSpot
 hubspot work api deals-list --limit 5                  # one of them
-hubspot work api notes-create --body-file note.json    # a note on a deal: a write, which asks first
+hubspot work api tickets-create --body-file ticket.json  # a ticket: a write, which asks first
 ```
 
 `api` offers every operation of HubSpot's CRM API version 2026-03, from its 15 specs, each with its own permission:
-reads, writes and deletes. Notes, tasks and tickets are written here.
+reads, writes and deletes. Tickets and leads are written here.
 
 ### With your other sources
 
@@ -244,7 +248,7 @@ More: [settings and permissions](https://github.com/WireCatLabs/hubspot-cli/blob
 - `hubspot` is tested against a fake account built from HubSpot's API reference, and each release is checked against
   a HubSpot test account.
 - A contact keeps one e-mail and two numbers (phone and mobile), and a company one number and no e-mail: a longer
-  list is refused. Leads, notes, tasks and a deal's contacts and company are written through `api`.
+  list is refused. Leads, tickets and a deal's contacts and company are written through `api`.
 - HubSpot takes no idempotency key: a write that ended in `outcome_unknown` may have happened. Check before repeating.
 - Tickets are read and written only through `api`, not copied.
 - Leads need Sales Hub Professional or Enterprise.
