@@ -7,7 +7,7 @@ ran it · ⛔ not tested offline, with the reason and where it is checked instea
 Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 [TESTING.md](TESTING.md) for how, and for the states and failures that cut across commands.
 
-**839 ✅ · 61 ⛔ · 0 ❌** — 245 commands, 655 options.
+**846 ✅ · 61 ⛔ · 0 ❌** — 247 commands, 660 options.
 
 | Command | Option | | Note |
 |---|---|---|---|
@@ -127,6 +127,13 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `activities list` |  | ✅ |  |
 | `activities list` | `--limit` | ✅ |  |
 | `activities list` | `--page` | ✅ |  |
+| `activities create` |  | ✅ |  |
+| `activities create` | `--subject` | ✅ |  |
+| `activities create` | `--title` | ✅ |  |
+| `activities create` | `--text` | ✅ |  |
+| `activities create` | `--due` | ✅ |  |
+| `activities create` | `--owner` | ✅ |  |
+| `activities close` |  | ✅ |  |
 | `changes list` |  | ✅ |  |
 | `changes list` | `--limit` | ✅ |  |
 | `changes list` | `--cursor` | ✅ |  |

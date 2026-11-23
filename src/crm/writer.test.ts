@@ -316,6 +316,20 @@ describe("note and task writes", () => {
     expect(closed.item).toMatchObject({ activity: { kind: "task", done: true } })
   })
 
+  it("a task for another owner is refused until crm.assign-others allows it", async () => {
+    const { hub, ids } = await synced()
+    const deal = await refOf(hub, ids.kitchen)
+    const argv = ["activities", "create", "task", "--subject", deal, "--title", "Call back", "--owner", "502"]
+    const before = hub.writes()
+    const refused = await hubspot(["work", ...argv, "--json"], { account: hub })
+    expect(refused.code).toBe(5)
+    expect(hub.writes()).toBe(before)
+    withPermissions({ "crm.assign-others": "allow" })
+    const made = await runs(hub, argv)
+    const id = (made.item as { activity: { external_id: string } }).activity.external_id.replace("tasks:", "")
+    expect(hub.row("tasks", id)?.properties.hubspot_owner_id).toBe("502")
+  })
+
   it("a note on a lead is refused before any request", async () => {
     const { hub } = await synced()
     const before = hub.writes()
