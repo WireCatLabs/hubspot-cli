@@ -59,6 +59,8 @@ describe("each remote command runs inside cli-core's run", () => {
       "people update": ["work", "people", "update", ids.ana, "--last-name", "Example"],
       "organizations create": ["work", "organizations", "create", "--name", "Example"],
       "organizations update": ["work", "organizations", "update", ids.acme, "--name", "Example Ltd"],
+      "activities create": ["work", "activities", "create", "comment", "--subject", DEAL, "--text", "Example"],
+      "activities close": ["work", "activities", "close", `tasks:${ids.task}`],
     },
     skip: {
       ...Object.fromEntries(

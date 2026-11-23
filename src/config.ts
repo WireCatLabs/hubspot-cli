@@ -39,8 +39,8 @@ const GROUPS: ReadonlyMap<string, string> = new Map(
  * The CRM command each raw operation does the same as, so `deals.update: deny` also stops `api deals-update` and its
  * `--dry-run` names the key (WC-PERM-22). Deletes need no entry: the generator gave them `deals.delete` already.
  */
-const COMMAND_KEYS: Readonly<Record<string, readonly string[]>> = Object.fromEntries(
-  (
+const COMMAND_KEYS: Readonly<Record<string, readonly string[]>> = Object.fromEntries([
+  ...(
     [
       ["deals", "deals"],
       ["contacts", "people"],
@@ -53,7 +53,11 @@ const COMMAND_KEYS: Readonly<Record<string, readonly string[]>> = Object.fromEnt
     [`${type}-batch-update`, [`${noun}.update`]],
     [`${type}-batch-upsert`, [`${noun}.create`, `${noun}.update`]],
   ]),
-)
+  ...["notes", "tasks"].flatMap((type): [string, readonly string[]][] => [
+    [`${type}-create`, ["activities.create"]],
+    [`${type}-batch-create`, ["activities.create"]],
+  ]),
+])
 
 /**
  * The read key of the command that reads the same records, so `people: deny` also stops `api contacts-list`

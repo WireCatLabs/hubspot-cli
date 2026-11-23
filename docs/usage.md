@@ -95,8 +95,8 @@ terminal. Over MCP nobody is there to answer, so only `readonly` or `deny` stops
 
 A contact keeps one e-mail and two numbers, phone and mobile. A company keeps one number and no e-mail. `--phone` and
 `--email` replace the whole list, so one `--phone` on a contact clears its mobile number, and `--name` sets the first
-and the last name both. Notes, tasks,
-leads and a deal's contacts and company are written through [the API](#call-the-api).
+and the last name both. Leads, tickets and a deal's contacts and company are written through
+[the API](#call-the-api).
 
 The key belongs to the account, not to you, so setting an owner with `--owner` checks `crm.assign-others`, which is
 `deny` until you allow it ([permissions](permissions.md)). HubSpot takes no idempotency key: a change
@@ -111,6 +111,16 @@ account's id in place of the example `12345678`. `session status` shows the id a
 hubspot work config set crm.hubspot:12345678.activities on
 hubspot work sync
 hubspot work activities list overdue:true
+```
+
+A note or a task goes on a deal by its ref, and on a contact or a company by HubSpot's id, with `--subject` once for
+each. It is written whether the activities setting is on or not, and stored only when it is on. Closing a task needs
+its id from `activities list`:
+
+```sh
+hubspot work activities create comment --subject deal:12 --text "Agreed on the price"
+hubspot work activities create task --subject deal:12 --subject person:4021 --title "Send the contract" --due 2026-12-01
+hubspot work activities close tasks:5501
 ```
 
 `changes list` shows what the syncs saw change: deals made, moved, won and lost, and contacts added. This schedule
@@ -140,7 +150,7 @@ only `readonly` or `deny` stops an agent.
 `--dry-run` shows the keys without sending anything:
 
 ```sh
-hubspot work api notes-create --body-file note.json --dry-run
+hubspot work api tickets-create --body-file ticket.json --dry-run
 ```
 
 ```sh

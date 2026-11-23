@@ -273,3 +273,59 @@ describe("every option of the write commands", () => {
     expect(hub.refusals).toEqual([])
   })
 })
+
+describe("note and task writes", () => {
+  it("a note and a task go on a deal, a contact and a company, and a closed task reads back done", async () => {
+    const { hub, ids } = await synced()
+    const deal = await refOf(hub, ids.kitchen)
+    const note = await runs(hub, [
+      "activities",
+      "create",
+      "comment",
+      "--subject",
+      deal,
+      "--subject",
+      `person:${ids.ana}`,
+      "--text",
+      "Called <Ana>\nagreed on 5 & 6",
+    ])
+    const written = (note.item as { activity: { external_id: string } }).activity
+    const noteId = written.external_id.replace("notes:", "")
+    expect(hub.row("notes", noteId)?.properties.hs_note_body).toBe("Called &lt;Ana&gt;<br>agreed on 5 &amp; 6")
+    expect(note.item).toMatchObject({ stored: false, activity: { kind: "comment" } })
+    expect((note.item as { activity: { on: unknown[] } }).activity.on).toHaveLength(2)
+
+    const task = await runs(hub, [
+      "activities",
+      "create",
+      "task",
+      "--subject",
+      `organization:${ids.acme}`,
+      "--title",
+      "Send the contract",
+      "--due",
+      "2026-12-01T10:00:00Z",
+    ])
+    const taskId = (task.item as { activity: { external_id: string } }).activity.external_id
+    expect(hub.row("tasks", taskId.replace("tasks:", ""))?.properties).toMatchObject({
+      hs_task_subject: "Send the contract",
+      hs_task_status: "NOT_STARTED",
+      hs_timestamp: "2026-12-01T10:00:00.000Z",
+    })
+    const closed = await runs(hub, ["activities", "close", taskId])
+    expect(closed.item).toMatchObject({ activity: { kind: "task", done: true } })
+  })
+
+  it("a note on a lead is refused before any request", async () => {
+    const { hub } = await synced()
+    const before = hub.writes()
+    const ran = await hubspot(
+      ["work", "activities", "create", "comment", "--subject", "lead:1", "--text", "x", "--json"],
+      {
+        account: hub,
+      },
+    )
+    expect(ran.code).not.toBe(0)
+    expect(hub.writes()).toBe(before)
+  })
+})

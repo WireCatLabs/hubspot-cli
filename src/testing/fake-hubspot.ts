@@ -28,7 +28,7 @@ const PATHS: Record<string, string> = {
 export type FakeType = keyof typeof PATHS
 
 /** The types the fake takes a create, an update and a delete of: what the CRM writer sends. */
-const WRITTEN: FakeType[] = ["deals", "contacts", "companies", "notes"]
+const WRITTEN: FakeType[] = ["deals", "contacts", "companies", "notes", "tasks"]
 
 /**
  * HubSpot's own properties a write may set, by HubSpot's default properties pages; anything else must be one the
@@ -49,6 +49,17 @@ const WRITABLE: Partial<Record<FakeType, readonly string[]>> = {
   contacts: ["firstname", "lastname", "email", "phone", "mobilephone", "jobtitle", "hubspot_owner_id"],
   companies: ["name", "domain", "website", "phone", "hubspot_owner_id"],
   notes: ["hs_note_body", "hs_timestamp", "hubspot_owner_id"],
+  tasks: ["hs_task_subject", "hs_task_body", "hs_task_status", "hs_timestamp", "hubspot_owner_id"],
+}
+
+/** The HubSpot-defined association types a create may name, to the type each links (associations v4 guide). */
+const ASSOCIATION_TYPES: Record<number, FakeType> = {
+  190: "companies",
+  192: "companies",
+  202: "contacts",
+  204: "contacts",
+  214: "deals",
+  216: "deals",
 }
 
 /** The last-change property per type (search guide). */
@@ -457,9 +468,16 @@ export const fakeHubspot = (options: FakeHubspotOptions = {}) => {
   }
   for (const type of WRITTEN) {
     answers[idOf(`${type}-create`)] = gate([type], (call) => {
-      const { properties } = call.body as { properties: Record<string, string> }
+      const { properties, associations = [] } = call.body as {
+        properties: Record<string, string>
+        associations?: { to: { id: string }; types: { associationTypeId: number }[] }[]
+      }
       if (unknownProperty(type, properties)) return error(400, "VALIDATION_ERROR")
+      const targets = associations.map((one) => ASSOCIATION_TYPES[one.types[0]?.associationTypeId ?? -1])
+      if (targets.some((to, at) => !to || !rows.get(to)?.has(associations[at]?.to.id ?? "")))
+        return error(400, "VALIDATION_ERROR")
       const id = put(type, properties)
+      for (const [at, one] of associations.entries()) link(type, id, targets[at] as FakeType, one.to.id)
       return { ...written(type, id), status: 201 }
     })
     answers[idOf(`${type}-update`)] = gate([type], (call) => {
@@ -660,5 +678,5 @@ export const seededHubspot = (options: FakeHubspotOptions = {}) => {
     hub.link(type, id, "deals", kitchen)
     hub.link(type, id, "contacts", ana)
   }
-  return { hub, ids: { acme, beta, ana, ben, cy, kitchen, won, lead, note, call, email } }
+  return { hub, ids: { acme, beta, ana, ben, cy, kitchen, won, lead, note, call, email, task } }
 }

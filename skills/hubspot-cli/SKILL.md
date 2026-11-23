@@ -1,6 +1,6 @@
 ---
 name: hubspot-cli
-description: "Use hubspot to read and change a HubSpot account's CRM - deals, leads, pipelines and stages, contacts (people), companies (organizations), owners (users), notes, calls, e-mails, meetings and tasks - with the owner's profile and JSON answers. Deals with their contacts and companies are synced into the local WireCat store and read offline, and `changes list` shows what changed for a morning digest. Use when a question could be answered from the owner's HubSpot sales data (how a deal stands, what is open, what changed, who a client is), to create, update, move or close a deal or change a contact or company, or to set hubspot up."
+description: "Use hubspot to read and change a HubSpot account's CRM - deals, leads, pipelines and stages, contacts (people), companies (organizations), owners (users), notes, calls, e-mails, meetings and tasks - with the owner's profile and JSON answers. Deals with their contacts and companies are synced into the local WireCat store and read offline, and `changes list` shows what changed for a morning digest. Use when a question could be answered from the owner's HubSpot sales data (how a deal stands, what is open, what changed, who a client is), to create, update, move or close a deal, change a contact or company, add a note or a task, or to set hubspot up."
 metadata:
   openclaw:
     requires:
@@ -63,7 +63,8 @@ The first word is the profile: `hubspot work deals list` is profile `work`. Ther
 
 `api` has one command per operation of HubSpot's CRM API, version 2026-03, named like `deals-search` or
 `contacts-list`. [references/api.md](references/api.md) (`hubspot skill show api`) lists the groups, and
-`hubspot skill show api-<group>` one group with each command's flags.
+`hubspot skill show api-basic` (or `api-batch`, `api-search`, `api-advanced`) one group with each command's flags.
+The groups are kinds of call, not objects: there is no `api-notes`.
 
 - `hubspot work api list --json` lists the operations with their effect. `hubspot work api show deals-search --json`
   gives one, with its body.
@@ -72,9 +73,13 @@ The first word is the profile: `hubspot work deals list` is profile `work`. Ther
 - A search returns at most 10,000 results and HubSpot allows about 5 searches a second for the account. Prefer the
   store for anything `deals list` can answer.
 - **Writes.** `deals create|update|move|close|delete`, `people create|update` and `organizations create|update`
-  change records and store HubSpot's answer. Notes, tasks, a deal's contacts and company go through `api`
-  (`api notes-create`, `api associations-default-replace`). Run a write with `--dry-run` first: it names each key it
-  checks. An `outcome_unknown` write may have happened: read the record before repeating it. `--email` and
+  change records and store HubSpot's answer. A note or a task on a deal, a contact or a company is
+  `activities create comment|task --subject deal:12 --subject person:<HubSpot id>`, with `--text` for a note and
+  `--title` (and `--due`, `--owner`) for a task; `activities close tasks:<id>` marks a task done. `deal:12` is the
+  store's ref; a person or a company takes HubSpot's own id, from `people list` or `organizations list`. A deal's
+  contacts and company go through `api associations-default-replace`, whose ids are HubSpot's (`external_id` in
+  `deals show`), never a `deal:` ref. Run a write with `--dry-run` first: it names each key it checks. An
+  `outcome_unknown` write may have happened: read the record before repeating it. `--email` and
   `--phone` replace the whole list and `--name` both name parts: one `--phone` clears the mobile number.
 - **Exit `5` is the owner's decision, not a fault.** Do not work around a refused read with settings, another profile
   or another command. Say what was refused and why.

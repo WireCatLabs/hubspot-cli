@@ -1,6 +1,7 @@
 import { CliError, isCliError } from "@wirecat/cli-base"
-import type { CrmKind, CrmRecords } from "@wirecat/cli-core"
+import type { CrmActivity, CrmKind, CrmRecords } from "@wirecat/cli-core"
 import {
+  type CrmActivityDraft,
   type CrmFields,
   type CrmOrganizationFields,
   type CrmPersonFields,
@@ -11,6 +12,7 @@ import {
   foldFieldName,
 } from "@wirecat/cli-core/crm"
 import { type HubSpotWriteTransport, SERVICE, segment } from "../hubspot/transport.js"
+import { readActivity } from "./activities.js"
 import { OBJECTS } from "./records.js"
 import type { HubSpotCrmSource } from "./source.js"
 
@@ -21,6 +23,7 @@ import type { HubSpotCrmSource } from "./source.js"
 export const HUBSPOT_WRITES: CrmWriteCapabilities = {
   kinds: ["deal", "person", "organization"],
   verbs: ["create", "update", "move", "close", "remove"],
+  activities: ["comment", "task"],
   idempotent: false,
 }
 
@@ -137,6 +140,47 @@ const propertiesFor = (kind: CrmKind, given: unknown): Properties => {
   })
 }
 
+/**
+ * HubSpot's own association types of a note and a task (associations v4 guide, "Association type ID values"), each
+ * checked on account 149800303 on 2026-11-23: a create with them reads back as note_to_deal, task_to_contact and so on.
+ */
+const ACTIVITY_TYPES = {
+  comment: { path: "notes", on: { deal: 214, person: 202, organization: 190 } },
+  task: { path: "tasks", on: { deal: 216, person: 204, organization: 192 } },
+} as const
+
+/** HTML, which HubSpot keeps in a note's and a task's body: the text as given, its lines kept. */
+const htmlOf = (value: string) =>
+  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\r?\n/g, "<br>")
+
+const activityRefused = (message: string, param?: string) =>
+  new CliError("validation_error", message, { reason: "crm.activity-field", sent: false, ...(param ? { param } : {}) })
+
+const activityBodyOf = (draft: CrmActivityDraft, now: number) => {
+  const type = ACTIVITY_TYPES[draft.kind]
+  const associations = draft.on.map((one) => {
+    const typeId = (type.on as Partial<Record<CrmKind, number>>)[one.kind]
+    if (typeId === undefined)
+      throw activityRefused(`a ${SERVICE} ${type.path} entry goes on a deal, a contact or a company`, "--subject")
+    return {
+      to: { id: idOf(one.externalId, "--subject") },
+      types: [{ associationCategory: "HUBSPOT_DEFINED", associationTypeId: typeId }],
+    }
+  })
+  const properties: Properties =
+    draft.kind === "comment"
+      ? { hs_note_body: htmlOf(draft.body ?? ""), hs_timestamp: new Date(now).toISOString() }
+      : {
+          hs_task_subject: draft.subject ?? "",
+          hs_task_status: "NOT_STARTED",
+          // A task's due time is its timestamp (tasks guide); none given, HubSpot's own default of now.
+          hs_timestamp: new Date(draft.dueAt ?? now).toISOString(),
+          ...(draft.body ? { hs_task_body: htmlOf(draft.body) } : {}),
+          ...(draft.assignee ? { hubspot_owner_id: idOf(draft.assignee, "--owner") } : {}),
+        }
+  return { path: type.path, body: { properties, associations } }
+}
+
 const pathOf = (kind: CrmKind, externalId?: string) =>
   `/crm/objects/2026-03/${OBJECTS[kind].path}${externalId === undefined ? "" : `/${segment(idOf(externalId, `<${kind}>`))}`}`
 
@@ -145,7 +189,11 @@ const pathOf = (kind: CrmKind, externalId?: string) =>
  * a POST to create, a PATCH of the properties given, a DELETE that archives. Each is sent once, then the record is read
  * back whole with its associations, as core's store wants it.
  */
-export const hubspotCrmWriter = (hub: () => HubSpotWriteTransport, source: () => HubSpotCrmSource): CrmWriter => {
+export const hubspotCrmWriter = (
+  hub: () => HubSpotWriteTransport,
+  source: () => HubSpotCrmSource,
+  now: () => number = Date.now,
+): CrmWriter => {
   /** The write went through: a failed read-back must never read as a failed write, or the owner repeats it. */
   const readBack = async <K extends CrmKind>(kind: K, externalId: string, options: CrmWriteOptions) => {
     try {
@@ -156,6 +204,21 @@ export const hubspotCrmWriter = (hub: () => HubSpotWriteTransport, source: () =>
       throw new CliError(
         "invalid_response",
         `${SERVICE} made the change to ${kind} ${externalId}, but reading it back failed` +
+          `${isCliError(error) ? ` (${error.code})` : ""}; run sync to store it — do not write it again`,
+        { operation_id: options.operationId, external_id: externalId, sent: true },
+      )
+    }
+  }
+
+  const activityBack = async (externalId: string, options: CrmWriteOptions): Promise<CrmActivity> => {
+    try {
+      const found = await readActivity(hub(), externalId)
+      if (!found) throw new CliError("not_found", `${SERVICE} has no ${externalId}`)
+      return found
+    } catch (error) {
+      throw new CliError(
+        "invalid_response",
+        `${SERVICE} made the change to ${externalId}, but reading it back failed` +
           `${isCliError(error) ? ` (${error.code})` : ""}; run sync to store it — do not write it again`,
         { operation_id: options.operationId, external_id: externalId, sent: true },
       )
@@ -209,6 +272,30 @@ export const hubspotCrmWriter = (hub: () => HubSpotWriteTransport, source: () =>
       const properties = propertiesFor(kind, { stage: await closingStage(externalId, outcome) })
       if (options.reason !== undefined) properties[`closed_${outcome}_reason`] = options.reason
       return update(kind, externalId, properties, options)
+    },
+    async createActivity(draft, options) {
+      const { path, body } = activityBodyOf(draft, now())
+      const answer = await hub().post(`/crm/objects/2026-03/${path}`, body)
+      const created = crmValues.id(crmValues.fieldOf(answer, "id"))
+      if (created === null)
+        throw new CliError(
+          "invalid_response",
+          `${SERVICE} answered the new ${path} entry without its id; run sync first`,
+          {
+            operation_id: options.operationId,
+            sent: true,
+          },
+        )
+      return activityBack(`${path}:${created}`, options)
+    },
+    async completeActivity(externalId, options) {
+      const [type, own] = externalId.split(":")
+      if (type !== "tasks" || !own)
+        throw activityRefused(`only a ${SERVICE} task is closed, by its id tasks:<n>`, "<task>")
+      await hub().patch(`/crm/objects/2026-03/tasks/${segment(idOf(own, "<task>"))}`, {
+        properties: { hs_task_status: "COMPLETED" },
+      })
+      return activityBack(externalId, options)
     },
     async remove(kind, externalId) {
       if (kind !== "deal")
