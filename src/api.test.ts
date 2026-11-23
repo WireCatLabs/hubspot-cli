@@ -27,6 +27,9 @@ const fake = () =>
 
 type Operation = (typeof API.manifest.operations)[number]
 
+// One CLI run per operation of the spec: about 4 s alone, past the 15 s default under coverage on a busy machine.
+const SLOW = { timeout: 60_000 }
+
 /** `api` and every key an operation also checks, so each runs without a question. */
 const EVERY_KEY = Object.fromEntries(
   [
@@ -47,7 +50,7 @@ const argsOf = (operation: Operation) => [
     : []),
 ]
 
-it("sends every operation the spec offers as the spec describes it, with the profile's token", async () => {
+it("sends every operation the spec offers as the spec describes it, with the profile's token", SLOW, async () => {
   withPermissions(EVERY_KEY)
   const service = fake()
   expect(API.manifest.operations.length).toBeGreaterThan(0)
@@ -63,7 +66,7 @@ it("sends every operation the spec offers as the spec describes it, with the pro
   expect(service.calls).toHaveLength(API.manifest.operations.length)
 })
 
-it("takes every option the spec offers, a body from a file, and --all on a paged list", async () => {
+it("takes every option the spec offers, a body from a file, and --all on a paged list", SLOW, async () => {
   withPermissions(EVERY_KEY)
   const service = fake()
   const folder = mkdtempSync(join(tmpdir(), "hubspot-api-body-"))
