@@ -2,6 +2,34 @@
 
 Notable changes to `@wirecat/hubspot-cli`. One section per version, newest first.
 
+## 0.6.0 — 23.11.2026
+
+### Added
+
+- `activities create comment|task` adds a note or a task to a deal, a contact or a company, and `activities close`
+  marks a task done, through cli-core's CRM activity writes. A note's and a task's text keeps its lines.
+
+### Changed — may break callers
+
+- **`account remove` and the check against a second sign-in are cli-core's shared CRM ones** (`@wirecat/cli-core`
+  0.722.0). The reasons stay `account-remove.account-shared` and `session.duplicate`, with the same details, and a
+  dry run still warns. The refusal now says `HubSpot account <id>`. `account remove` also forgets an
+  `oauth:hubspot:<profile>` keyring entry, which hubspot never writes today.
+- **`account remove --delete-data` refuses when hubspot cannot tell which account another profile holds**
+  (`account-remove.account-unknown`, detail `profile`): a profile whose saved sign-in is unreadable and that
+  `session start` never remembered. `--keep-data` still removes.
+- **`session start` refuses a profile named `files` or `foreign-contacts`** (`profile.reserved`): every account
+  shares those folders in the state folder.
+
+### Fixed
+
+- **`account remove` and `account rename` of a profile that does not exist fail the same way, with
+  `profile.unknown`.** They answered with two different reasons for one failure (cli-core 0.721.0).
+- `api notes-create`, `api tasks-create` and their batch creates also check `activities.create`, so denying it stops a
+  note or a task on every path.
+- The skill named a group `api-<object>` that does not exist; it names the four real groups and the ids a note on a
+  deal takes.
+
 ## 0.5.0 — 21.11.2026
 
 ### Changed — may break callers
