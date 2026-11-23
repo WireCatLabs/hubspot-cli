@@ -1,103 +1,43 @@
-import { readFileSync } from "node:fs"
-import { join } from "node:path"
-import { CliError, type KeyringStore, resolvePaths } from "@wirecat/cli-base"
-import { annotate } from "@wirecat/cli-base/commands"
-import {
-  type AccountRemoval,
-  accountFileFor,
-  accountRemoveCommand,
-  LOCAL_READ,
-  LOCAL_WRITE,
-  profilesHere,
-} from "@wirecat/cli-core/cli"
-import type { AccountKey } from "@wirecat/cli-core/store"
-import { Command } from "commander"
+import type { KeyringStore } from "@wirecat/cli-base"
+import { ProfileTokenStore, recalledAccount } from "@wirecat/cli-core/cli"
+import type { CrmAccountOptions } from "@wirecat/cli-core/crm/cli"
 import { configuration } from "../config.js"
-import { contextOf } from "../context.js"
+import { decodeSignIn } from "../context.js"
 import { IDENTITY } from "../identity.js"
 import { PROVIDER } from "../store.js"
-import { signedInTo } from "./session.js"
 
 /** The portal id `session start` remembered: it outlives `session end`, so a copy can still be found. */
-const rememberedOf = (env: NodeJS.ProcessEnv, profile: string) => {
-  try {
-    const { account } = JSON.parse(readFileSync(accountFileFor(IDENTITY, profile, env), "utf8"))
-    return typeof account === "string" && /^\d+$/.test(account) ? account : undefined
-  } catch {
-    return undefined
-  }
+const rememberedOf = (profile: string, env: NodeJS.ProcessEnv) => {
+  const account = recalledAccount(IDENTITY, PROVIDER.name, profile, env)?.account
+  return account !== undefined && /^\d+$/.test(account) ? account : undefined
 }
 
-const portalOf = (env: NodeJS.ProcessEnv, keyring: KeyringStore | undefined, profile: string) => {
-  try {
-    return signedInTo(env, keyring, profile) ?? rememberedOf(env, profile)
-  } catch {
-    return rememberedOf(env, profile)
-  }
+/** The account a profile's saved sign-in reaches; one from `WCHUBSPOT_TOKEN` is no profile's. */
+const signedInTo = (profile: string, env: NodeJS.ProcessEnv, keyring: KeyringStore | undefined) => {
+  const saved = new ProfileTokenStore({ app: IDENTITY, env, ...(keyring ? { keyring } : {}), warn: () => {} }).read(
+    profile,
+  )
+  if (!saved || saved.source === "environment") return undefined
+  return decodeSignIn(saved.secret).portalId
 }
 
-const removal: AccountRemoval = {
-  // HubSpot has no call that revokes a service key or a private app token; the account's settings do.
-  signOut: async (profile) => ({
-    revoked: null,
-    removed: [`the sign-in of ${profile} (the key stays valid in HubSpot until you delete or rotate it there)`],
-  }),
-  account: (profile, { env, keyring }): AccountKey | undefined => {
-    const portal = portalOf(env, keyring, profile)
-    return portal ? { provider: PROVIDER.name, account: portal } : undefined
+/** The store names a HubSpot account by its portal id; a key names no user, so the account alone decides. */
+export const HUBSPOT_ACCOUNT: CrmAccountOptions = {
+  provider: PROVIDER.name,
+  service: "HubSpot",
+  held: (profile, { env, keyring }) => {
+    const remembered = rememberedOf(profile, env)
+    try {
+      const saved = signedInTo(profile, env, keyring)
+      if (saved) return { account: saved, signedIn: true }
+    } catch (error) {
+      // Nothing else tells which account's copy --delete-data would delete.
+      if (!remembered) throw error
+    }
+    return remembered === undefined ? undefined : { account: remembered, signedIn: false }
   },
-  secrets: (profile, { env, keyring }) => [
-    {
-      credentials: {
-        configDir: resolvePaths({ appName: IDENTITY.appName, prefix: IDENTITY.envPrefix, env }).config,
-        service: IDENTITY.appName,
-        envVar: `${IDENTITY.envPrefix}_TOKEN`,
-        env,
-        ...(keyring ? { keyring } : {}),
-      },
-      accounts: [`token:${profile}`],
-    },
-  ],
-  stateFiles: (profile, { env }) => [
-    join(resolvePaths({ appName: IDENTITY.appName, prefix: IDENTITY.envPrefix, env }).state, "crm", profile),
-  ],
+  // HubSpot has no call that revokes a service key or a private app token; the account's settings do.
+  signedOut: (profile) =>
+    `the sign-in of ${profile} (the key stays valid in HubSpot until you delete or rotate it there)`,
+  resolveSettings: configuration.resolveSettings,
 }
-
-/**
- * The store keeps one copy per account, so deleting one profile's data deletes every profile's on that account. A
- * second sign-in to it is refused, but a profile that ended its session still remembers its account.
- */
-const refuseSharedDelete = (command: Command) => {
-  if (command.opts().deleteData !== true) return
-  const { env, keyring, profile, renderer } = contextOf(command)
-  const own = portalOf(env, keyring, profile)
-  if (!own) return
-  // biome-ignore lint/plugin/no-own-settings: this check reads every profile, and baseContext names one
-  const { configuredProfiles } = configuration.resolveSettings({}, { env, needsProfile: false })
-  const sharing = profilesHere(IDENTITY, configuredProfiles, env).filter(
-    (one) => one !== profile && portalOf(env, keyring, one) === own,
-  )
-  if (sharing.length === 0) return
-  const names = sharing.join(", ")
-  // A dry run lists what --delete-data would delete, and says the real run refuses.
-  if (command.opts().dryRun === true) {
-    renderer.warn(`without --dry-run this refuses: ${names} also read${sharing.length === 1 ? "s" : ""} ${own}`)
-    return
-  }
-  throw new CliError(
-    "conflict",
-    `${names} also read${sharing.length === 1 ? "s" : ""} account ${own}, and the store keeps one copy of an ` +
-      `account: --delete-data would delete their deals, contacts and companies too. Use --keep-data, or remove ` +
-      `${names} first`,
-    { reason: "account-remove.account-shared", profiles: sharing, account: own },
-  )
-}
-
-export const accountCommand = (): Command =>
-  annotate(new Command("account"), { effects: LOCAL_READ })
-    .description("this profile on this computer")
-    .addCommand(
-      annotate(accountRemoveCommand(IDENTITY, removal, { resolveSettings: configuration.resolveSettings }), {
-        effects: LOCAL_WRITE,
-      }).hook("preAction", (_, action) => refuseSharedDelete(action)),
-    )
