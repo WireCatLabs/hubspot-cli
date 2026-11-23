@@ -5,6 +5,6 @@ import { DETAILS, REASONS } from "./reasons.js"
 it("hubspot's reasons load beside cli-core's without a duplicate", () => {
   expect(() => failureContext({ reasons: REASONS, details: DETAILS })).not.toThrow()
   expect(REASONS.map((one) => one.reason)).toEqual(
-    expect.arrayContaining(["session.duplicate", "hubspot.daily-limit", "hubspot.scope-missing"]),
+    expect.arrayContaining(["hubspot.daily-limit", "hubspot.scope-missing"]),
   )
 })

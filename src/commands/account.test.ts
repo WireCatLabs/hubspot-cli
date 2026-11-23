@@ -94,4 +94,32 @@ describe("account remove", () => {
     const ran = await hubspot(["work", "account", "remove", "--delete-data", "--dry-run", "--json"], { keyring })
     expect([ran.code, ran.err]).toEqual([0, ""])
   })
+
+  it("--delete-data still refuses when the other profile's sign-in is unreadable, from what session start kept", async () => {
+    const { keyring } = await syncedWork()
+    keyring.set("hubspot-cli", "token:home", "not a sign-in")
+    rememberAccount(IDENTITY, "home", FAKE_ACCOUNT, process.env)
+    const refused = await hubspot(["work", "account", "remove", "--delete-data", "--yes", "--json"], { keyring })
+    expect(refused.json().error).toMatchObject({
+      code: "conflict",
+      reason: "account-remove.account-shared",
+      details: { profiles: ["home"], account: FAKE_ACCOUNT },
+    })
+    expect(await storedAccounts()).toContain(`hubspot:${FAKE_ACCOUNT}`)
+  })
+
+  it("--delete-data refuses when nothing tells which account another profile holds", async () => {
+    const { keyring } = await syncedWork()
+    keyring.set("hubspot-cli", "token:home", "not a sign-in")
+    rememberAccount(IDENTITY, "home", "unknown", process.env)
+    const refused = await hubspot(["work", "account", "remove", "--delete-data", "--yes", "--json"], { keyring })
+    expect(refused.json().error).toMatchObject({
+      code: "conflict",
+      reason: "account-remove.account-unknown",
+      details: { profile: "home" },
+    })
+    expect(keyring.get("hubspot-cli", "token:work")).not.toBeNull()
+    expect(await storedAccounts()).toContain(`hubspot:${FAKE_ACCOUNT}`)
+    expect((await hubspot(["work", "account", "remove", "--keep-data", "--yes", "--json"], { keyring })).code).toBe(0)
+  })
 })

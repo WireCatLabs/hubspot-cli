@@ -24,6 +24,7 @@ import {
   secretInputOf,
   type TokenStorage,
 } from "@wirecat/cli-core/cli"
+import { refuseTakenCrmAccount } from "@wirecat/cli-core/crm/cli"
 import { Command } from "commander"
 import { configuration } from "../config.js"
 import {
@@ -40,6 +41,7 @@ import {
 import { SERVICE } from "../hubspot/transport.js"
 import { IDENTITY } from "../identity.js"
 import { accountAnswer } from "../whoami.js"
+import { HUBSPOT_ACCOUNT } from "./account.js"
 
 const HUBSPOT = IDENTITY.command
 
@@ -53,45 +55,19 @@ const storageOf = (raw: string): TokenStorage => {
 const tokensHere = (env: NodeJS.ProcessEnv, keyring: KeyringStore | undefined) =>
   new ProfileTokenStore({ app: IDENTITY, env, ...(keyring ? { keyring } : {}) })
 
-/** The account a profile's saved sign-in reaches; one from `WCHUBSPOT_TOKEN` is no profile's. */
-export const signedInTo = (env: NodeJS.ProcessEnv, keyring: KeyringStore | undefined, profile: string) => {
-  const saved = tokensHere(env, keyring).read(profile)
-  if (!saved || saved.source === "environment") return undefined
-  return decodeSignIn(saved.secret).portalId
-}
-
-/**
- * A second profile on the same account would sync the same copy twice and split its permissions. A key names no user,
- * so the account alone decides.
- */
-const refuseDuplicate = (env: NodeJS.ProcessEnv, keyring: KeyringStore | undefined, profile: string, at: string) => {
-  // biome-ignore lint/plugin/no-own-settings: this check reads every profile, and baseContext names one
-  const { configuredProfiles } = configuration.resolveSettings({}, { env, needsProfile: false })
-  const other = profilesHere(IDENTITY, configuredProfiles, env).find((one) => {
-    if (one === profile) return false
-    try {
-      return signedInTo(env, keyring, one) === at
-    } catch {
-      return false
-    }
-  })
-  if (!other) return
-  throw new CliError(
-    "conflict",
-    `profile ${other} already signs in to HubSpot account ${at}. Use \`${HUBSPOT} ${other}\`, or end it with ` +
-      `\`${HUBSPOT} ${other} session end\` first`,
-    { reason: "session.duplicate", profile: other, account: at },
-  )
-}
-
 /**
  * A token proven against its account, and what a profile keeps for it: the token with the account beside it.
  * `setup apply` runs the same check.
  */
 export const checkedToken = async (command: Command, token: string) => {
-  const { env, profile, keyring, run } = contextOf(command)
+  const { env, profile, keyring, settings, run } = contextOf(command)
   const who = await run((events) => accountAnswer(hubFor(command, { token }, events)))
-  refuseDuplicate(env, keyring, profile, who.account)
+  refuseTakenCrmAccount(
+    IDENTITY,
+    HUBSPOT_ACCOUNT,
+    { env, profile, profiles: settings.configuredProfiles, ...(keyring ? { keyring } : {}) },
+    { account: who.account },
+  )
   const { ui_domain: uiDomain, time_zone: timeZone } = who.account_info
   return { who, signIn: encodeSignIn({ token, portalId: who.account, uiDomain, timeZone }) }
 }

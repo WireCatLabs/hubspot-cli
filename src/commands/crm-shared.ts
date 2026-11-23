@@ -19,6 +19,7 @@ import { HUBSPOT_WRITES } from "../crm/writer.js"
 import type { HubSpotWriteTransport } from "../hubspot/transport.js"
 import { IDENTITY } from "../identity.js"
 import { accountAnswer } from "../whoami.js"
+import { HUBSPOT_ACCOUNT } from "./account.js"
 
 /** The account the store saved for this profile after a checked run, read without writing; none when it has none. */
 const savedAccount = async (env: NodeJS.ProcessEnv, profile: string): Promise<string | undefined> => {
@@ -118,6 +119,7 @@ export const crmSharedCommands = (): Command[] => {
     writes: HUBSPOT_WRITES,
     live: ["person", "organization", "user"],
     activities: true,
+    account: HUBSPOT_ACCOUNT,
   })
   return [...holder.commands]
 }
