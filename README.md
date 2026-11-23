@@ -27,7 +27,8 @@
 - **The morning starts with what changed.** `changes list` shows what each sync saw change, and a schedule sends it to
   you.
 - **Writes when you want them.** Create and update deals, contacts and companies, move a deal or close it. The key
-  stays read only until you give it the write scopes, and a delete asks first.
+  stays read only until you give it the write scopes, and a delete asks first in a terminal. Over MCP it runs without
+  asking.
 
 ```text
 You:    What changed in the CRM since yesterday?
