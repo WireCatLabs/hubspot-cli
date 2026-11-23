@@ -82,7 +82,7 @@ computer, signed in as yourself with your own HubSpot rights (HubSpot's own MCP 
 ## What it can do
 
 - **Deals and leads:** list them by stage, pipeline, owner or date, show one with the people on it, create, update,
-  move, close as won or lost, and export a list to a CSV file for a spreadsheet. Leads need Sales Hub Professional or
+  move and close deals as won or lost, and export a list to a CSV file for a spreadsheet. Leads need Sales Hub Professional or
   Enterprise. [Use it](usage.md)
 - **The pipeline:** each stage with its count and sum, how many reached it and went on, and the win rate in a period
   you choose. [Use it](usage.md#read-your-deals)
@@ -109,7 +109,8 @@ computer, signed in as yourself with your own HubSpot rights (HubSpot's own MCP 
 
 ## Start in a few minutes
 
-Paste this into your agent:
+In WireCat Desktop, install HubSpot on the **Tools** page and sign in under **Manage**, as
+[install](./installation.md#in-wirecat-desktop) shows. Or paste this into your agent:
 
 ```text prompt
 Install hubspot with npm install -g @wirecat/hubspot-cli. Help me make a HubSpot service key and run hubspot work session start, then sync and show my open deals.
