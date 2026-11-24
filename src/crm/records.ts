@@ -271,6 +271,9 @@ export const toDeal = (raw: Raw, defined: readonly CrmField[] = [], currency: st
     stage: text(properties.dealstage) ?? "",
     ...money,
     closeDate: dayOf(properties.closedate),
+    // HubSpot keeps one day for both: on a closed deal `closedate` is the day it closed. cli-core reads it only for a
+    // won or lost deal; without it, it took the day of the deal's last edit.
+    closedDate: dayOf(properties.closedate),
     closedReason: text(properties.closed_won_reason) ?? text(properties.closed_lost_reason),
     assignee: id(properties.hubspot_owner_id),
     ...timesOf(raw, OBJECTS.deal),
