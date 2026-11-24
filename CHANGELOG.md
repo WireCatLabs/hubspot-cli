@@ -2,6 +2,28 @@
 
 Notable changes to `@wirecat/hubspot-cli`. One section per version, newest first.
 
+## 0.7.0 — 24.11.2026
+
+### Added
+
+- `sync --embed` indexes the copied notes, calls, meetings and tasks with a model already downloaded, and
+  `search all` then finds deals and leads by what their activities mean, not only by their words (cli-core 0.743.0).
+  The skill tells an agent to ask by meaning before it reads every note.
+
+### Changed — may break callers
+
+- **`activities create --subject person:<n>` and `organization:<n>` name the record by its ref, as `deals show` gives
+  it.** A contact or company by HubSpot's id, as `people list` prints it, is now `person:crm:<id>`. Before, the same
+  form meant HubSpot's id, so a ref copied from `deals show` put the note on someone else's contact.
+
+### Fixed
+
+- `search all` lists a name one letter off the one that matched after it (Ferrara, then Ferraro), and finds a Latin
+  name typed in Cyrillic (`феррара`), each marked `match: corrected`.
+- A won or lost deal's closed day is HubSpot's close date (`closedate`), not the day the copy last saw the deal
+  change. A deal won months ago no longer counts as won in the month of the first sync, and `deals show` gives the
+  same day as `close_date` and `closed_date`.
+
 ## 0.6.0 — 23.11.2026
 
 ### Added
