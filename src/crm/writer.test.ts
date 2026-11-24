@@ -285,7 +285,7 @@ describe("note and task writes", () => {
       "--subject",
       deal,
       "--subject",
-      `person:${ids.ana}`,
+      `person:crm:${ids.ana}`,
       "--text",
       "Called <Ana>\nagreed on 5 & 6",
     ])
@@ -300,7 +300,7 @@ describe("note and task writes", () => {
       "create",
       "task",
       "--subject",
-      `organization:${ids.acme}`,
+      `organization:crm:${ids.acme}`,
       "--title",
       "Send the contract",
       "--due",

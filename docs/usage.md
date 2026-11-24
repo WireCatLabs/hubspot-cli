@@ -113,13 +113,13 @@ hubspot work sync
 hubspot work activities list overdue:true
 ```
 
-A note or a task goes on a deal by its ref, and on a contact or a company by HubSpot's id, with `--subject` once for
-each. It is written whether the activities setting is on or not, and stored only when it is on. Closing a task needs
+A note or a task goes on a deal, a contact or a company by its ref, as `deals show` gives it, with `--subject` once for
+each. A contact or a company by HubSpot's id, as `people list` prints it, is `person:crm:<id>`. It is written whether the activities setting is on or not, and stored only when it is on. Closing a task needs
 its id from `activities list`:
 
 ```sh
 hubspot work activities create comment --subject deal:12 --text "Agreed on the price"
-hubspot work activities create task --subject deal:12 --subject person:4021 --title "Send the contract" --due 2026-12-01
+hubspot work activities create task --subject deal:12 --subject person:crm:4021 --title "Send the contract" --due 2026-12-01
 hubspot work activities close tasks:5501
 ```
 
