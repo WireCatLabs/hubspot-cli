@@ -26,6 +26,7 @@ describe("every option of the CRM commands runs against the fake account", () =>
     const { account, deal, lead } = await synced()
     for (const argv of [
       ["sync", "--rescan", "--max-pages", "50"],
+      ["sync", "--allow-deletions", "5"],
       ["deals", "list", "--limit", "1", "--page", "2"],
       ["deals", "list", "--format", "csv"],
       ["deals", "show", deal],

@@ -353,7 +353,7 @@ export const hubspotCrmSource = (hub: () => HubSpotTransport, options: HubSpotSo
     },
     // Any other refusal fails the pass rather than answer no ids, which would mark every stored row deleted
     // (WC-DATA-7). Leads are the exception: an account without Sales Hub Pro never has any, and core holds back a pass
-    // that would delete most of a kind until --rescan.
+    // that would delete most of a kind until the owner runs sync --allow-deletions.
     async ids(kind, page, context): Promise<CrmIdPage> {
       const type = OBJECTS[kind]
       try {

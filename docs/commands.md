@@ -120,6 +120,7 @@ hubspot sync [options]
 | Option | What it does |
 |---|---|
 | `--rescan` | list everything again, every id too, dropping a round in progress. |
+| `--allow-deletions <count>` | let this run mark deleted up to this many of what its full list no longer has, when the guard holds it. |
 | `--max-pages <pages>` | at most this many requests to the CRM in this run. |
 
 **Returns:** crm sync — provider, account, scope, pipelines, skipped_owner_rejected, stage_tasks, synced, issues, and 9 more; every field: hubspot commands info sync
@@ -191,8 +192,12 @@ bring the store up to this build's schema, then normalize, index and stem the me
 **Changes something on this computer only.**
 
 ```sh
-hubspot store migrate
+hubspot store migrate [options]
 ```
+
+| Option | What it does |
+|---|---|
+| `--no-backup` | migrate even when no rollback copy can be written; older tools then cannot open the store again. |
 
 **Returns:** store migration — path, exists, from, to, normalized, indexed, terms, stemmed, and 1 more; every field: hubspot commands info store migrate
 
@@ -664,7 +669,7 @@ hubspot people show <person>
 
 | Argument | | What it is |
 |---|---|---|
-| `person` | required | the CRM's id of the person, as list prints it, or its exact name. |
+| `person` | required | the CRM's id of the person, as list prints it, the person:<id> a deal gives, or its exact name. |
 
 **Returns:** crm person — id, name, first_name, last_name, position, organization_ids, assigned_to, created_at, and 6 more; every field: hubspot commands info people show
 
@@ -760,7 +765,7 @@ hubspot organizations show <organization>
 
 | Argument | | What it is |
 |---|---|---|
-| `organization` | required | the CRM's id of the organization, as list prints it, or its exact name. |
+| `organization` | required | the CRM's id of the organization, as list prints it, the organization:<id> a deal gives, or its exact name. |
 
 **Returns:** crm organization — id, name, type, own, person_ids, assigned_to, created_at, updated_at, and 5 more; every field: hubspot commands info organizations show
 
@@ -1002,7 +1007,7 @@ hubspot search all <query> [options]
 | `--exact` | bare words and quotes match their exact form only, as exact:word does. |
 | `--timezone <zone>` | the IANA timezone for calendar date boundaries. |
 
-**Returns:** hit — kind, ref, provider, account, title, timestamp, excerpt, url, and 18 more; every field: hubspot commands info search all
+**Returns:** hit — kind, ref, provider, account, title, timestamp, excerpt, url, and 19 more; every field: hubspot commands info search all
 
 **Example:** `hubspot work search all Example LLC`, `hubspot work search all website --only crm --json`
 
