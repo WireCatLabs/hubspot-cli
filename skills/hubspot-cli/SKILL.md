@@ -80,9 +80,10 @@ The groups are kinds of call, not objects: there is no `api-notes`.
   store for anything `deals list` can answer.
 - **Writes.** `deals create|update|move|close|delete`, `people create|update` and `organizations create|update`
   change records and store HubSpot's answer. A note or a task on a deal, a contact or a company is
-  `activities create comment|task --subject deal:12 --subject person:<HubSpot id>`, with `--text` for a note and
-  `--title` (and `--due`, `--owner`) for a task; `activities close tasks:<id>` marks a task done. `deal:12` is the
-  store's ref; a person or a company takes HubSpot's own id, from `people list` or `organizations list`. A deal's
+  `activities create comment|task --subject deal:12 --subject person:crm:<HubSpot id>`, with `--text` for a note and
+  `--title` (and `--due`, `--owner`) for a task; `activities close tasks:<id>` marks a task done. `deal:12` and
+  `person:5` are the store's refs, as `deals show` gives them; `person:crm:<id>` takes HubSpot's own id, from
+  `people list` or `organizations list`. A deal's
   contacts and company go through `api associations-default-replace`, whose ids are HubSpot's (`external_id` in
   `deals show`), never a `deal:` ref. Run a write with `--dry-run` first: it names each key it checks. An
   `outcome_unknown` write may have happened: read the record before repeating it. `--email` and

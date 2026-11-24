@@ -897,7 +897,7 @@ hubspot activities create <kind> [options]
 
 | Option | What it does |
 |---|---|
-| `--subject <ref>` | a record it is on: deal:<id> or lead:<id> as a list shows it, or person:<id> or organization:<id> by the CRM's id as people list and organizations list print it; repeat it for more. Default: ``. |
+| `--subject <ref>` | a record it is on: deal:<id>, lead:<id>, person:<id> or organization:<id> as a list or deals show gives it, or person:crm:<id> or organization:crm:<id> by the CRM's id as people list and organizations list print it; repeat it for more. Default: ``. |
 | `--title <title>` | a task's title, needed for a task; a comment's title where the CRM keeps one. |
 | `--text <text>` | a comment's text, needed for a comment; a task's description. |
 | `--due <time>` | a task's deadline: an ISO 8601 time, a date (its end), today, or 2h, 3d from now; in your time zone. |
