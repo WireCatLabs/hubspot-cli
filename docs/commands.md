@@ -121,10 +121,11 @@ hubspot sync [options]
 |---|---|
 | `--rescan` | list everything again, every id too, dropping a round in progress. |
 | `--max-pages <pages>` | at most this many requests to the CRM in this run. |
+| `--embed` | also index new activities and tasks for search all by meaning, with a model already downloaded. |
 
-**Returns:** crm sync — provider, account, scope, pipelines, skipped_owner_rejected, stage_tasks, synced, issues, and 9 more; every field: hubspot commands info sync
+**Returns:** crm sync — provider, account, scope, pipelines, skipped_owner_rejected, stage_tasks, synced, issues, and 10 more; every field: hubspot commands info sync
 
-**Example:** `hubspot work sync`, `hubspot work sync --rescan`, `hubspot work sync --max-pages 20`
+**Example:** `hubspot work sync`, `hubspot work sync --rescan`, `hubspot work sync --embed`
 
 ## `hubspot store`
 
@@ -664,7 +665,7 @@ hubspot people show <person>
 
 | Argument | | What it is |
 |---|---|---|
-| `person` | required | the CRM's id of the person, as list prints it, or its exact name. |
+| `person` | required | the CRM's id of the person, as list prints it, the person:<id> a deal gives, or its exact name. |
 
 **Returns:** crm person — id, name, first_name, last_name, position, organization_ids, assigned_to, created_at, and 6 more; every field: hubspot commands info people show
 
@@ -760,7 +761,7 @@ hubspot organizations show <organization>
 
 | Argument | | What it is |
 |---|---|---|
-| `organization` | required | the CRM's id of the organization, as list prints it, or its exact name. |
+| `organization` | required | the CRM's id of the organization, as list prints it, the organization:<id> a deal gives, or its exact name. |
 
 **Returns:** crm organization — id, name, type, own, person_ids, assigned_to, created_at, updated_at, and 5 more; every field: hubspot commands info organizations show
 
@@ -1002,7 +1003,7 @@ hubspot search all <query> [options]
 | `--exact` | bare words and quotes match their exact form only, as exact:word does. |
 | `--timezone <zone>` | the IANA timezone for calendar date boundaries. |
 
-**Returns:** hit — kind, ref, provider, account, title, timestamp, excerpt, url, and 18 more; every field: hubspot commands info search all
+**Returns:** hit — kind, ref, provider, account, title, timestamp, excerpt, url, and 19 more; every field: hubspot commands info search all
 
 **Example:** `hubspot work search all Example LLC`, `hubspot work search all website --only crm --json`
 
