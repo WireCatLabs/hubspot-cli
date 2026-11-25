@@ -7,7 +7,7 @@ ran it · ⛔ not tested offline, with the reason and where it is checked instea
 Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 [TESTING.md](TESTING.md) for how, and for the states and failures that cut across commands.
 
-**847 ✅ · 62 ⛔ · 0 ❌** — 247 commands, 662 options.
+**847 ✅ · 63 ⛔ · 0 ❌** — 247 commands, 663 options.
 
 | Command | Option | | Note |
 |---|---|---|---|
@@ -23,6 +23,7 @@ Measured from the test run (`coverage/argv.jsonl`), not searched for — see
 | `sync` | `--rescan` | ✅ |  |
 | `sync` | `--allow-deletions` | ✅ |  |
 | `sync` | `--max-pages` | ✅ |  |
+| `sync` | `--embed` | ⛔ | cli-core's CRM sync embeds activities; its src/crm/cli/activity-meaning.test.ts drives sync --embed and search all by meaning on a CRM program with the small test model, and a test here would need a model on disk |
 | `store status` |  | ✅ |  |
 | `store apply` |  | ✅ |  |
 | `store apply` | `--yes` | ✅ |  |

@@ -11,6 +11,13 @@ const SHARED_SCHEDULE =
 const LONG_RUNNING = `starts an HTTP server or a background process that runs until stopped; ${SHARED_MCP}`
 
 export const UNTESTED: { command: string; option?: string; reason: string }[] = [
+  {
+    command: "sync",
+    option: "--embed",
+    reason:
+      "cli-core's CRM sync embeds activities; its src/crm/cli/activity-meaning.test.ts drives sync --embed and search " +
+      "all by meaning on a CRM program with the small test model, and a test here would need a model on disk",
+  },
   ...[
     ...["--at-time", "--notify-on", "--deliver-to"].map((option) => ({ command: "schedule command", option })),
     { command: "schedule agent" },
