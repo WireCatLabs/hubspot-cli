@@ -3188,7 +3188,8 @@
     ],
     "signIn": {
       "gives": "Lets your agent read the account's CRM, and change it if you give the key the write scopes.",
-      "asks": "A service key or a legacy private app's access token from your HubSpot account, with read scopes, and write scopes if you want changes."
+      "asks": "A service key or a legacy private app's access token from your HubSpot account, with read scopes, and write scopes if you want changes.",
+      "setupFrom": "0.0.0"
     },
     "skill": {
       "status": [
