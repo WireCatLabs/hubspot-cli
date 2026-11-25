@@ -1,5 +1,5 @@
-import type { SchemaNode } from "@wirecat/cli-base/codegen"
 import { type FakeAnswer, type FakeCall, fakeApi } from "@wirecat/cli-base/codegen"
+import type { SchemaNode } from "@wirecat/cli-base/codegen/runtime"
 import { definitions } from "../generated/definitions.js"
 import { operations } from "../generated/manifest.js"
 import { HUBSPOT_API } from "../hubspot/transport.js"

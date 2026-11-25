@@ -1,3 +1,4 @@
+import type { ManifestOperation } from "@wirecat/cli-base/codegen/runtime"
 import type { CrmKind } from "@wirecat/cli-core"
 import {
   type BodyPermission,
@@ -204,15 +205,17 @@ const bodyPermissions = Object.fromEntries(
 export const API = {
   manifest: {
     ...manifest,
-    operations: manifest.operations.filter(offered).map((operation) => ({
-      ...operation,
-      permissions: [
-        ...(operation.permissions ?? []),
-        ...keysOf(operation),
-        // cli-core takes a body key only when the manifest names it; the run checks it through `bodyPermissions`.
-        ...bodyKeysOf(operation).map(({ named }) => named),
-      ],
-    })),
+    operations: manifest.operations.filter(offered).map(
+      (operation): ManifestOperation => ({
+        ...operation,
+        permissions: [
+          ...(operation.permissions ?? []),
+          ...keysOf(operation),
+          // cli-core takes a body key only when the manifest names it; the run checks it through `bodyPermissions`.
+          ...bodyKeysOf(operation).map(({ named }) => named),
+        ],
+      }),
+    ),
   },
   service: SERVICE,
   bodyPermissions,
