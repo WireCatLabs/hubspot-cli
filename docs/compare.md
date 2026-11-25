@@ -6,8 +6,12 @@
 pipelines, leads, activities and owners. This page puts it next to the other tools that let an AI agent read and
 change HubSpot's CRM, so you can see which one fits your job. The marks for `hubspot` come from its current release, its
 commands and its source, checked on 18 November 2026, and they are checked again at each release. The marks for the
-other tools come from their own documentation and source, linked in the table, checked on 18 November 2026. Nothing
-was signed in to or tested live, and a tool may do more than its pages say.
+other tools come from their own documentation and source, linked in the table, checked on 18 November 2026. These marks
+were not tested live, and a tool may do more than its pages say. An
+[agent test](https://github.com/WireCatLabs/cli-testing/blob/main/performance/crm/hubspot-agents/README.md) of
+24 November 2026 had an agent answer a salesperson's questions through `hubspot`, HubSpot's Agent CLI and HubSpot MCP
+on two invented accounts. Their answers scored within the noise of one run. On the large account (610 deals, 2,850
+notes), the agent through `hubspot` used about a third of the Agent CLI's tool calls and half its cost.
 
 The tools:
 
