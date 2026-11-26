@@ -53,11 +53,11 @@ hubspot commands info [path]
 
 ## `hubspot session`
 
-keep this profile's HubSpot key and account id in the OS keyring
+keep this profile's HubSpot service key or private app token in the OS keyring
 
 ### `hubspot session start`
 
-sign this profile in: a service key (Development → Keys → Service keys) or a legacy private app's access token is asked hidden or read from stdin, never taken as an argument, checked against the account, and only then kept in the keyring with the account's id, or in a private file. The key reads and writes what its scopes allow
+sign this profile in: the HubSpot service key or private app token is asked hidden or read from stdin, never taken as an argument, checked with HubSpot, and only then kept in the keyring, or in a private file. It is a service key (Development → Keys → Service keys) or a legacy private app's access token, and reads and writes what its scopes allow. The profile keeps the account's id beside it
 
 **Changes something on this computer only.**
 
@@ -67,13 +67,13 @@ hubspot session start [options]
 
 | Option | What it does |
 |---|---|
-| `--credential-storage <storage>` | where the key is kept: keyring, which falls back to a private file by itself, or file. Default: `keyring`. |
+| `--credential-storage <storage>` | where the token is kept: keyring, which falls back to a private file by itself, or file. Default: `keyring`. |
 
-**Example:** `hubspot work session start`, `hubspot work session start --json`, `hubspot work session start --credential-storage file`
+**Example:** `hubspot personal session start`, `hubspot personal session start --credential-storage file`
 
 ### `hubspot session status`
 
-show which account this profile signs in to and where its key comes from: WCHUBSPOT_TOKEN, the keyring or a file; never the key
+show where this profile's token comes from: WCHUBSPOT_TOKEN, the keyring or a file, never the token; --check asks HubSpot whose token it is
 
 ```sh
 hubspot session status [options]
@@ -81,13 +81,13 @@ hubspot session status [options]
 
 | Option | What it does |
 |---|---|
-| `--check` | ask HubSpot whether the key still works and which account it reads. |
+| `--check` | ask HubSpot whether the token still works, and whose it is. |
 
-**Example:** `hubspot work session status`, `hubspot work session status --check --json`
+**Example:** `hubspot personal session status`, `hubspot personal session status --check --json`
 
 ### `hubspot session end`
 
-forget this profile's key and account id on this computer; the key itself stays valid in HubSpot: delete or rotate it where it was made
+forget this profile's token on this computer; the token itself stays valid in HubSpot. Delete or rotate the key where it was made
 
 **Changes something on this computer only.**
 
@@ -95,11 +95,11 @@ forget this profile's key and account id on this computer; the key itself stays 
 hubspot session end
 ```
 
-**Example:** `hubspot work session end`
+**Example:** `hubspot personal session end`
 
 ### `hubspot session list`
 
-list the profiles on this computer, whether each has a key and for which account; picks none
+list the profiles on this computer and whether each has a token; picks none
 
 ```sh
 hubspot session list

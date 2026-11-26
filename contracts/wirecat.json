@@ -32,7 +32,7 @@
         "session",
         "start"
       ],
-      "summary": "sign in to HubSpot with a service key or a private app token",
+      "summary": "sign in to HubSpot with its service key or private app token",
       "effects": {
         "remote": "read",
         "local": "write"
@@ -43,7 +43,7 @@
         "session",
         "status"
       ],
-      "summary": "show where this profile's key comes from; --check names the account it reads",
+      "summary": "show where this profile's token comes from; never the token",
       "effects": {
         "remote": "read",
         "local": "read"
@@ -54,7 +54,7 @@
         "session",
         "end"
       ],
-      "summary": "forget this profile's key on this computer",
+      "summary": "forget this profile's token on this computer",
       "effects": {
         "remote": "none",
         "local": "write"

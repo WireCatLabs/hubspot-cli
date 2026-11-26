@@ -1,6 +1,6 @@
 import { CliError, type CliErrorDetails, isCliError, realSleep, type SleepLike } from "@wirecat/cli-base"
 import { hostFetch, providerWaitMs, readJsonResponse, statusToCode } from "@wirecat/cli-base/http"
-import { currentAttempt, type EventSink, providerEvent, providerRequest } from "@wirecat/cli-core/cli"
+import { currentAttempt, type EventSink, providerEvent, providerRequest, timeLimit } from "@wirecat/cli-core/cli"
 import { providerCall } from "@wirecat/cli-core/crm"
 import type { Pacer } from "@wirecat/cli-core/sends"
 import { DESKTOP } from "../identity.js"
@@ -324,13 +324,7 @@ export const hubspotTransport = (options: TransportOptions): HubSpotWriteTranspo
     attempt: number,
     body?: Record<string, unknown>,
   ): Promise<T> => {
-    // Not AbortSignal.timeout: its timer keeps the run's async context alive until it fires.
-    const deadline = new AbortController()
-    const timer = setTimeout(
-      () => deadline.abort(new DOMException("timed out", "TimeoutError")),
-      options.timeoutMs ?? TIMEOUT_MS,
-    )
-    timer.unref()
+    const deadline = timeLimit(options.timeoutMs ?? TIMEOUT_MS)
     const signal = options.signal ? AbortSignal.any([options.signal, deadline.signal]) : deadline.signal
     const end = providerRequest(`${method} ${templateOf(path)}`, options.events ?? providerEvent, {
       method,
@@ -402,7 +396,7 @@ export const hubspotTransport = (options: TransportOptions): HubSpotWriteTranspo
       end({ status: response.status })
       return answer as T
     } finally {
-      clearTimeout(timer)
+      deadline.clear()
     }
   }
 

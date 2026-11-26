@@ -24,7 +24,6 @@ describe("session start", () => {
     expect(ran.json().item).toEqual({
       profile: "work",
       state: "saved",
-      kind: "token",
       stored_in: "keyring",
       verified: true,
       account: FAKE_ACCOUNT,
@@ -96,7 +95,6 @@ describe("session status, end and list", () => {
     expect(plain.json().item).toEqual({
       profile: "work",
       state: "saved",
-      kind: "token",
       token_from: "keyring",
       account: FAKE_ACCOUNT,
       verified: false,
@@ -138,7 +136,7 @@ describe("session status, end and list", () => {
     })
     expect(wrong.err).toContain("999")
     expect(wrong.err).not.toContain(FAKE_TOKEN)
-    const malformed = await hubspot(["work", "session", "status", "--json"], {
+    const malformed = await hubspot(["work", "session", "status", "--check", "--json"], {
       keyring: memoryKeyring(),
       env: { WCHUBSPOT_TOKEN: FAKE_TOKEN, WCHUBSPOT_ACCOUNT: "portal-1" },
     })
@@ -148,7 +146,7 @@ describe("session status, end and list", () => {
 
   it("says missing for a profile that never signed in", async () => {
     const ran = await hubspot(["work", "session", "status", "--check", "--json"], { keyring: memoryKeyring() })
-    expect(ran.json().item).toMatchObject({ state: "missing", kind: null, account: null, verified: false })
+    expect(ran.json().item).toMatchObject({ state: "missing", account: null, verified: false })
   })
 
   it("reads an entry written before the time zone was kept, and paces by the account", async () => {
@@ -176,6 +174,7 @@ describe("session status, end and list", () => {
     expect(listed.json().items).toContainEqual({
       profile: "work",
       signed_in: true,
+      state: "saved",
       token_from: "keyring",
       account: FAKE_ACCOUNT,
     })
