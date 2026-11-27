@@ -41,6 +41,27 @@ describe("session start", () => {
     })
   })
 
+  it("signs in to a file and checks it when the keyring does not answer", async () => {
+    const keyring = {
+      get: () => {
+        throw new Error("synthetic: no secret service")
+      },
+      set: () => {
+        throw new Error("synthetic: no secret service")
+      },
+      delete: () => {
+        throw new Error("synthetic: no secret service")
+      },
+    }
+    const started = await hubspot(["work", "session", "start", "--credential-storage", "file", "--json"], {
+      keyring,
+      stdin: FAKE_TOKEN,
+    })
+    expect(started.json().item).toMatchObject({ stored_in: "file", verified: true, account: FAKE_ACCOUNT })
+    const status = await hubspot(["work", "session", "status", "--check", "--json"], { keyring })
+    expect(status.json().item).toMatchObject({ token_from: "file", verified: true, account: FAKE_ACCOUNT })
+  })
+
   it("keeps nothing when HubSpot refuses the key, and never shows it", async () => {
     const keyring = memoryKeyring()
     const ran = await hubspot(["work", "session", "start", "--json"], { keyring, stdin: "pat-na1-wrong-key" })

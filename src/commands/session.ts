@@ -39,24 +39,27 @@ const ENTRY: TokenEntry = {
   },
 }
 
-/** HubSpot counts its limits per account, so `status --check` waits in the queue of the account the entry names. */
-const keptAccount = (saved: StoredCredential, token: string): string | undefined => {
+/**
+ * HubSpot counts its limits per account, so `status --check` waits in the queue of the account the entry names. A
+ * first sign-in has no entry yet, and on a computer whose keyring does not answer it must still land in the file.
+ */
+const keptAccount = (command: Command, token: string): string | undefined => {
+  const { profile, tokens } = contextOf(command)
   try {
+    const saved = tokens.read(profile)
+    if (!saved || saved.source === "environment") return undefined
     const kept = decodeSignIn(saved.secret)
     return kept.token === token ? kept.portalId : undefined
   } catch {
-    // A new sign-in replaces an entry it cannot read.
     return undefined
   }
 }
 
 /** Whose key it is. `WCHUBSPOT_TOKEN` alone is enough: `status --check` is how its owner finds the id to name. */
 const verify: TokenSessionOptions["verify"] = async (command: Command, token, events) => {
-  const { env, profile, tokens } = contextOf(command)
-  const saved = tokens.read(profile)
-  const fromToken = saved?.source === "environment" && saved.secret === token
-  const named = fromToken ? environmentAccount(env) : undefined
-  const portalId = named ?? (saved && !fromToken ? keptAccount(saved, token) : undefined)
+  const { env, tokens } = contextOf(command)
+  const named = env[tokens.variable] === token ? environmentAccount(env) : undefined
+  const portalId = named ?? keptAccount(command, token)
   const who = await accountAnswer(hubFor(command, { token, ...(portalId ? { portalId } : {}) }, events))
   if (named) refuseAccountMismatch(named, who.account)
   return { id: who.account, account: { ...who } }
