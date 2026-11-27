@@ -31,6 +31,7 @@ Works with:
   linear                    Linear issues and projects, searchable with your other WireCat data
 
 Start here:   hubspot work session start  (any profile name works)
+              hubspot session list        your profiles and their logged-in accounts
 Next:         hubspot commands            every command, by section
               hubspot help options        output, offline, timeouts, dry run
 For agents:   hubspot skill show          rules and the discovery loop

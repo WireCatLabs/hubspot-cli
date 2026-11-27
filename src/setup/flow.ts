@@ -1,13 +1,28 @@
 import { CliError } from "@wirecat/cli-base"
 import { defineSetup, type SetupCheck } from "@wirecat/cli-core/cli"
-import { checkedToken } from "../commands/session.js"
+import { refuseTakenCrmAccount } from "@wirecat/cli-core/crm/cli"
+import type { Command } from "commander"
+import { HUBSPOT_ACCOUNT } from "../commands/account.js"
+import { signInFor } from "../commands/session.js"
 import { configuration } from "../config.js"
-import { storedSignIn, withHub } from "../context.js"
+import { contextOf, hubFor, storedSignIn, withHub } from "../context.js"
 import { IDENTITY } from "../identity.js"
 import { accountAnswer } from "../whoami.js"
 import en from "./texts.en.json" with { type: "json" }
 import es from "./texts.es.json" with { type: "json" }
 import ru from "./texts.ru.json" with { type: "json" }
+
+const checkedToken = async (command: Command, token: string) => {
+  const { env, profile, keyring, settings, run } = contextOf(command)
+  const who = await run((events) => accountAnswer(hubFor(command, { token }, events)))
+  refuseTakenCrmAccount(
+    IDENTITY,
+    HUBSPOT_ACCOUNT,
+    { env, profile, profiles: settings.configuredProfiles, ...(keyring ? { keyring } : {}) },
+    { account: who.account },
+  )
+  return { who, signIn: signInFor(token, who) }
+}
 
 /** The same proof `session start` runs, and the same sign-in it keeps: the token with the account beside it. */
 const check: SetupCheck = async ({ command, secrets }) => {
