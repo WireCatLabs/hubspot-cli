@@ -3189,6 +3189,19 @@
     "signIn": {
       "gives": "Lets your agent read the account's CRM, and change it if you give the key the write scopes.",
       "asks": "A service key or a legacy private app's access token from your HubSpot account, with read scopes, and write scopes if you want changes.",
+      "methods": [
+        {
+          "id": "token",
+          "label": "Service key or access token",
+          "words": [
+            "{profile}",
+            "session",
+            "start",
+            "--json"
+          ],
+          "stdin": true
+        }
+      ],
       "setupFrom": "0.0.0"
     },
     "skill": {
@@ -3213,6 +3226,7 @@
       ]
     },
     "mcpServer": {
+      "port": 8758,
       "start": [
         "mcp",
         "server",

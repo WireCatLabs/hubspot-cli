@@ -28,9 +28,18 @@ export const DESKTOP: ManifestIdentity = {
   hosts: ["api.hubapi.com"],
   tagline: "HubSpot CRM: deals, contacts and companies",
   syncs: "your deals, contacts and companies",
+  mcpPort: 8758,
   signIn: {
     gives: "Lets your agent read the account's CRM, and change it if you give the key the write scopes.",
     asks: "A service key or a legacy private app's access token from your HubSpot account, with read scopes, and write scopes if you want changes.",
+    methods: [
+      {
+        id: "token",
+        label: "Service key or access token",
+        words: ["{profile}", "session", "start", "--json"],
+        stdin: true,
+      },
+    ],
   },
 }
 
