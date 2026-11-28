@@ -1,7 +1,7 @@
 [
   {
     "name": "hubspot",
-    "members": ["hubspot", "tg", "max", "memo", "drive", "zm", "wa"],
+    "members": ["hubspot", "tg", "max", "wcat", "drive", "zm", "wa"],
     "covers": ["commands", "upgrade"],
     "differences": []
   }
