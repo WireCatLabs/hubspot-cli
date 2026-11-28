@@ -1,8 +1,7 @@
 # Use it
 
-Know where each deal stands and what changed overnight, without opening HubSpot. `hubspot` brings the account's CRM to
-your terminal and your AI agent: which deals stand in a stage, which tasks are overdue, and a morning digest of what
-changed.
+You see which deals stand in a stage, which tasks are overdue and what changed overnight, without opening HubSpot. You
+and your AI agent run the same short commands, and a morning digest tells you what changed the day before.
 
 Every command starts with a profile, the name you gave the account. `sync` copies the deals with their contacts and
 companies into the WireCat local store on your computer, and most reads answer from there, also offline. This page
@@ -113,9 +112,10 @@ hubspot work sync
 hubspot work activities list overdue:true
 ```
 
-A note or a task goes on a deal, a contact or a company by its ref, as `deals show` gives it, with `--subject` once for
-each. A contact or a company by HubSpot's id, as `people list` prints it, is `person:crm:<id>`. It is written whether the activities setting is on or not, and stored only when it is on. Closing a task needs
-its id from `activities list`:
+A note or a task goes on a deal, a contact or a company by the name `deals show` gives it, such as `deal:12`, with
+`--subject` once for each. A contact or a company by HubSpot's id, as `people list` prints it, takes `person:crm:`
+before the id, such as `person:crm:4021`. It is written whether the activities setting is on or not, and stored only
+when it is on. Closing a task needs its id from `activities list`:
 
 ```sh
 hubspot work activities create comment --subject deal:12 --text "Agreed on the price"
@@ -164,6 +164,6 @@ JSON on stderr, with a code to branch on. The [command reference](commands.md) l
 
 ## Agents
 
-`hubspot skill install` teaches Claude Code, Codex, Gemini CLI and OpenClaw the commands.
+`hubspot skill install` teaches Claude Code, Codex, Gemini CLI and OpenClaw the `hubspot` commands.
 `hubspot work mcp add claude-code --allow-writes` connects the profile to an app that uses MCP. [MCP](mcp.md) shows
 the rest, and ChatGPT and Claude in the browser.

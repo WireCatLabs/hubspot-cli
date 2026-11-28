@@ -1,9 +1,8 @@
 # HubSpot
 
-Know where every deal stands and what changed in your CRM overnight, without opening HubSpot. `hubspot` gives the AI
-agent you already use, such as Claude Code or Codex, a copy of your HubSpot deals, contacts and companies on your
-computer, so it answers from that copy, even offline. It creates, moves and closes deals for you too, as far as you
-allow.
+You see where every deal stands and what changed in your CRM overnight, without opening HubSpot. The AI agent you
+already use, such as Claude Code or Codex, answers from a copy of your HubSpot deals, contacts and companies on your
+computer, even offline. It creates, moves and closes deals for you too, as far as you allow.
 
 Ask which deals wait in "Contract sent" and for how much, what moved since yesterday, or how many deals in the Sales
 pipeline went on to the next stage this month. The agent answers with the deal, its amount and its owner. You need one
@@ -133,7 +132,7 @@ You need Node.js 22.16 or a later 22.x, or Node.js 24 or later. [Install](instal
 - Contacts, companies and owners are read from HubSpot each time, so they need the internet. The copy holds the
   contacts and companies on your deals.
 - Leads need Sales Hub Professional or Enterprise.
-- Tickets, notes and tasks are written through `api`, and tickets are not copied.
+- Tickets have no command of their own: write them through `api`, such as `api tickets-create`. Tickets are not copied.
 - HubSpot does not mark a repeated write as a repeat. A write whose answer was lost may have been made, so check the
   record before you send it again.
 
