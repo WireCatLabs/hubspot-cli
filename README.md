@@ -199,7 +199,8 @@ More: [use it](https://github.com/WireCatLabs/hubspot-cli/blob/main/docs/usage.m
 ## How it works
 
 - **A key, not a user.** A service key or a private app token belongs to the account, not to a person. `hubspot`
-  copies the whole account, and `owner:me` names nobody: filter by `owner:<owner id>` from `users list`.
+  copies the whole account, and `owner:me` names nobody: filter by the owner's id from `users list`, such as
+  `owner:51234567`.
 - **Polite to HubSpot.** `hubspot` sends at most 4 requests a second for each profile, under HubSpot's limits on
   every plan. When the account has spent its daily allowance, it says when the allowance comes back.
 - **Made for scripts.** `--json` prints one JSON value, and every error has a code to branch on.
