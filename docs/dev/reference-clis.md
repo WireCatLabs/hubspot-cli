@@ -11,7 +11,7 @@ picked by the first question of the [design interview](skills/design-interview/S
 | files and documents | [notion-cli](https://github.com/WireCatLabs/notion-cli) for the sync and cli-core's document contracts, then [drive-cli](https://github.com/WireCatLabs/drive-cli) for the command tree |
 | calendar | [gcal-cli](https://github.com/WireCatLabs/gcal-cli) |
 | meetings | [zoom-cli](https://github.com/WireCatLabs/zoom-cli) |
-| notes | [cli-memo](https://github.com/WireCatLabs/cli-memo) |
+| notes | [files-cli](https://github.com/WireCatLabs/files-cli) |
 | CRM | [bitrix24-cli](https://github.com/WireCatLabs/bitrix24-cli) |
 | other | none of its own yet: pick the nearest one with the owner |
 
